@@ -1,7 +1,7 @@
-const { createContentAssert, createResponse, createContentError } = require('../../../utils');
+const { createContentAssert, createResponse } = require('../../../utils');
 const { connectionZaragoza } = require('../../../configs');
-const { validateBodyFecha } = require('../validations');
-const { getVentasByFecha } = require('../models');
+const { validateBodyFecha, validateSucursal } = require('../validations');
+const { getVentasByFecha, getAllVentasByFecha } = require('../models');
 
 const ServicesCocina = (() => {
 
@@ -11,12 +11,32 @@ const ServicesCocina = (() => {
     }
 
     const getSalesByDate = async (sucursal = '', bodyFechas) => {
-        const validate = validateBodyFecha(bodyFechas);
+        let validate = validateBodyFecha(bodyFechas);
         if (!validate.success)
             return createResponse(400, validate);
         const { fechaInicial , fechaFinal } = bodyFechas;
 
+        validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
         const response = await getVentasByFecha(connectionZaragoza, sucursal, fechaInicial, fechaFinal);
+        if (!response.success)
+            return createResponse(400, response);
+        return createResponse(200, response);
+    }
+
+    const getAllSalesByDate = async (sucursal = '', bodyFechas) => {
+        let validate = validateBodyFecha(bodyFechas);
+        if (!validate.success)
+            return createResponse(400, validate);
+        const { fechaInicial , fechaFinal } = bodyFechas;
+
+        validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const response = await getAllVentasByFecha(connectionZaragoza, sucursal, fechaInicial, fechaFinal);
         if (!response.success)
             return createResponse(400, response);
         return createResponse(200, response);
@@ -25,6 +45,7 @@ const ServicesCocina = (() => {
     return {
         mainRoute,
         getSalesByDate,
+        getAllSalesByDate,
     }
 })();
 

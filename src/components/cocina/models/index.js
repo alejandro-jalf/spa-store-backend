@@ -18,8 +18,6 @@ const modelsCocina = (() => {
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'OU' THEN 19 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'OU' THEN 5 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END
 
-                --SELECT @toDay,@DiasSemana,@DiaActual
-
                 SET LANGUAGE Español;
 
                 WITH articulosCTE (Articulo)
@@ -54,9 +52,58 @@ const modelsCocina = (() => {
             );
         }
     }
+    
+    const getAllVentasByFecha = async (cadenaConexion = '', sucursal = 'ZR', fechaIni = '', FechaFin = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @FechaInicio DATETIME = CAST('${fechaIni}' AS DATETIME)
+                DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME)
+
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}'
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'OU' THEN 19 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'OU' THEN 5 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END
+
+                SET LANGUAGE Español;
+
+                WITH articulosCTE (Articulo)
+                AS
+                (
+                    SELECT Articulo FROM Articulos WHERE Subfamilia = '65' AND LEN(CodigoBarras) <> 13 AND NOT Articulo IN ('1265036','1265015','1265026')
+                )
+
+                SELECT
+                    Suc = @Sucursal,
+                    Articulo, Nombre
+                    ,CantidadRegular
+                    , Relacion = CAST(CAST(FactorCompra AS int) AS varchar) + CAST(UnidadCompra AS varchar) + '/' + CAST(CAST(FactorVenta AS int) AS varchar) + CAST(UnidadVenta as varchar)
+                    ,VentaValorNeta
+                    ,Hora,
+                    Fecha,
+                    Mes,MesMovimientoLetra,Dia = DAY(Fecha)
+                FROM QVDEMovAlmacen
+                WHERE TipoDocumento = 'V' AND Estatus = 'E' 
+                    AND Articulo IN (SELECT Articulo FROM articulosCTE)
+                    AND ( FEcha BETWEEN @FechaInicio AND @FechaFinal )
+                ORDER BY Fecha ASC, Hora ASC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener ventas de cocina',
+                error
+            );
+        }
+    }
 
     return {
         getVentasByFecha,
+        getAllVentasByFecha,
     }
 })();
 
