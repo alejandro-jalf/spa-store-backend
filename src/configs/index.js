@@ -6,7 +6,12 @@ const configs = (() => {
     const origin1 = process.env.SPA_ORIGIN1;
     const origin2 = process.env.SPA_ORIGIN2;
     const token = process.env.SPA_TOKEN;
-    const connection = process.env.SPA_CONNECT;
+    const connectionMongoDB = process.env.SPA_CONNECT;
+    const connectionZaragoza = process.env.SPA_ZR_SEQUELIZE;
+    const connectionVictoria = process.env.SPA_VC_SEQUELIZE;
+    const connectionOluta = process.env.SPA_OU_SEQUELIZE;
+    const connectionJaltipan = process.env.SPA_JL_SEQUELIZE;
+    const connectionBodega = process.env.SPA_BO_SEQUELIZE;
 
     const listOriginAccept = [origin1, origin2];
 
@@ -14,7 +19,12 @@ const configs = (() => {
         port,
         listOriginAccept,
         token,
-        connection,
+        connectionMongoDB,
+        connectionZaragoza,
+        connectionVictoria,
+        connectionOluta,
+        connectionJaltipan,
+        connectionBodega,
     }
 })();
 
