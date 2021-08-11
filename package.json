@@ -26,6 +26,7 @@
     "joi": "^17.4.2",
     "mandatoryenv": "^3.0.4",
     "mongoose": "^5.13.6",
-    "sequelize": "^6.6.5"
+    "sequelize": "^6.6.5",
+    "tedious": "^11.4.0"
   }
 }
