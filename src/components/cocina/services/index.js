@@ -1,5 +1,4 @@
-const { createContentAssert, createResponse } = require('../../../utils');
-const { connectionZaragoza } = require('../../../configs');
+const { createContentAssert, createResponse, getConnectionFrom } = require('../../../utils');
 const { validateBodyFecha, validateSucursal } = require('../validations');
 const { getVentasByFecha, getAllVentasByFecha } = require('../models');
 
@@ -19,8 +18,10 @@ const ServicesCocina = (() => {
         validate = validateSucursal(sucursal);
         if (!validate.success)
             return createResponse(400, validate);
+        
+        const conexion = getConnectionFrom(sucursal);
 
-        const response = await getVentasByFecha(connectionZaragoza, sucursal, fechaInicial, fechaFinal);
+        const response = await getVentasByFecha(conexion, sucursal, fechaInicial, fechaFinal);
         if (!response.success)
             return createResponse(400, response);
         return createResponse(200, response);
@@ -36,7 +37,9 @@ const ServicesCocina = (() => {
         if (!validate.success)
             return createResponse(400, validate);
 
-        const response = await getAllVentasByFecha(connectionZaragoza, sucursal, fechaInicial, fechaFinal);
+        const conexion = getConnectionFrom(sucursal);
+
+        const response = await getAllVentasByFecha(conexion, sucursal, fechaInicial, fechaFinal);
         if (!response.success)
             return createResponse(400, response);
         return createResponse(200, response);
