@@ -1,0 +1,31 @@
+{
+  "name": "spa-store-backend",
+  "version": "1.0.0",
+  "description": "Backend de las aplicaciones para Super Promociones de Acayucan",
+  "main": "src/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "setup": "npm install && npm update",
+    "dev": "nodemon src/server.js",
+    "start": "node src/server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/alejandro-jalf/spa-store-backend.git"
+  },
+  "author": "Jose Alejandro Lopez Flores <aleflo_1996@outlook.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/alejandro-jalf/spa-store-backend/issues"
+  },
+  "homepage": "https://github.com/alejandro-jalf/spa-store-backend#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.17.1",
+    "express-custom-error": "^1.9.4",
+    "joi": "^17.4.2",
+    "mandatoryenv": "^3.0.4",
+    "mongoose": "^5.13.6",
+    "sequelize": "^6.6.5"
+  }
+}
