@@ -1,6 +1,7 @@
 const { inject ,errorHandler } = require("express-custom-error");
 const { validateOrigin } = require("./middlewares");
 const express = require("express");
+const helmet = require('helmet');
 const cors = require("cors");
 
 inject();
@@ -18,6 +19,8 @@ app.use("*", (req, res, next) => {
 });
 
 app.use(validateOrigin);
+
+app.use(helmet());
 
 app.use("*", (req, res, next) => {
     if (typeof req.body === "string") {
