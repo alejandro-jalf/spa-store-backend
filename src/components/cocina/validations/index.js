@@ -1,28 +1,41 @@
-const { schemaFechas } = require('../schemas/index');
+const { schemaFechas, schemaFecha } = require('../schemas/index');
 const { createContentAssert, createContentError } = require('../../../utils');
 
 const validationCocina = (() => {
-    const validateBodyFecha = (bodyFecha) => {
-        if (!bodyFecha) {
-            return createContentError(
-                'Se esperaba recivir un objeto y se recivio un valor indefinido',
-                bodyFecha
-            );
-        }
+    const validateFecha = (fecha = '', position = '') => {
+        if (fecha.trim() === '')
+            return createContentError(`Se esperaba la fecha ${position} y no fue enviado`);
 
-        if (typeof bodyFecha !== 'object') {
-            return createContentError(
-                'Se esperaba un objeto y se recivio un valor distinto de un objeto',
-                bodyFecha
-            );
-        }
+        const resultValidate = schemaFecha.validate(fecha);
+        if (resultValidate.error)
+            return createContentError(`La fecha ${position} no cumple el formato YYYYMMDD`, resultValidate.error)
 
-        let resultValidate = schemaFechas.validate(bodyFecha);
-        if (resultValidate.error) {
-            return createContentError("Algun dato fue enviado de manera incorrecta", resultValidate.error);
-        }
+        console.log(parseInt(fecha.substring(0, 4)));
+        if (parseInt(fecha.substring(0, 4)) < 2014)
+            return createContentError(`El año de la fecha ${position} no puede ser menor al 2014`)
 
-        return createContentAssert("Validacion correcta");
+        console.log(parseInt(fecha.substring(4, 6)));
+        if (parseInt(fecha.substring(4, 6)) < 1 || parseInt(fecha.substring(4, 6)) > 12)
+            return createContentError(`Mes de la fecha ${position} incorrecto`)
+
+        console.log(parseInt(fecha.substring(6, 8)));
+        if (parseInt(fecha.substring(6, 8)) < 1 || parseInt(fecha.substring(4, 6)) > 31)
+            return createContentError(`Dia de la fecha ${position} incorrecto`)
+
+        return createContentAssert('Fecha valida');
+    }
+
+    const validateFechas = (fechaInicial, fechaFinal) => {
+        let resultValidate = validateFecha(fechaInicial, 'inicial');
+        if (!resultValidate.success) return resultValidate;
+
+        resultValidate = validateFecha(fechaFinal, 'final');
+        if (!resultValidate.success) return resultValidate;
+
+        if (parseInt(fechaInicial) > parseInt(fechaFinal))
+            return createContentError('La fecha final no puede ser menor que la inicial')
+
+        return createContentAssert('Fechas aprovadas');
     }
 
     const validateSucursal = (sucursal = '') => {
@@ -37,8 +50,9 @@ const validationCocina = (() => {
     }
 
     return {
-        validateBodyFecha,
         validateSucursal,
+        validateFecha,
+        validateFechas,
     }
 })();
 

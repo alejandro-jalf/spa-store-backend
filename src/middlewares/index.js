@@ -4,7 +4,6 @@ const middlewares = (() => {
     const validateOrigin = (req, res, next) => {
         try {
             const origin = req.get("origin");
-            console.log(origin);
             const tokenHeader = req.headers['access-token'];
             if (tokenHeader || origin) {
                 const originIsWhitelisted = listOriginAccept.indexOf(origin) !== -1;
@@ -24,7 +23,6 @@ const middlewares = (() => {
                 });
             }
         } catch (error) {
-            console.log(error);
             res.status(401).json({
                 success: false,
                 message: "Error al consultar el token"

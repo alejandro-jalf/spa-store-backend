@@ -6,17 +6,19 @@ router.route("/api/v1/cocina").get((req, res) => {
     res.status(status).json(response);
 });
 
-router.route("/api/v1/cocina/ventas/:sucursal").post(async (req, res) => {
+router.route("/api/v1/cocina/ventas/:sucursal").get(async (req, res) => {
     const { sucursal } = req.params;
-    const bodyFechas = req.body;
-    const { status, ...response } = await getSalesByDate(sucursal, bodyFechas);
-    res.status(status).json(response);
+    const fechaIni = req.query.fechaIni;
+    const fechaFin = req.query.fechaFin;
+    const { status, ...response } = await getSalesByDate(sucursal, fechaIni, fechaFin);
+    res.status(200).json(response);
 });
 
-router.route("/api/v1/cocina/ventas/:sucursal/detalles").post(async (req, res) => {
+router.route("/api/v1/cocina/ventas/:sucursal/detalles").get(async (req, res) => {
     const { sucursal } = req.params;
-    const bodyFechas = req.body;
-    const { status, ...response } = await getAllSalesByDate(sucursal, bodyFechas);
+    const fechaIni = req.query.fechaIni;
+    const fechaFin = req.query.fechaFin;
+    const { status, ...response } = await getAllSalesByDate(sucursal, fechaIni, fechaFin);
     res.status(status).json(response);
 });
 

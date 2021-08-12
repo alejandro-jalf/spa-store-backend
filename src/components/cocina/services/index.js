@@ -1,5 +1,5 @@
 const { createContentAssert, createResponse, getConnectionFrom } = require('../../../utils');
-const { validateBodyFecha, validateSucursal } = require('../validations');
+const { validateSucursal, validateFechas } = require('../validations');
 const { getVentasByFecha, getAllVentasByFecha } = require('../models');
 
 const ServicesCocina = (() => {
@@ -9,11 +9,10 @@ const ServicesCocina = (() => {
         return createResponse(200, response);
     }
 
-    const getSalesByDate = async (sucursal = '', bodyFechas) => {
-        let validate = validateBodyFecha(bodyFechas);
+    const getSalesByDate = async (sucursal = '', fechaInicial, fechaFinal) => {
+        let validate = validateFechas(fechaInicial, fechaFinal);
         if (!validate.success)
             return createResponse(400, validate);
-        const { fechaInicial , fechaFinal } = bodyFechas;
 
         validate = validateSucursal(sucursal);
         if (!validate.success)
@@ -27,11 +26,10 @@ const ServicesCocina = (() => {
         return createResponse(200, response);
     }
 
-    const getAllSalesByDate = async (sucursal = '', bodyFechas) => {
-        let validate = validateBodyFecha(bodyFechas);
+    const getAllSalesByDate = async (sucursal = '', fechaInicial, fechaFinal) => {
+        let validate = validateFechas(fechaInicial, fechaFinal);
         if (!validate.success)
             return createResponse(400, validate);
-        const { fechaInicial , fechaFinal } = bodyFechas;
 
         validate = validateSucursal(sucursal);
         if (!validate.success)
