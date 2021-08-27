@@ -6,11 +6,13 @@ const {
 } = require('../../../utils');
 
 const modelsCocina = (() => {
-    const getVentasByFecha = async (cadenaConexion = '', sucursal = 'ZR', fechaIni = '', FechaFin = '') => {
+    const getVentasByFecha = async (cadenaConexion = '', sucursal = 'ZR', fechaIni = '', FechaFin = '', DB = '') => {
         try {
+            const dateInit = new Date()
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB}
                 DECLARE @FechaInicio DATETIME = CAST('${fechaIni}' AS DATETIME)
                 DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME)
 
@@ -31,9 +33,7 @@ const modelsCocina = (() => {
                     Mes
                     ,MesMovimientoLetra
                     ,Dia = DAY(Fecha)
-                    ,Venta = SUM(VentaValorNeta),
-                    PrimeraVenta = MIN(Hora),
-                    UltimaVenta = MAX(Hora)
+                    ,Venta = SUM(VentaValorNeta)
                 FROM QVDEMovAlmacen
                 WHERE TipoDocumento = 'V' AND Estatus = 'E' 
                     AND Articulo IN (SELECT Articulo FROM articulosCTE)
