@@ -15,6 +15,14 @@ const configs = (() => {
 
     const listOriginAccept = [origin1, origin2];
 
+    const dataBase = {
+        ZR: process.env.SPA_DATABASE_ZR,
+        VC: process.env.SPA_DATABASE_VC,
+        OU: process.env.SPA_DATABASE_OU,
+        JL: process.env.SPA_DATABASE_JL,
+        BO: process.env.SPA_DATABASE_BO
+    }
+
     return {
         port,
         listOriginAccept,
@@ -25,6 +33,7 @@ const configs = (() => {
         connectionOluta,
         connectionJaltipan,
         connectionBodega,
+        dataBase,
     }
 })();
 

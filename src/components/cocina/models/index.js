@@ -8,7 +8,6 @@ const {
 const modelsCocina = (() => {
     const getVentasByFecha = async (cadenaConexion = '', sucursal = 'ZR', fechaIni = '', FechaFin = '', DB = '') => {
         try {
-            const dateInit = new Date()
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
@@ -30,15 +29,16 @@ const modelsCocina = (() => {
 
                 SELECT
                     Suc = @Sucursal,
-                    Mes
-                    ,MesMovimientoLetra
-                    ,Dia = DAY(Fecha)
-                    ,Venta = SUM(VentaValorNeta)
+                    Mes,
+                    Year = YEAR(Fecha),
+                    MesMovimientoLetra,
+                    Dia = DAY(Fecha),
+                    Venta = SUM(VentaValorNeta)
                 FROM QVDEMovAlmacen
                 WHERE TipoDocumento = 'V' AND Estatus = 'E' 
                     AND Articulo IN (SELECT Articulo FROM articulosCTE)
                     AND ( Fecha BETWEEN @FechaInicio AND @FechaFinal )
-                GROUP BY Mes,MesMovimientoLetra,DAY(Fecha)
+                GROUP BY Mes, MesMovimientoLetra, DAY(Fecha), YEAR(Fecha)
                 `,
                 QueryTypes.SELECT
             );
