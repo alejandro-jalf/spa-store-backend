@@ -1,4 +1,4 @@
-require("mandatoryenv").load();
+if (!process.env.PORT) require("mandatoryenv").load();
 
 const configs = (() => {
 
