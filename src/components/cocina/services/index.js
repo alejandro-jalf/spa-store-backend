@@ -1,4 +1,11 @@
-const { createContentAssert, createResponse, getConnectionFrom, createContentError, getDatabase, getEndDayMonth } = require('../../../utils');
+const {
+    createContentAssert,
+    createResponse,
+    getConnectionFrom,
+    createContentError,
+    getDatabase,
+    getEndDayMonth,
+} = require('../../../utils');
 const { validateSucursal, validateFechas } = require('../validations');
 const { getVentasByFecha, getAllVentasByFecha } = require('../models');
 

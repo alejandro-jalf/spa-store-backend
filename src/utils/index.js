@@ -30,16 +30,34 @@ const utils = (() => {
 
     const getDatabase = (date = new Date(), sucursal = 'ZR') => {
         const dateActual = new Date();
-        const DB = dataBase[`${sucursal.toUpperCase()}`]
-        if (
-            date >= new Date(dateActual.getFullYear() - 1, 8, 1) &&
-            date <= new Date(dateActual.getFullYear(), 7, 31)
-        ) return DB
+        const DB = dataBase[`${sucursal.toUpperCase()}`];
+        let startDatabase = new Date(dateActual.getFullYear() - 1, 8, 1);
+        let endDatabase = new Date(dateActual.getFullYear(), 7, 31);
+
         if (
             date.getFullYear() === dateActual.getFullYear() &&
             date.getMonth() > dateActual.getMonth()
         ) return undefined;
-        return `${DB}_${date.getFullYear()}08`
+
+        if (
+            dateActual.getMonth() <= 7 &&
+            date >= startDatabase &&
+            date <= endDatabase
+        ) return DB;
+
+        if (date >= new Date(dateActual.getFullYear(), 8, 1)) return DB;
+
+        let yearDB = 2017;
+        for (let year = 2017; year <= dateActual.getFullYear(); year++) {
+            startDatabase = new Date(year - 1, 8, 1);
+            endDatabase = new Date(year, 7, 31);
+
+            if (date >= startDatabase && date <= endDatabase) {
+                yearDB = year;
+                break;
+            }
+        }
+        return `${DB}_${yearDB}08`
     }
 
     const completeDateHour = (number) => {
