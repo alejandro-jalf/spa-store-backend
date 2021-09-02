@@ -80,6 +80,11 @@ const ServicesCocina = (() => {
             if (response.status) return response
         }
 
+        response.data.sort((mes1, mes2) => {
+            if (mes1.Mes !== mes2.Mes) return mes1.Mes - mes2.Mes
+            return mes1.Year - mes2.Year
+        })
+
         if (dateMoth1.slice(4, 6) === dateMoth2.slice(4, 6)) {
             response.data = response.data.map((venta) => {
                 venta.MesMovimientoLetra += '/' + venta.Year
