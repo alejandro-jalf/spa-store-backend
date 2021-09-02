@@ -116,11 +116,35 @@ const ServicesCocina = (() => {
             return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
+        const dateStart = new Date(parseInt(fechaInicial.slice(0, 4)), parseInt(fechaInicial.slice(4, 6)) - 1, 1);
+        const dateEnd = new Date(parseInt(fechaFinal.slice(0, 4)), parseInt(fechaFinal.slice(4, 6)) - 1, 1);
 
-        const response = await getAllVentasByFecha(conexion, sucursal, fechaInicial, fechaFinal);
-        if (!response.success)
-            return createResponse(400, response);
-        return createResponse(200, response);
+        const dataBaseForDateStart = getDatabase(dateStart, sucursal);
+        const dataBaseForDateEnd = getDatabase(dateEnd, sucursal);
+
+        if (dataBaseForDateStart === dataBaseForDateEnd) {
+            const response = await getAllVentasByFecha(conexion, sucursal, fechaInicial, fechaFinal, dataBaseForDateStart);
+            if (!response.success) return createResponse(400, response);
+
+            return createResponse(200, response);
+        } else {
+            const consult = [
+                {sucursal, conexion, fechaInicial, fechaFinal, db: dataBaseForDateStart},
+                {sucursal, conexion, fechaInicial, fechaFinal, db: dataBaseForDateEnd}
+            ]
+            const result = await consult.map(async (suc) => {
+                const response =
+                    await getAllVentasByFecha(suc.conexion, suc.sucursal, suc.fechaInicial, suc.fechaFinal, suc.db);
+                return response
+            });
+
+            const arrayResponse = await Promise.all(result)
+            if (!arrayResponse[0].success) return createResponse(400, arrayResponse[0]);
+            if (!arrayResponse[1].success) return createResponse(400, arrayResponse[1]);
+            arrayResponse[1].data.push(...arrayResponse[0].data)
+
+            return createResponse(200, arrayResponse[1]);
+        }
     }
 
     return {

@@ -53,11 +53,12 @@ const modelsCocina = (() => {
         }
     }
     
-    const getAllVentasByFecha = async (cadenaConexion = '', sucursal = 'ZR', fechaIni = '', FechaFin = '') => {
+    const getAllVentasByFecha = async (cadenaConexion = '', sucursal = 'ZR', fechaIni = '', FechaFin = '', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB}
                 DECLARE @FechaInicio DATETIME = CAST('${fechaIni}' AS DATETIME)
                 DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME)
 
@@ -86,7 +87,7 @@ const modelsCocina = (() => {
                 WHERE TipoDocumento = 'V' AND Estatus = 'E' 
                     AND Articulo IN (SELECT Articulo FROM articulosCTE)
                     AND ( FEcha BETWEEN @FechaInicio AND @FechaFinal )
-                ORDER BY Fecha ASC, Hora ASC
+                ORDER BY Fecha DESC, Hora DESC
                 `,
                 QueryTypes.SELECT
             );

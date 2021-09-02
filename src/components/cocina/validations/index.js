@@ -10,8 +10,10 @@ const validationCocina = (() => {
         if (resultValidate.error)
             return createContentError(`La fecha ${position} no cumple el formato YYYYMMDD`, resultValidate.error)
 
-        if (parseInt(fecha.substring(0, 4)) < 2017)
-            return createContentError(`El año de la fecha ${position} no puede ser menor al 2017`)
+        if (
+            parseInt(fecha.substring(0, 4)) < 2016 ||
+            (parseInt(fecha.substring(0, 4)) === 2016 && parseInt(fecha.substring(4, 6)) < 9)
+        ) return createContentError(`El año de la fecha ${position} no puede ser menor a septiembre-2016`)
 
         if (parseInt(fecha.substring(4, 6)) < 1 || parseInt(fecha.substring(4, 6)) > 12)
             return createContentError(`Mes de la fecha ${position} incorrecto`)
