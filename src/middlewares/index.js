@@ -10,7 +10,7 @@ const middlewares = (() => {
                 if (tokenHeader !== token && !originIsWhitelisted) {
                     res.status(401).json({
                         success: false,
-                        message: "token u origen no valido"
+                        message: "token u origen no valido: " + origin
                     });
                     return;
                 }
