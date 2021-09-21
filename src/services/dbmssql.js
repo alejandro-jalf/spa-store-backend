@@ -21,9 +21,7 @@ const conexion = (() => {
   
   const getConexion = (stringConection = '') => {
       if (stringConection === '') return null;
-      if (conection === null) {
-          conection = dbpostgresql(stringConection);
-      }
+      conection = dbpostgresql(stringConection);
       return conection;
   }
 
