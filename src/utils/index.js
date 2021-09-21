@@ -28,6 +28,33 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
     }
 
+    const getSucursalByAlmacen = (almacen = '') => {
+        if (almacen.trim() === '') return null;
+
+        if (almacen.trim().toLowerCase() === 'spa-super1-punto de venta')
+            return 'ZR';
+
+        if (
+            almacen.trim().toLowerCase() === 'spa-centro-punto de venta' ||
+            almacen.trim().toLowerCase() === 'spa-centro-confiteria'
+        ) return 'VC';
+
+        if (almacen.trim().toLowerCase() === 'spa-oluta-punto de venta')
+            return 'OU';
+
+        if (
+            almacen.trim().toLowerCase() === 'spa-jaltipan-punto de venta' ||
+            almacen.trim().toLowerCase() === 'spa-jaltipan-confiteria'
+        ) return 'JL';
+
+        if (
+            almacen.trim().toLowerCase() === 'bodega bocardo' ||
+            almacen.trim().toLowerCase() === 'almacen bocardo' ||
+            almacen.trim().toLowerCase() === 'mercancias en transito' ||
+            almacen.trim().toLowerCase() === 'spa-almacen'
+        ) return 'BO';
+    }
+
     const getDatabase = (date = new Date(), sucursal = 'ZR') => {
         const dateActual = new Date();
         const DB = dataBase[`${sucursal.toUpperCase()}`];
@@ -81,6 +108,7 @@ const utils = (() => {
         getDatabase,
         getEndDayMonth,
         completeDateHour,
+        getSucursalByAlmacen,
     }
 })();
 
