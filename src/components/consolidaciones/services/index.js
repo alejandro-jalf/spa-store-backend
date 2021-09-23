@@ -2,9 +2,7 @@ const {
     createContentAssert,
     createResponse,
     getConnectionFrom,
-    createContentError,
     getDatabase,
-    getEndDayMonth,
     getSucursalByAlmacen,
 } = require('../../../utils');
 const { validateSucursal, validateFechas } = require('../../cocina/validations');
@@ -24,15 +22,15 @@ const servicesConsolidaciones = (() => {
             dateStart.slice(4, 6) +
             '-' +
             dateStart.slice(6, 8) +
-            'T05:00:00';
+            'T05:00:00.000Z';
 
         const dateEndString =
-            dateStart.slice(0, 4) +
+            dateEnd.slice(0, 4) +
             '-' +
-            dateStart.slice(4, 6) +
+            dateEnd.slice(4, 6) +
             '-' +
-            dateStart.slice(6, 8) +
-            'T05:00:00'
+            dateEnd.slice(6, 8) +
+            'T05:00:00.000Z';
 
         const dateIni = new Date(dateStartString);
         const dateFin = new Date(dateEndString);
@@ -54,12 +52,15 @@ const servicesConsolidaciones = (() => {
             if (transferenciasVerificadasStart.status) return transferenciasVerificadasStart;
 
             const transferenciasVerificadasEnd =
-                await getTransferenciasVerificadas(conexion, dateStart, dateEnd, databaseStart, dateIni);
+                await getTransferenciasVerificadas(conexion, dateStart, dateEnd, databaseEnd, dateFin);
             if (transferenciasVerificadasEnd.status) return transferenciasVerificadasEnd;
 
-            transferenciasVerificadasEnd.data.push(...transferenciasVerificadasStart.data)
+            transferenciasVerificadasEnd.push(...transferenciasVerificadasStart)
 
-            return createResponse(200, transferenciasVerificadasEnd);
+            return createResponse(
+                200,
+                createContentAssert('Datos encontrados', transferenciasVerificadasEnd)
+            );
         }
     }
 
