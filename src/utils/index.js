@@ -56,7 +56,8 @@ const utils = (() => {
     }
 
     const getDatabase = (date = new Date(), sucursal = 'ZR') => {
-        const dateActual = new Date();
+        let dateActual = new Date();
+        
         const DB = dataBase[`${sucursal.toUpperCase()}`];
         let startDatabase = new Date(dateActual.getFullYear() - 1, 8, 1);
         let endDatabase = new Date(dateActual.getFullYear(), 7, 31);
