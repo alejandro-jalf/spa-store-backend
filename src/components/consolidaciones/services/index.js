@@ -45,7 +45,7 @@ const servicesConsolidaciones = (() => {
                 await getTransferenciasVerificadas(conexion, dateStart, dateEnd, databaseStart, dateIni);
             if (transferenciasVerificadas.status) return transferenciasVerificadas;
 
-            return createResponse(200, transferenciasVerificadas);
+            return createResponse(200, createContentAssert('Datos encontrados', transferenciasVerificadas));
         } else {
             const transferenciasVerificadasStart =
                 await getTransferenciasVerificadas(conexion, dateStart, dateEnd, databaseStart, dateIni);
