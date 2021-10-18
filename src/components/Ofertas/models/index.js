@@ -1,5 +1,5 @@
 const { QueryTypes } = require('sequelize');
-const { dbmssql } = require('../../../services')
+const { dbmssql, dbpostgres } = require('../../../services')
 const {
     createContentAssert,
     createContentError
@@ -44,8 +44,151 @@ const modelsOfertas = (() => {
         }
     }
 
+    const getAllMasterOffers = async (cadenaConexion = '') => {
+        try {
+            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                'SELECT * FROM maestroofertas',
+                QueryTypes.SELECT
+            );
+            dbpostgres.closeConexion();
+            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las ofertas maestro',
+                error
+            );
+        }
+    }
+
+    const getMasterOffers = async (cadenaConexion = '', uuid) => {
+        try {
+            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `SELECT * FROM maestroofertas WHERE uuid = '${uuid}'`,
+                QueryTypes.SELECT
+            );
+            dbpostgres.closeConexion();
+            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la oferta por uuid',
+                error
+            );
+        }
+    }
+
+    const createMasterOffers = async (cadenaConexion = '', bodyMaster) => {
+        try {
+            const {
+                uuid, sucursal, status, editable, tipoOferta, fechaInicio, fechaFin,
+                descripcion, fechaAlta, creadoPor, fechaModificado, modificadoPor
+            } = bodyMaster
+            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+            `INSERT INTO maestroofertas VALUES(
+                '${uuid}', '${sucursal}', ${status}, ${editable}, '${tipoOferta}', '${fechaInicio}',
+                '${fechaFin}', '${descripcion}', '${fechaAlta}', '${creadoPor}', '${fechaModificado}',
+                '${modificadoPor}'
+            )`,
+                QueryTypes.INSERT
+            );
+            dbpostgres.closeConexion();
+            return createContentAssert('Nueva oferta maestro creado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al crear una nueva oferta maestro',
+                error
+            );
+        }
+    }
+
+    const updateStatusMasterOffer = async (cadenaConexion = '', uuid, status) => {
+        try {
+            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `UPDATE maestroofertas SET status = ${status} WHERE uuid = '${uuid}'`,
+                QueryTypes.UPDATE
+            );
+            dbpostgres.closeConexion();
+            return createContentAssert('Estatus de maestro oferta fue actualizado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la oferta por uuid',
+                error
+            );
+        }
+    }
+
+    const updateDataMasterOffer = async (cadenaConexion = '', uuid, bodyMaster) => {
+        try {
+            const {
+                status, editable, tipoOferta, fechaInicio, fechaFin,
+                descripcion, fechaModificado, modificadoPor
+            } = bodyMaster
+            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                UPDATE maestroofertas
+                SET
+                    status = ${status}, Editable = ${editable}, TipoOferta = '${tipoOferta}',
+                    FechaInicio = '${fechaInicio}', FechaFin = '${fechaFin}', Descripcion = '${descripcion}',
+                    fechaModificado = '${fechaModificado}', modificadoPor= '${modificadoPor}'
+                WHERE uuid = '${uuid}'
+                `,
+                QueryTypes.UPDATE
+            );
+            dbpostgres.closeConexion();
+            return createContentAssert('Datos de la maestro oferta ha sido actualizado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar modificar los datos de la oferta maestro',
+                error
+            );
+        }
+    }
+
+    const deleteMasterOffer = async (cadenaConexion = '', uuid, bodyMaster) => {
+        try {
+            const {
+                status, editable, tipoOferta, fechaInicio, fechaFin,
+                descripcion, fechaModificado, modificadoPor
+            } = bodyMaster
+            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                UPDATE maestroofertas
+                SET
+                    status = ${status}, Editable = ${editable}, TipoOferta = '${tipoOferta}',
+                    FechaInicio = '${fechaInicio}', FechaFin = '${fechaFin}', Descripcion = '${descripcion}',
+                    fechaModificado = '${fechaModificado}', modificadoPor= '${modificadoPor}'
+                WHERE uuid = '${uuid}'
+                `,
+                QueryTypes.UPDATE
+            );
+            dbpostgres.closeConexion();
+            return createContentAssert('Datos de la maestro oferta ha sido actualizado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar modificar los datos de la oferta maestro',
+                error
+            );
+        }
+    }
+
     return {
         getValidOffers,
+        getAllMasterOffers,
+        getMasterOffers,
+        createMasterOffers,
+        updateStatusMasterOffer,
+        updateDataMasterOffer,
     }
 })();
 

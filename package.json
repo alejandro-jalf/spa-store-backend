@@ -27,6 +27,8 @@
     "joi": "^17.4.2",
     "mandatoryenv": "^3.0.4",
     "mongoose": "^5.13.6",
+    "pg": "^8.7.1",
+    "pg-hstore": "^2.3.4",
     "sequelize": "^6.6.5",
     "tedious": "^11.4.0"
   }

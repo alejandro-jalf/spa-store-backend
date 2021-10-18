@@ -110,6 +110,7 @@ const utils = (() => {
         getEndDayMonth,
         completeDateHour,
         getSucursalByAlmacen,
+        dbpostgresql,
     }
 })();
 
