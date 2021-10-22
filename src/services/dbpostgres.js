@@ -2,11 +2,11 @@ const Sequelize = require("sequelize");
 
 const conexionPostgres = (() => {
     let conection = null;
-    let dbpostgresql = null;
+    // let dbpostgresql = null;
     
-    const setConfig = (dbpostgresqlR = null) => {
-        dbpostgresql = dbpostgresqlR;
-    }
+    // const setConfig = (dbpostgresqlR = null) => {
+    //     dbpostgresql = dbpostgresqlR;
+    // }
 
     const dbpostgresql = (cadenaConexion) => {
         return new Sequelize(cadenaConexion, {
@@ -43,7 +43,7 @@ const conexionPostgres = (() => {
     }
 
     return {
-        setConfig,
+        // setConfig,
         getConexion,
         closeConexion,
     }

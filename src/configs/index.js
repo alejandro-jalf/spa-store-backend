@@ -7,6 +7,7 @@ const configs = (() => {
     const origin2 = process.env.SPA_ORIGIN2;
     const token = process.env.SPA_TOKEN;
     const connectionMongoDB = process.env.SPA_CONNECT;
+    const connectionPostgres = process.env.SPA_CONNECT_POSTGRES;
     const connectionZaragoza = process.env.SPA_ZR_SEQUELIZE;
     const connectionVictoria = process.env.SPA_VC_SEQUELIZE;
     const connectionOluta = process.env.SPA_OU_SEQUELIZE;
@@ -28,6 +29,7 @@ const configs = (() => {
         listOriginAccept,
         token,
         connectionMongoDB,
+        connectionPostgres,
         connectionZaragoza,
         connectionVictoria,
         connectionOluta,

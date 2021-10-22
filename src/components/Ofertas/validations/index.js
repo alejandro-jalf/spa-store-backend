@@ -15,7 +15,8 @@ const validationOfertas = (() => {
             sucursal.toUpperCase() !== 'VC' &&
             sucursal.toUpperCase() !== 'OU' &&
             sucursal.toUpperCase() !== 'JL' &&
-            sucursal.toUpperCase() !== 'BO'
+            sucursal.toUpperCase() !== 'BO' &&
+            sucursal.toUpperCase() !== 'ALL'
         ) return createContentError('La sucursal no es valida');
         return createContentAssert('Sucursal valida');
     }

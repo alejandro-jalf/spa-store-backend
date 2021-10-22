@@ -6,6 +6,9 @@ const {
     connectionBodega,
     dataBase,
 } = require('../configs');
+const { v4: uuidv4 } = require('uuid')
+const moment = require('moment');
+moment.tz.setDefault('America/Mexico_City')
 
 const utils = (() => {
     const createContentAssert = (message, data = null) => (data === null) ?
@@ -100,6 +103,18 @@ const utils = (() => {
             new Date(parseInt(year), parseInt(month), 0).getDate()
         );
     }
+    
+    const toDate = (stringDate = '2021-08-24T00:00:00', invertido = false) => {
+        const splitDate = stringDate.split('-')
+        if (invertido) return `${splitDate[0]}/${splitDate[1]}/${splitDate[2].slice(0, 2)}`
+        return `${splitDate[2].slice(0, 2)}/${splitDate[1]}/${splitDate[0]}`
+    }
+
+    const getDateActual = (formatString = 'DD/MM/YYYY HH:mm') => {
+        return moment().format(formatString);
+    }
+
+    const createUUID = () => uuidv4();
 
     return {
         createContentAssert,
@@ -110,7 +125,9 @@ const utils = (() => {
         getEndDayMonth,
         completeDateHour,
         getSucursalByAlmacen,
-        dbpostgresql,
+        createUUID,
+        toDate,
+        getDateActual,
     }
 })();
 

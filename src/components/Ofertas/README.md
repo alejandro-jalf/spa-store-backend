@@ -44,12 +44,12 @@ Las tablas para programar las ofertas estaran conformadas por dos:
 | **Metodo** | **Ruta** | **Request** | **Descripcion** |
 |------------|----------|-------------|-----------------|
 | **GET** | _/api/v1/ofertas/:sucursal/validas_ |  | Obtiene las ofertas actuales, ademnas que trae datos de validacion de ofertas en cuanto a sus utilidades |
-| **GET** | _/api/v1/ofertas/maestros_ |  | Obtiene todas las listas de ofertas |
-| **GET** | _/api/v1/ofertas/articulos/:uuidmaster_ |  | Obtiene las lista de los articulos por el uuid de las ofertas maestro |
-| **POST** | _/api/v1/ofertas/maestros_ |  | Crea una lista de ofertas |
-| **POST** | _/api/v1/ofertas/articulos_ |  | Agrega un articulo a las ofertas |
-| **PUT** | _/api/v1/ofertas/maestros/:uuidmaster/status_ |  | Modifica el status de una lista de las ofertas |
-| **PUT** | _/api/v1/ofertas/maestros/:uuidmaster_ |  | Modifica la lista de las ofertas |
-| **PUT** | _/api/v1/ofertas/articulos/:articulo_ |  | Modifica un articulo de la oferta |
-| **DELETE** | _/api/v1/ofertas/maestros/:uuidmaster_ |  | Elimina una lista de ofertas |
-| **DELETE** | _/api/v1/ofertas/articulos/:articulo_ |  | Elimina un articulo de la oferta |
+| **GET** | _/api/v1/ofertas/:sucursal/maestros_ |  | Obtiene todas las listas de ofertas |
+| **GET** | _/api/v1/ofertas/:sucursal/articulos/:uuidmaster_ |  | Obtiene las lista de los articulos por el uuid de las ofertas maestro |
+| **POST** | _/api/v1/ofertas/:sucursal/maestros_ |  | Crea una lista de ofertas |
+| **POST** | _/api/v1/ofertas/:sucursal/articulos_ |  | Agrega un articulo a las ofertas |
+| **PUT** | _/api/v1/ofertas/:sucursal/maestros/:uuidmaster/status_ |  | Modifica el status de una lista de las ofertas |
+| **PUT** | _/api/v1/ofertas/:sucursal/maestros/:uuidmaster_ |  | Modifica la lista de las ofertas |
+| **PUT** | _/api/v1/ofertas/:sucursal/articulos/:articulo_ |  | Modifica un articulo de la oferta |
+| **DELETE** | _/api/v1/ofertas/:sucursal/maestros/:uuidmaster_ |  | Elimina una lista de ofertas |
+| **DELETE** | _/api/v1/ofertas/:sucursal/articulos/:articulo_ |  | Elimina un articulo de la oferta |

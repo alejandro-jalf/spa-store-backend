@@ -62,6 +62,24 @@ const modelsOfertas = (() => {
         }
     }
 
+    const getAllMasterOffersOf = async (cadenaConexion = '', sucursal = 'ZR') => {
+        try {
+            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `SELECT * FROM maestroofertas WHERE sucursal = '${sucursal}'`,
+                QueryTypes.SELECT
+            );
+            dbpostgres.closeConexion();
+            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las ofertas maestro',
+                error
+            );
+        }
+    }
+
     const getMasterOffers = async (cadenaConexion = '', uuid) => {
         try {
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
@@ -179,6 +197,8 @@ const modelsOfertas = (() => {
                 QueryTypes.SELECT
             );
             dbpostgres.closeConexion();
+            if (result[0].length === 0)
+                return createContentAssert('Lista de articulos vacios', result[0])
             return createContentAssert('Datos encontrados en la base de datos', result[0]);
         } catch (error) {
             console.log(error);
@@ -218,7 +238,7 @@ const modelsOfertas = (() => {
         try {
             const {
                 nombre, costo, descripcion, precio, oferta,
-                descripcion, fechaModificado, modificadoPor
+                fechaModificado, modificadoPor
             } = bodyArticulo
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -267,6 +287,7 @@ const modelsOfertas = (() => {
     return {
         getValidOffers,
         getAllMasterOffers,
+        getAllMasterOffersOf,
         getMasterOffers,
         createMasterOffers,
         updateStatusMasterOffer,
