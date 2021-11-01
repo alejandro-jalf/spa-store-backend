@@ -12,8 +12,8 @@ const modelsTrabajadores = (() => {
             const result = await accessToDataBase.query(
                 `
                 USE CA2015
-                DECLARE @FechaInicial DATETIME = CAST('${fechaini}' AS DATETIME)
-                DECLARE @FechaFinal DATETIME = CAST('${fechafin}' AS DATETIME)
+                DECLARE @FechaInicial DATETIME = CAST('${fechaini} 00:00:00:000 AM' AS DATETIME)
+                DECLARE @FechaFinal DATETIME = CAST('${fechafin} 11:59:59:999 PM' AS DATETIME)
                 DECLARE @Sucursal NVARCHAR(50) = '${sucursal}'
 
                 SELECT
