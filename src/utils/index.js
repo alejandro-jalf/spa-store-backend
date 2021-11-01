@@ -7,8 +7,8 @@ const {
     dataBase,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
-const moment = require('moment');
-moment.tz.setDefault('America/Mexico_City')
+// const moment = require('moment/moment');
+// moment.tz.setDefault('America/Mexico_City')
 
 const utils = (() => {
     const createContentAssert = (message, data = null) => (data === null) ?
@@ -24,11 +24,29 @@ const utils = (() => {
     const getConnectionFrom = (from = '') => {
         if (from.trim() === '')
             return null;
+        if (from.trim().toUpperCase() === 'HU') return connectionZaragoza;
         if (from.trim().toUpperCase() === 'ZR') return connectionZaragoza;
         if (from.trim().toUpperCase() === 'VC') return connectionVictoria;
         if (from.trim().toUpperCase() === 'OU') return connectionOluta;
         if (from.trim().toUpperCase() === 'JL') return connectionJaltipan;
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
+    }
+
+    const getSucursalByCategory = (categoria = '') => {
+        if (categoria.trim() === '') return undefined;
+        if (categoria.toUpperCase() === 'GENERAL') return undefined;
+        if (categoria.toUpperCase() === 'SAENRIQUEZ') return undefined;
+        if (categoria.toUpperCase() === 'SPABODEGA') return 'BO';
+        if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
+        if (categoria.toUpperCase() === 'SPAJALTIPAN') return 'JL';
+        if (categoria.toUpperCase() === 'SPAOFICINA') return 'ZR';
+        if (categoria.toUpperCase() === 'SPAOLUTA') return 'OU';
+        if (categoria.toUpperCase() === 'SPASANANDRES') return undefined;
+        if (categoria.toUpperCase() === 'SPAVICTORIA') return 'VC';
+        if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';
+        if (categoria.toUpperCase() === 'HUAMUCHIL') return undefined;
+        if (categoria.toUpperCase() === 'TXTLABOYA') return undefined;
+        if (categoria.toUpperCase() === 'TXTLAESCONDIDA') return undefined;
     }
 
     const getSucursalByAlmacen = (almacen = '') => {
@@ -128,6 +146,7 @@ const utils = (() => {
         createUUID,
         toDate,
         getDateActual,
+        getSucursalByCategory,
     }
 })();
 
