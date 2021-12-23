@@ -4,6 +4,7 @@ const {
     createContentError,
     completeDateHour,
     getDateActual,
+    createUUID,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -68,17 +69,14 @@ const ServicesCocina = (() => {
     }
 
     const addMasterOffer = async (bodyMaster) => {
-        
-        const date = new Date();
         const now = getDateActual();
-        console.log(date, now);
+        console.log(now.format('YYYYMMDD HH:MM:SS:SSS'));
 
-        // let validate = validateBodyCreateMasterOffer(bodyMaster);
-        // if (!validate.success) return createResponse(400, validate);
+        let validate = validateBodyCreateMasterOffer(bodyMaster);
+        if (!validate.success) return createResponse(400, validate);
 
-        // const uuid = createUUID();
-        // bodyMaster.uuid = uuid;
-
+        const uuid = createUUID();
+        bodyMaster.uuid = uuid;
 
         // const response = await createMasterOffers(connectionPostgres, bodyMaster);
         // if (!response.success) return createResponse(400, response);

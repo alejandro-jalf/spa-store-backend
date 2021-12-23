@@ -7,8 +7,7 @@ const {
     dataBase,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
-// const moment = require('moment/moment');
-// moment.tz.setDefault('America/Mexico_City')
+const moment = require('moment');
 
 const utils = (() => {
     const createContentAssert = (message, data = null) => (data === null) ?
@@ -128,8 +127,8 @@ const utils = (() => {
         return `${splitDate[2].slice(0, 2)}/${splitDate[1]}/${splitDate[0]}`
     }
 
-    const getDateActual = (formatString = 'DD/MM/YYYY HH:mm') => {
-        return moment().format(formatString);
+    const getDateActual = () => {
+        return moment().local(true);
     }
 
     const createUUID = () => uuidv4();
