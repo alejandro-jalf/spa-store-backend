@@ -5,5 +5,6 @@ router.use(require("./components/consolidaciones/routers"));
 router.use(require("./components/Articulos/routers"));
 router.use(require("./components/Ofertas/routers"));
 router.use(require("./components/trabajadores/routers"));
+router.use(require("./components/Reportes/routers"));
 
 module.exports = router;
