@@ -66,7 +66,7 @@ const modelsOfertas = (() => {
         try {
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `SELECT * FROM maestroofertas WHERE sucursal = '${sucursal}'`,
+                `SELECT * FROM maestroofertas WHERE sucursal = '${sucursal.toUpperCase()}'`,
                 QueryTypes.SELECT
             );
             dbpostgres.closeConexion();
@@ -102,14 +102,14 @@ const modelsOfertas = (() => {
         try {
             const {
                 uuid, sucursal, status, editable, tipoOferta, fechaInicio, fechaFin,
-                descripcion, fechaAlta, creadoPor, fechaModificado, modificadoPor
+                descripcion, fechaAlta, creadoPor
             } = bodyMaster
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
             `INSERT INTO maestroofertas VALUES(
                 '${uuid}', '${sucursal}', ${status}, ${editable}, '${tipoOferta}', '${fechaInicio}',
-                '${fechaFin}', '${descripcion}', '${fechaAlta}', '${creadoPor}', '${fechaModificado}',
-                '${modificadoPor}'
+                '${fechaFin}', '${descripcion}', '${fechaAlta}', '${creadoPor}', '${fechaAlta}',
+                '${creadoPor}'
             )`,
                 QueryTypes.INSERT
             );

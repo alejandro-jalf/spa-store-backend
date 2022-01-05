@@ -2,7 +2,7 @@ const joi = require('joi');
 
 const schemasOfertas = (() => {
     // 2021-08-24T05:00:00.000z
-    const schemaDate = joi.string().regex(/^\d{4,4}-\d{2,2}-\d{2,2}T\d{2,2}:\d{2,2}:\d{2,2}.000z$/);
+    const schemaDate = joi.string().regex(/^\d{4,4}-\d{2,2}-\d{2,2}T\d{2,2}:\d{2,2}:\d{2,2}.\d{3,3}z$/);
 
     const schemaCreateMasterOffer = joi.object({
         sucursal: joi.string().max(10).min(2).required(),

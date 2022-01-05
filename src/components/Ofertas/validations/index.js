@@ -6,7 +6,12 @@ const {
     schemaUpdateMasterOffer,
     schemaUpdateStatusMasterOffer,
 } = require('../schemas');
-const { createContentAssert, createContentError } = require('../../../utils');
+const {
+    createContentAssert,
+    createContentError,
+    toMoment,
+    getDateActual,
+} = require('../../../utils');
 
 const validationOfertas = (() => {
     const validateSucursal = (sucursal = '') => {
@@ -39,7 +44,17 @@ const validationOfertas = (() => {
                 'La fecha de termino no tiene el formato correcto 0000-00-00T00:00:00.000z',
                 resultValidate.error
             )
-        
+            
+        const dateinit = toMoment(bodyCreateMaster.fechaInicio.replace('z', ''));
+        if (dateinit.isBefore(getDateActual()))
+            return createContentError('La fecha de inicio no puede ser menor que la fecha actual')
+
+        if (dateinit.isAfter(bodyCreateMaster.fechaFin.replace('z', ''), 'day'))
+            return createContentError('La fecha de inicio no puede ser mayor que la fecha de termino')
+
+        resultValidate = validateSucursal(bodyCreateMaster.sucursal);
+        if (!resultValidate.success) return resultValidate;
+
         return createContentAssert('Datos validos');
     }
 

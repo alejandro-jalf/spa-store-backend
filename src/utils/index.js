@@ -131,6 +131,8 @@ const utils = (() => {
         return moment().local(true);
     }
 
+    const toMoment = (cadena) => new moment(cadena);
+
     const createUUID = () => uuidv4();
 
     return {
@@ -146,6 +148,7 @@ const utils = (() => {
         toDate,
         getDateActual,
         getSucursalByCategory,
+        toMoment,
     }
 })();
 

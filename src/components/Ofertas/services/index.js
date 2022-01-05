@@ -5,6 +5,7 @@ const {
     completeDateHour,
     getDateActual,
     createUUID,
+    createContentAssert,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -48,15 +49,15 @@ const ServicesCocina = (() => {
     }
 
     const getMasterOffersBySuc = async (sucursal = 'ALL') => {
-        let validate = validateSucursal(sucursal);
+        let validate = validateSucursal(sucursal.toUpperCase());
         if (!validate.success) return createResponse(400, validate);
 
-        if (sucursal === 'ALL') {
-            const response = await getAllMasterOffers(conexionPostgres);
+        if (sucursal.toUpperCase() === 'ALL') {
+            const response = await getAllMasterOffers(connectionPostgres);
             if (!response.success) return createResponse(400, response);
             return createResponse(200, response);
         } else {
-            const response = await getAllMasterOffersOf(connectionPostgres, sucursal);
+            const response = await getAllMasterOffersOf(connectionPostgres, sucursal.toUpperCase());
             if (!response.success) return createResponse(400, response);
             return createResponse(200, response);
         }
@@ -69,19 +70,20 @@ const ServicesCocina = (() => {
     }
 
     const addMasterOffer = async (bodyMaster) => {
-        const now = getDateActual();
-        console.log(now.format('YYYYMMDD HH:MM:SS:SSS'));
-
+        bodyMaster.sucursal = bodyMaster.sucursal.toUpperCase();
         let validate = validateBodyCreateMasterOffer(bodyMaster);
         if (!validate.success) return createResponse(400, validate);
 
         const uuid = createUUID();
         bodyMaster.uuid = uuid;
+        bodyMaster.fechaInicio = bodyMaster.fechaInicio.split('T')[0]
+        bodyMaster.fechaFin = bodyMaster.fechaFin.split('T')[0]
+        bodyMaster.fechaAlta = getDateActual().format('YYYY-MM-DD')
 
-        // const response = await createMasterOffers(connectionPostgres, bodyMaster);
-        // if (!response.success) return createResponse(400, response);
+        const response = await createMasterOffers(connectionPostgres, bodyMaster);
+        if (!response.success) return createResponse(400, response);
 
-        // return createResponse(201, response);
+        return createResponse(201, response);
     }
 
     return {
