@@ -86,7 +86,30 @@ const ServicesCocina = (() => {
         return createResponse(201, response);
     }
 
+    const changeStatusMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
+        let validate = validateBodyUpdateStatusMasterOffer(bodyMaster);
+        if (!validate.success) return createResponse(400, validate);
+        
+        validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'))
+
+        if (bodyMaster.status === response.data[0].status)
+            return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
+
+        bodyMaster.fechamodificado = getDateActual().format('YYYY-MM-DD');
+
+        response = await updateStatusMasterOffer(connectionPostgres, uuidmaster, bodyMaster);
+        if (!response.success) return createResponse(400, response);
+
+        return createResponse(201, response);
+    }
+
     return {
+        changeStatusMasterOffer,
         getOfferValidation,
         getMasterOffersBySuc,
         getArticlesByUUIDMaster,

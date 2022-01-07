@@ -124,11 +124,16 @@ const modelsOfertas = (() => {
         }
     }
 
-    const updateStatusMasterOffer = async (cadenaConexion = '', uuid, status) => {
+    const updateStatusMasterOffer = async (cadenaConexion = '', uuid, bodyMaster) => {
         try {
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `UPDATE maestroofertas SET status = ${status} WHERE uuid = '${uuid}'`,
+                `UPDATE maestroofertas 
+                SET
+                    status = ${bodyMaster.status},
+                    fechamodificado = '${bodyMaster.fechamodificado}',
+                    modificadopor = '${bodyMaster.modificadoPor}'
+                WHERE uuid = '${uuid}'`,
                 QueryTypes.UPDATE
             );
             dbpostgres.closeConexion();
