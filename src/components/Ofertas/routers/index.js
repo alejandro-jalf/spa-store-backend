@@ -5,6 +5,7 @@ const {
     getArticlesByUUIDMaster,
     addMasterOffer,
     changeStatusMasterOffer,
+    changeDataMasterOffer,
 } = require("../services");
 
 router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
@@ -45,8 +46,9 @@ router.route("/api/v1/ofertas/:sucursal/maestros/:uuidmaster/status").put(async 
 });
 
 router.route("/api/v1/ofertas/:sucursal/maestros/:uuidmaster").put(async (req, res) => {
-    const { sucursal } = req.params;
-    const { status, response } = await getOfferValidation(sucursal);
+    const { sucursal, uuidmaster } = req.params;
+    const bodyMaster = req.body;
+    const { status, response } = await changeDataMasterOffer(sucursal, uuidmaster, bodyMaster);
     res.status(status).json(response);
 });
 

@@ -12,7 +12,7 @@ Las tablas para programar las ofertas estaran conformadas por dos:
 |-----------|----------|------------|-----------------|
 | uuid | varchar | 100 | primary key |
 | sucursal | varchar | 5 |  |
-| status | int | | 0: Pendiente, 1: En proceso, 3: Programada, 4: cancelada |
+| status | int | | 0: Creada, 1: Enviada, 2: En revision, 3: Programada, 4: cancelada |
 | editable | boolean | |  |
 | tipoOferta | varchar | 200 |  |
 | fechaInicio | date | |  |

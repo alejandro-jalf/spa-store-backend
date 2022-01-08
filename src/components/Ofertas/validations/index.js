@@ -49,7 +49,7 @@ const validationOfertas = (() => {
         if (dateinit.isBefore(getDateActual()))
             return createContentError('La fecha de inicio no puede ser menor que la fecha actual')
 
-        if (dateinit.isAfter(bodyCreateMaster.fechaFin.replace('z', ''), 'day'))
+        if (dateinit.isAfter(bodyCreateMaster.fechaFin.replace('z', '')))
             return createContentError('La fecha de inicio no puede ser mayor que la fecha de termino')
 
         resultValidate = validateSucursal(bodyCreateMaster.sucursal);
@@ -76,8 +76,38 @@ const validationOfertas = (() => {
                 'La fecha de termino no tiene el formato correcto 0000-00-00T00:00:00.000z',
                 resultValidate.error
             )
+
+        const dateinit = toMoment(bodyUpdateMaster.fechaInicio.replace('z', ''));
+        if (dateinit.isBefore(getDateActual()))
+            return createContentError('La fecha de inicio no puede ser menor que la fecha actual')
+
+        if (dateinit.isAfter(bodyUpdateMaster.fechaFin.replace('z', '')))
+            return createContentError('La fecha de inicio no puede ser mayor que la fecha de termino')
         
         return createContentAssert('Datos validos');
+    }
+
+    const validateStatus = (statusNew, statusActual, utilsOfertas) => {
+        if (statusActual === 4 || statusActual === 0) {
+            if (statusActual === 4 && statusNew !== 0)
+                return createContentError(
+                    `No puede cambiar el estatus a "${utilsOfertas.parseStatusOferta(statusNew)}" debido a que se encuentra actualmente como "${utilsOfertas.parseStatusOferta(statusActual)}"`
+                );
+            else if (statusActual === 0 && (statusNew !== 4 && statusNew !== 1))
+                return createContentError(
+                    `No puede cambiar el estatus a "${utilsOfertas.parseStatusOferta(statusNew)}" debido a que se encuentra actualmente como "${utilsOfertas.parseStatusOferta(statusActual)}"`
+                );
+        } else if (statusNew >= 0 && statusNew <= 4) {
+            if ((statusNew) !== (statusActual + 1) || (statusNew === 4 && statusActual === 3))
+                return createContentError(
+                    `No puede cambiar el estatus a "${utilsOfertas.parseStatusOferta(statusNew)}" debido a que se encuentra actualmente como "${utilsOfertas.parseStatusOferta(statusActual)}"`
+                );
+        } else {
+            return createContentError(
+                `No puede cambiar el estatus a "${utilsOfertas.parseStatusOferta(statusNew)}", envio un estatus invalido`
+            );
+        }
+        return createContentAssert('Estatus validos')
     }
     
     const validateBodyUpdateStatusMasterOffer = (bodyMaster) => {
@@ -111,6 +141,7 @@ const validationOfertas = (() => {
         validateBodyUpdateStatusMasterOffer,
         validateBodyCreateArticle,
         validateBodyUpdateArticle,
+        validateStatus,
     }
 })();
 

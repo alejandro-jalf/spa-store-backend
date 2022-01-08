@@ -14,6 +14,7 @@ const {
     validateBodyUpdateArticle,
     validateBodyUpdateMasterOffer,
     validateBodyUpdateStatusMasterOffer,
+    validateStatus,
 } = require('../validations');
 const {
     getValidOffers,
@@ -30,9 +31,31 @@ const {
     deleteOffer,
 } = require('../models');
 const { connectionPostgres } = require('../../../configs');
-const conexionPostgres = require('../../../services/dbpostgres');
 
-const ServicesCocina = (() => {
+const utilsOfertas = (() => {
+    const parseStatusOferta = (status) => {
+        switch (status) {
+            case 0:
+                return 'Creada';
+            case 1:
+                return 'Enviada';
+            case 2:
+                return 'En proceso';
+            case 3:
+                return 'Programada';
+            case 4:
+                return 'Cancelada';
+            default:
+                return 'Estatus invalido';
+        }
+    }
+
+    return {
+        parseStatusOferta
+    }
+})()
+
+const ServicesOfertas = (() => {
     
     const getOfferValidation = async (sucursal) => {
         let validate = validateSucursal(sucursal);
@@ -97,7 +120,13 @@ const ServicesCocina = (() => {
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'))
 
-        if (bodyMaster.status === response.data[0].status)
+        const statusActual = response.data[0].status;
+        const statusNew = bodyMaster.status;
+
+        validate = validateStatus(statusNew, statusActual, utilsOfertas);
+        if (!validate.success) return createResponse(200, validate);
+
+        if (statusNew === statusActual)
             return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
 
         bodyMaster.fechamodificado = getDateActual().format('YYYY-MM-DD');
@@ -108,8 +137,44 @@ const ServicesCocina = (() => {
         return createResponse(201, response);
     }
 
+    const changeDataMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
+        let validate = validateBodyUpdateMasterOffer(bodyMaster);
+        if (!validate.success) return createResponse(400, validate);
+        
+        validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'))
+
+        const statusActual = response.data[0].status;
+        const statusNew = bodyMaster.status;
+
+        if (statusActual !== 0)
+            return createResponse(
+                200,
+                createContentError(`No puede modificar la oferta maestro debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(response.data[0].status)}`)
+            );
+
+        if (statusActual !== statusNew) {
+            validate = validateStatus(statusNew, statusActual, utilsOfertas);
+            if (!validate.success) return createResponse(200, validate);
+        }
+
+        bodyMaster.fechaInicio = bodyMaster.fechaInicio.split('T')[0]
+        bodyMaster.fechaFin = bodyMaster.fechaFin.split('T')[0]
+        bodyMaster.fechaModificado = getDateActual().format('YYYY-MM-DD');
+
+        response = await updateDataMasterOffer(connectionPostgres, uuidmaster, bodyMaster);
+        if (!response.success) return createResponse(400, response);
+
+        return createResponse(201, response);
+    }
+
     return {
         changeStatusMasterOffer,
+        changeDataMasterOffer,
         getOfferValidation,
         getMasterOffersBySuc,
         getArticlesByUUIDMaster,
@@ -117,4 +182,4 @@ const ServicesCocina = (() => {
     }
 })();
 
-module.exports = ServicesCocina;
+module.exports = ServicesOfertas;

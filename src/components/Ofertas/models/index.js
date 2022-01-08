@@ -74,7 +74,7 @@ const modelsOfertas = (() => {
         } catch (error) {
             console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener las ofertas maestro',
+                'Fallo la conexion con base de datos al intentar obtener las ofertas maestro de una sucursal determinada',
                 error
             );
         }
@@ -141,7 +141,7 @@ const modelsOfertas = (() => {
         } catch (error) {
             console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener la oferta por uuid',
+                'Fallo la conexion con base de datos al intentar modificar el estatus de la oferta',
                 error
             );
         }
