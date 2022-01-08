@@ -176,15 +176,22 @@ const modelsOfertas = (() => {
         }
     }
 
-    const deleteMasterOffer = async (cadenaConexion = '', uuid) => {
+    const deleteMasterOffer = async (cadenaConexion = '', uuid, sucursal = '') => {
         try {
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `DELETE FROM maestroofertas WHERE uuid = '${uuid}'`,
+                `DELETE FROM maestroofertas WHERE uuid = '${uuid}' AND sucursal = '${sucursal.toUpperCase()}'`,
                 QueryTypes.DELETE
             );
             dbpostgres.closeConexion();
-            return createContentAssert('El maestro ofertas ha sido eliminado con exito', result);
+            if (result.rowCount) {
+                if (result.rowCount === 0) 
+                    return createContentError('No se pudo eliminar la oferta maestro', result);
+                else if (result.rowCount === 1)
+                    return createContentAssert('El maestro ofertas ha sido eliminado con exito', result);
+                else if (result.rowCount > 1)
+                    return createContentError('Error fatal, se eliminaron ' + result.rowCount + ' ofertas maestro', result);
+            }
         } catch (error) {
             console.log(error);
             return createContentError(
