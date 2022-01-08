@@ -87,7 +87,11 @@ const ServicesOfertas = (() => {
     }
 
     const getArticlesByUUIDMaster = async (uuidmaster) => {
-        const response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
+        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+
+        response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
     }
