@@ -212,6 +212,11 @@ const ServicesOfertas = (() => {
         let response = await getMasterOffers(connectionPostgres, bodyArticle.uuid_maestro);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+        if (response.data[0].status !== 0)
+            return createResponse(
+                200,
+                createContentError('No puede agregar articulos a la lista de oferta debido a que esta ' + utilsOfertas.parseStatusOferta(response.data[0].status))
+            );
 
         const conexion = getConnectionFrom(sucursal);
         response = await getDetailsArticleByArticle(conexion, sucursal, bodyArticle.articulo);
