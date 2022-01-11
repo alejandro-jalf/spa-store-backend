@@ -206,7 +206,6 @@ const ServicesOfertas = (() => {
     }
 
     const createArticleOffer = async (sucursal, bodyArticle) => {
-        // console.log(sucursal, bodyArticle);
         let validate = validateBodyCreateArticle(bodyArticle);
         if (!validate.success) return createResponse(400, validate);
 
@@ -217,23 +216,19 @@ const ServicesOfertas = (() => {
         const conexion = getConnectionFrom(sucursal);
         response = await getDetailsArticleByArticle(conexion, sucursal, bodyArticle.articulo);
 
-        console.log(response);
-
         const dateActual = getDateActual().format('YYYY-MM-DD');
         bodyArticle.fechaAlta = dateActual;
         bodyArticle.fechaModificado = dateActual;
         bodyArticle.modificadoPor = bodyArticle.creadoPor;
 
         const utilidad = 1 - (response.data[0].UltimoCosto / bodyArticle.oferta);
-        const rounded = parseFloat(roundTo(utilidad))
-        console.log(utilidad, rounded, rounded < 0.08);
+        const rounded = parseFloat(roundTo(utilidad));
 
-        if (rounded < 0.08) {
-            return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'))
-        }
+        if (rounded < 0.08)
+            return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'));
 
-        // response = await createMasterOffers(connectionPostgres, bodyArticle);
-        // if (!response.success) return createResponse(400, response);
+        response = await createOffers(connectionPostgres, bodyArticle);
+        if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);
     }

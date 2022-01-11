@@ -254,12 +254,12 @@ const modelsOfertas = (() => {
         }
     }
 
-    const createOffers = async (cadenaConexion = '', bodyMaster) => {
+    const createOffers = async (cadenaConexion = '', bodyArticle) => {
         try {
             const {
                 uuid_maestro, articulo, nombre, costo, descripcion, precio, oferta,
                 fechaAlta, creadoPor, fechaModificado, modificadoPor
-            } = bodyMaster
+            } = bodyArticle
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
             `INSERT INTO articulosofertas VALUES(
@@ -271,11 +271,21 @@ const modelsOfertas = (() => {
             dbpostgres.closeConexion();
             return createContentAssert('Articulo agregado a la oferta', result);
         } catch (error) {
-            console.log(error);
-            return createContentError(
-                'Fallo la conexion con base de datos al intentar agregar un articulo a la oferta',
-                error
-            );
+            if (error.parent.detail !== undefined) {
+                const expresion = /.*already exists.*/g
+                const validation = expresion.test(error.parent.detail);
+                if (validation)
+                    return createContentError('El articulo ya existe en esta lista de ofertas');
+                else
+                    return createContentError(
+                        'Fallo la conexion con base de datos al intentar agregar un articulo a la oferta',
+                        error
+                    );
+            } else
+                return createContentError(
+                    'Fallo la conexion con base de datos al intentar agregar un articulo a la oferta',
+                    error
+                );
         }
     }
 
