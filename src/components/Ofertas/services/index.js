@@ -6,6 +6,7 @@ const {
     getDateActual,
     createUUID,
     createContentAssert,
+    roundTo,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -29,6 +30,7 @@ const {
     updateStatusMasterOffer,
     deleteMasterOffer,
     deleteOffer,
+    getDetailsArticleByArticle,
 } = require('../models');
 const { connectionPostgres } = require('../../../configs');
 
@@ -86,20 +88,10 @@ const ServicesOfertas = (() => {
         }
     }
 
-    const getArticlesByUUIDMaster = async (uuidmaster) => {
-        let response = await getMasterOffers(connectionPostgres, uuidmaster);
-        if (!response.success) return createResponse(400, response);
-        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
-
-        response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
-        if (!response.success) return createResponse(400, response);
-        return createResponse(200, response);
-    }
-
     const addMasterOffer = async (bodyMaster) => {
-        bodyMaster.sucursal = bodyMaster.sucursal.toUpperCase();
         let validate = validateBodyCreateMasterOffer(bodyMaster);
         if (!validate.success) return createResponse(400, validate);
+        bodyMaster.sucursal = bodyMaster.sucursal.toUpperCase();
 
         const uuid = createUUID();
         bodyMaster.uuid = uuid;
@@ -203,6 +195,49 @@ const ServicesOfertas = (() => {
         return createResponse(201, response);
     }
 
+    const getArticlesByUUIDMaster = async (uuidmaster) => {
+        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+
+        response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response);
+    }
+
+    const createArticleOffer = async (sucursal, bodyArticle) => {
+        // console.log(sucursal, bodyArticle);
+        let validate = validateBodyCreateArticle(bodyArticle);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(connectionPostgres, bodyArticle.uuid_maestro);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+
+        const conexion = getConnectionFrom(sucursal);
+        response = await getDetailsArticleByArticle(conexion, sucursal, bodyArticle.articulo);
+
+        console.log(response);
+
+        const dateActual = getDateActual().format('YYYY-MM-DD');
+        bodyArticle.fechaAlta = dateActual;
+        bodyArticle.fechaModificado = dateActual;
+        bodyArticle.modificadoPor = bodyArticle.creadoPor;
+
+        const utilidad = 1 - (response.data[0].UltimoCosto / bodyArticle.oferta);
+        const rounded = parseFloat(roundTo(utilidad))
+        console.log(utilidad, rounded, rounded < 0.08);
+
+        if (rounded < 0.08) {
+            return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'))
+        }
+
+        // response = await createMasterOffers(connectionPostgres, bodyArticle);
+        // if (!response.success) return createResponse(400, response);
+
+        return createResponse(201, response);
+    }
+
     return {
         changeStatusMasterOffer,
         changeDataMasterOffer,
@@ -211,6 +246,7 @@ const ServicesOfertas = (() => {
         getArticlesByUUIDMaster,
         addMasterOffer,
         removeMasterOffer,
+        createArticleOffer,
     }
 })();
 

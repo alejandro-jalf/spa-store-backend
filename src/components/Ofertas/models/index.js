@@ -44,6 +44,39 @@ const modelsOfertas = (() => {
         }
     }
 
+    const getDetailsArticleByArticle = async (cadenaConexion = '', sucursal = 'ZR', Articulo = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}'
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'OU' THEN 19 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'OU' THEN 5 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END
+
+                SELECT 
+                    Articulo,
+                    CodigoBarras,
+                    Nombre,
+                    Descripcion,
+                    Precio1IVAUV,
+                    UltimoCosto
+                FROM
+                    QVListaprecioConCosto
+                WHERE Tienda = @Tienda AND Almacen = @Almacen AND Articulo = '${Articulo}';
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener datos del articulo',
+                error
+            );
+        }
+    }
+
     const getAllMasterOffers = async (cadenaConexion = '') => {
         try {
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
@@ -297,6 +330,7 @@ const modelsOfertas = (() => {
     }
 
     return {
+        getDetailsArticleByArticle,
         getValidOffers,
         getAllMasterOffers,
         getAllMasterOffersOf,
