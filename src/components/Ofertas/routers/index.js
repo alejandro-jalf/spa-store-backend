@@ -8,6 +8,7 @@ const {
     changeDataMasterOffer,
     removeMasterOffer,
     createArticleOffer,
+    removeArticleOffer,
 } = require("../services");
 
 router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
@@ -56,7 +57,7 @@ router.route("/api/v1/ofertas/:sucursal/maestros/:uuidmaster").put(async (req, r
 });
 
 router.route("/api/v1/ofertas/:sucursal/articulos/:articulo").put(async (req, res) => {
-    const { sucursal } = req.params;
+    const { sucursal, articulo } = req.params;
     const { status, response } = await getOfferValidation(sucursal);
     res.status(status).json(response);
 });
@@ -68,8 +69,9 @@ router.route("/api/v1/ofertas/:sucursal/maestros/:uuidmaster").delete(async (req
 });
 
 router.route("/api/v1/ofertas/:sucursal/articulos/:articulo").delete(async (req, res) => {
-    const { sucursal } = req.params;
-    const { status, response } = await getOfferValidation(sucursal);
+    const { sucursal, articulo } = req.params;
+    const { uuidmaster } = req.query;
+    const { status, response } = await removeArticleOffer(sucursal, articulo, uuidmaster);
     res.status(status).json(response);
 });
 

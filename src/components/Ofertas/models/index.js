@@ -224,7 +224,8 @@ const modelsOfertas = (() => {
                     return createContentAssert('El maestro ofertas ha sido eliminado con exito', result);
                 else if (result.rowCount > 1)
                     return createContentError('Error fatal, se eliminaron ' + result.rowCount + ' ofertas maestro', result);
-            }
+            } else
+                return createContentAssert('El maestro ofertas ha sido eliminado con exito', result);
         } catch (error) {
             console.log(error);
             return createContentError(
@@ -318,7 +319,7 @@ const modelsOfertas = (() => {
         }
     }
 
-    const deleteOffer = async (cadenaConexion = '', articulo) => {
+    const deleteOffer = async (cadenaConexion = '', articulo = '', uuid_maestro = '') => {
         try {
             const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -329,7 +330,15 @@ const modelsOfertas = (() => {
                 QueryTypes.DELETE
             );
             dbpostgres.closeConexion();
-            return createContentAssert('El articulo de la oferta ha sido eliminado con exito', result);
+            if (typeof result[1] !== 'undefined' && typeof result[1].rowCount !== 'undefined') {
+                if (result[1].rowCount === 0) 
+                    return createContentError('No se pudo eliminar el articulo de la oferta', result);
+                else if (result[1].rowCount === 1)
+                    return createContentAssert('El articulo ha sido eliminado con exito', result);
+                else if (result[1].rowCount > 1)
+                    return createContentError('Error fatal, se eliminaron ' + result[1].rowCount + ' articulos', result);
+            } else
+                return createContentAssert('El articulo de la oferta ha sido eliminado con exito', result);
         } catch (error) {
             console.log(error);
             return createContentError(

@@ -238,6 +238,29 @@ const ServicesOfertas = (() => {
         return createResponse(201, response);
     }
 
+    const removeArticleOffer = async (sucursal, articulo, uuidmaster) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+        if (response.data[0].sucursal !== sucursal.toUpperCase())
+            return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
+
+        const statusActual = response.data[0].status;
+        if (statusActual !== 0)
+            return createResponse(
+                200,
+                createContentError(`No puede eliminar el articulo debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
+            );
+
+        response = await deleteOffer(connectionPostgres, articulo, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+
+        return createResponse(201, response);
+    }
+
     return {
         changeStatusMasterOffer,
         changeDataMasterOffer,
@@ -247,6 +270,7 @@ const ServicesOfertas = (() => {
         addMasterOffer,
         removeMasterOffer,
         createArticleOffer,
+        removeArticleOffer,
     }
 })();
 
