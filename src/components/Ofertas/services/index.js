@@ -245,6 +245,52 @@ const ServicesOfertas = (() => {
         return createResponse(201, response);
     }
 
+    const changeDataOffer = async (sucursal, uuidmaster, articulo, bodyArticle) => {
+        let validate = validateBodyUpdateArticle(bodyArticle);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'))
+        if (response.data[0].sucursal !== sucursal.toUpperCase())
+            return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
+
+        const statusActual = response.data[0].status;
+
+        if (statusActual !== 0)
+            return createResponse(
+                200,
+                createContentError(`No puede modificar la oferta maestro debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
+            );
+
+        bodyArticle.fechaModificado = getDateActual().format('YYYY-MM-DD');
+
+        response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
+        if (!response.success) return createResponse(400, response);
+        const existArticle = response.data.find((article) => article.articulo === articulo)
+
+        if (!existArticle)
+            return createResponse(200, createContentError('Este articulo no esta en esta lista oferta'))
+
+        const conexion = getConnectionFrom(sucursal);
+        response = await getDetailsArticleByArticle(conexion, sucursal, articulo);
+
+        const utilidad = 1 - (response.data[0].UltimoCosto / bodyArticle.oferta);
+        const rounded = parseFloat(roundTo(utilidad));
+
+        if (rounded < 0.08)
+            return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'));
+
+
+        response = await updateOffer(connectionPostgres, articulo, uuidmaster, bodyArticle);
+        if (!response.success) return createResponse(400, response);
+
+        return createResponse(201, response);
+    }
+
     const removeArticleOffer = async (sucursal, articulo, uuidmaster) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
@@ -278,6 +324,7 @@ const ServicesOfertas = (() => {
         removeMasterOffer,
         createArticleOffer,
         removeArticleOffer,
+        changeDataOffer,
     }
 })();
 

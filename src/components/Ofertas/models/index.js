@@ -290,7 +290,7 @@ const modelsOfertas = (() => {
         }
     }
 
-    const updateOffer = async (cadenaConexion = '', articulo, bodyArticulo) => {
+    const updateOffer = async (cadenaConexion = '', articulo, uuidmaster, bodyArticulo) => {
         try {
             const {
                 nombre, costo, descripcion, precio, oferta,
@@ -305,6 +305,7 @@ const modelsOfertas = (() => {
                     precio = ${precio}, oferta = ${oferta},
                     fechaModificado = '${fechaModificado}', modificadoPor= '${modificadoPor}'
                 WHERE articulo = '${articulo}'
+                    AND uuid_maestro = '${uuidmaster}'
                 `,
                 QueryTypes.UPDATE
             );
