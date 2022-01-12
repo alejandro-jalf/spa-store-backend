@@ -6,6 +6,7 @@ const {
     getDateActual,
     createUUID,
     createContentAssert,
+    toMoment,
     roundTo,
 } = require('../../../utils');
 const {
@@ -108,7 +109,7 @@ const ServicesOfertas = (() => {
     const changeStatusMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
         let validate = validateBodyUpdateStatusMasterOffer(bodyMaster);
         if (!validate.success) return createResponse(400, validate);
-        
+
         validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
@@ -116,7 +117,7 @@ const ServicesOfertas = (() => {
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
         if (response.data[0].sucursal !== sucursal.toUpperCase())
-        return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
+            return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
         const statusActual = response.data[0].status;
         const statusNew = bodyMaster.status;
@@ -126,6 +127,12 @@ const ServicesOfertas = (() => {
 
         if (statusNew === statusActual)
             return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
+
+        const dateinit = toMoment(response.data[0].fechainicio + 'T00:00:00.000z');
+        if (statusActual === 0 && statusNew === 1) {
+            if (dateinit.isBefore(getDateActual()))
+                return createContentError('La fecha de inicio no puede ser menor que la fecha actual')
+        }
 
         bodyMaster.fechamodificado = getDateActual().format('YYYY-MM-DD');
 
