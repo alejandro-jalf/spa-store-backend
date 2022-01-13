@@ -10,6 +10,8 @@ const {
     createArticleOffer,
     removeArticleOffer,
     changeDataOffer,
+    getDetailsArticleByLike,
+    getDetailsArticleByArticulo,
 } = require("../services");
 
 router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
@@ -21,6 +23,18 @@ router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
 router.route("/api/v1/ofertas/:sucursal/maestros").get(async (req, res) => {
     const { sucursal } = req.params;
     const { status, response } = await getMasterOffersBySuc(sucursal);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/ofertas/:sucursal/articulos/:articulo").get(async (req, res) => {
+    const { sucursal, articulo } = req.params;
+    const { status, response } = await getDetailsArticleByArticulo(sucursal, articulo);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/ofertas/:sucursal/articulos/:name/details").get(async (req, res) => {
+    const { sucursal, name } = req.params;
+    const { status, response } = await getDetailsArticleByLike(sucursal, name);
     res.status(status).json(response);
 });
 

@@ -32,6 +32,7 @@ const {
     deleteMasterOffer,
     deleteOffer,
     getDetailsArticleByArticle,
+    getDetailsArticleByName,
 } = require('../models');
 const { connectionPostgres } = require('../../../configs');
 
@@ -70,8 +71,31 @@ const ServicesOfertas = (() => {
 
         const response  = await getValidOffers(conexion, sucursal, now);
 
-        if (!response.success) return createResponse(400, response)
-        return createResponse(200, response)
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response);
+    }
+
+    const getDetailsArticleByLike = async (sucursal, name) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+        
+        const conexion = getConnectionFrom(sucursal);
+        const nameRefactor = name.replace(/\*/g, '%');
+        const response  = await getDetailsArticleByName(conexion, sucursal, nameRefactor);
+
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response);
+    }
+
+    const getDetailsArticleByArticulo = async (sucursal, articulo) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getDetailsArticleByArticle(conexion, sucursal, articulo);
+
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response);
     }
 
     const getMasterOffersBySuc = async (sucursal = 'ALL') => {
@@ -325,6 +349,8 @@ const ServicesOfertas = (() => {
         createArticleOffer,
         removeArticleOffer,
         changeDataOffer,
+        getDetailsArticleByLike,
+        getDetailsArticleByArticulo,
     }
 })();
 
