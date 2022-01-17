@@ -127,6 +127,11 @@ const ServicesOfertas = (() => {
         const response = await createMasterOffers(connectionPostgres, bodyMaster);
         if (!response.success) return createResponse(400, response);
 
+        response.data = {
+            result: response.data,
+            newOffer: bodyMaster,
+        }
+
         return createResponse(201, response);
     }
 
