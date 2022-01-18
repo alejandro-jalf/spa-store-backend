@@ -62,7 +62,7 @@ const modelsOfertas = (() => {
                     UltimoCosto
                 FROM
                     QVListaprecioConCosto
-                WHERE Tienda = @Tienda AND Almacen = @Almacen AND Articulo = '${Articulo}';
+                WHERE Tienda = @Tienda AND Almacen = @Almacen AND (Articulo = '${Articulo}' OR CodigoBarras = '${Articulo}');
                 `,
                 QueryTypes.SELECT
             );
