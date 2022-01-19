@@ -17,10 +17,15 @@ const modelsCocina = (() => {
 
                 SELECT 
                     Articulo,
+                    CodigoBarras,
                     Nombre,
                     Descripcion,
                     Precio1IVAUV,
-                    Precio2IVAUV
+                    CantidadParaPrecio1,
+                    Precio2IVAUV,
+                    CantidadParaPrecio2,
+                    Precio3IVAUV,
+                    CantidadParaPrecio3
                 FROM
                     QVListaprecioConCosto
                 WHERE Tienda = @Tienda
