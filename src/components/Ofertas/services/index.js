@@ -157,6 +157,15 @@ const ServicesOfertas = (() => {
         if (statusNew === statusActual)
             return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
 
+        const dateinit = toMoment(response.data[0].fechainicio + ' 00:00:00.000');
+        if (statusNew === 1) {
+            if (dateinit.isBefore(getDateActual()))
+                return createResponse(
+                    200,
+                    createContentError('La fecha de inicio no puede ser menor que la fecha actual')
+                )
+        }
+
         response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (statusNew === 1 && response.data.length === 0)
@@ -164,15 +173,6 @@ const ServicesOfertas = (() => {
                 200, 
                 createContentError('No puede enviar la oferta debido a que no contiene articulos')
             )
-
-        const dateinit = toMoment(response.data[0].fechainicio + 'T00:00:00.000z');
-        if (statusActual === 0 && statusNew === 1) {
-            if (dateinit.isBefore(getDateActual()))
-                return createResponse(
-                    200,
-                    createContentError('La fecha de inicio no puede ser menor que la fecha actual')
-                )
-        }
 
         bodyMaster.fechamodificado = getDateActual().format('YYYY-MM-DD');
 
