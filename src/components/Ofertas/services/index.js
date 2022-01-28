@@ -136,6 +136,7 @@ const ServicesOfertas = (() => {
     }
 
     const changeStatusMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
+
         let validate = validateBodyUpdateStatusMasterOffer(bodyMaster);
         if (!validate.success) return createResponse(400, validate);
 
@@ -157,7 +158,7 @@ const ServicesOfertas = (() => {
         if (statusNew === statusActual)
             return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
 
-        const dateinit = toMoment(response.data[0].fechainicio + ' 00:00:00.000');
+        const dateinit = toMoment(response.data[0].fechainicio + ' 23:59:59.999');
         if (statusNew === 1) {
             if (dateinit.isBefore(getDateActual()))
                 return createResponse(
