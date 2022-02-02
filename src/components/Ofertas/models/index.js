@@ -25,10 +25,14 @@ const modelsOfertas = (() => {
                     UtilidadVenta = 1 - (UltimoCostoNeto/Precio1IVAUV),
                     Precio1Valido = CASE WHEN (1 - (C.UltimoCostoNeto/Precio1IVAUV)) < 0.1 THEN 'NO' ELSE 'SI' END,
                     PrecioOferta = Precio1IVAUV - Descuento,
-                    FechaInicial, FechaFinal,OfertaCaduca
+                    FechaInicial, FechaFinal,OfertaCaduca,
+                    O.Disponible, O.Limite
                 FROM QvOfertas AS O
                 LEFT JOIN QVListaprecioConCosto AS C ON O.Articulo = C.Articulo
-                WHERE FechaFinal >= @FechaActual
+                WHERE (
+                        ( O.OfertaCaduca = 'NO' AND O.Disponible > 0)
+                        OR FechaFinal >= @FechaActual
+                    )
                     AND C.Tienda = @Tienda AND C.Almacen = @Almacen
                 `,
                 QueryTypes.SELECT
