@@ -19,12 +19,6 @@ const configs = (() => {
 
     const listOriginAccept = [origin1, origin2];
 
-    listConnectionCaasa = [
-        { name: 'ENRIQUEZ', connection: connectionCaasaEnriquez },
-        { name: 'SAYULA', connection: connectionCaasaSayula },
-        { name: 'SUPER', connection: connectionCaasaSuper },
-    ]
-
     const dataBase = {
         ZR: process.env.SPA_DATABASE_ZR,
         VC: process.env.SPA_DATABASE_VC,
@@ -45,7 +39,9 @@ const configs = (() => {
         connectionJaltipan,
         connectionBodega,
         dataBase,
-        listConnectionCaasa,
+        connectionCaasaEnriquez,
+        connectionCaasaSayula,
+        connectionCaasaSuper,
     }
 })();
 

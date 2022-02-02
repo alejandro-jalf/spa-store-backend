@@ -1,6 +1,8 @@
 const {
     createResponse,
     createContentError,
+    createContentAssert,
+    getListConnectionByCompany,
 } = require('../../../utils');
 const { validateEmpresa } = require('../validations');
 const { testConnection } = require('../models');
@@ -12,7 +14,9 @@ const ServicesGeneral = (() => {
         let validate = validateEmpresa(empresa);
         if (!validate.success) return createResponse(400, validate)
 
-        const arrayResponse = listConnectionCaasa.map(async (connection) => {
+        const listConnection = getListConnectionByCompany(empresa);
+
+        const arrayResponse = listConnection.map(async (connection) => {
             const response = await testConnection(connection.connection);
             return {
                 success: response.success,
@@ -21,7 +25,10 @@ const ServicesGeneral = (() => {
             }
         })
         const resultTests = await Promise.all(arrayResponse);
-        return createResponse(200, resultTests);
+        return createResponse(
+            200,
+            createContentAssert('Test de Conexion', resultTests)
+        );
     }
 
     return {

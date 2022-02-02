@@ -4,6 +4,9 @@ const {
     connectionOluta,
     connectionJaltipan,
     connectionBodega,
+    connectionCaasaEnriquez,
+    connectionCaasaSayula,
+    connectionCaasaSuper,
     dataBase,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
@@ -29,12 +32,34 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'OU') return connectionOluta;
         if (from.trim().toUpperCase() === 'JL') return connectionJaltipan;
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
+        if (from.trim().toUpperCase() === 'EN') return connectionCaasaEnriquez;
+        if (from.trim().toUpperCase() === 'SA') return connectionCaasaSayula;
+        if (from.trim().toUpperCase() === 'SU') return connectionCaasaSuper;
+    }
+
+    const getListConnectionByCompany = (company = '') => {
+        if (company === '') return [];
+        if (company.trim().toUpperCase() === 'CAASA') return [
+            { name: 'ENRIQUEZ', connection: connectionCaasaEnriquez },
+            { name: 'SAYULA', connection: connectionCaasaSayula },
+            { name: 'SUPER', connection: connectionCaasaSuper },
+        ]
+        if (company.trim().toUpperCase() === 'SPA') return [
+            { name: 'SPASUPERUNO.DYNDNS.ORG', connection: connectionZaragoza },
+            { name: 'SPACENTRO.DYNDNS.ORG', connection: connectionVictoria },
+            { name: 'SPAOLUTA.DYNDNS.ORG', connection: connectionOluta },
+            { name: 'SPAJALTIPAN.DYNDNS.ORG', connection: connectionJaltipan },
+            { name: 'SPABODEGA.DYNDNS.ORG', connection: connectionBodega },
+        ]
+        return []
     }
 
     const getSucursalByCategory = (categoria = '') => {
         if (categoria.trim() === '') return undefined;
         if (categoria.toUpperCase() === 'GENERAL') return undefined;
-        if (categoria.toUpperCase() === 'SAENRIQUEZ') return undefined;
+        if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'EN';
+        if (categoria.toUpperCase() === 'CAASASAYULA') return 'SA';
+        if (categoria.toUpperCase() === 'CAASASUPER') return 'SU';
         if (categoria.toUpperCase() === 'SPABODEGA') return 'BO';
         if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
         if (categoria.toUpperCase() === 'SPAJALTIPAN') return 'JL';
@@ -199,6 +224,7 @@ const utils = (() => {
         getSucursalByCategory,
         toMoment,
         roundTo,
+        getListConnectionByCompany,
     }
 })();
 
