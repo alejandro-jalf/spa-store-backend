@@ -6,7 +6,6 @@ const {
 } = require('../../../utils');
 const { validateEmpresa } = require('../validations');
 const { testConnection } = require('../models');
-const { listConnectionCaasa } = require('../../../configs')
 
 const ServicesGeneral = (() => {
     
