@@ -13,8 +13,17 @@ const configs = (() => {
     const connectionOluta = process.env.SPA_OU_SEQUELIZE;
     const connectionJaltipan = process.env.SPA_JL_SEQUELIZE;
     const connectionBodega = process.env.SPA_BO_SEQUELIZE;
+    const connectionCaasaEnriquez = process.env.CAASA_EN_SEQUELIZE;
+    const connectionCaasaSayula = process.env.CAASA_SA_SEQUELIZE;
+    const connectionCaasaSuper = process.env.CAASA_SU_SEQUELIZE;
 
     const listOriginAccept = [origin1, origin2];
+
+    listConnectionCaasa = [
+        { name: 'ENRIQUEZ', connection: connectionCaasaEnriquez },
+        { name: 'SAYULA', connection: connectionCaasaSayula },
+        { name: 'SUPER', connection: connectionCaasaSuper },
+    ]
 
     const dataBase = {
         ZR: process.env.SPA_DATABASE_ZR,
@@ -36,6 +45,7 @@ const configs = (() => {
         connectionJaltipan,
         connectionBodega,
         dataBase,
+        listConnectionCaasa,
     }
 })();
 
