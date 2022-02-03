@@ -45,11 +45,11 @@ const utils = (() => {
             { name: 'SUPER', connection: connectionCaasaSuper },
         ]
         if (company.trim().toUpperCase() === 'SPA') return [
-            { name: 'SPASUPERUNO.DYNDNS.ORG', connection: connectionZaragoza },
-            { name: 'SPACENTRO.DYNDNS.ORG', connection: connectionVictoria },
-            { name: 'SPAOLUTA.DYNDNS.ORG', connection: connectionOluta },
-            { name: 'SPAJALTIPAN.DYNDNS.ORG', connection: connectionJaltipan },
-            { name: 'SPABODEGA.DYNDNS.ORG', connection: connectionBodega },
+            { name: 'ZARAGOZA', connection: connectionZaragoza },
+            { name: 'VICTORIA', connection: connectionVictoria },
+            { name: 'OLUTA', connection: connectionOluta },
+            { name: 'JALTIPAN', connection: connectionJaltipan },
+            { name: 'BODEGA', connection: connectionBodega },
         ]
         return []
     }
