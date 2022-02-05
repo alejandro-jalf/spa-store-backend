@@ -34,7 +34,12 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
         if (from.trim().toUpperCase() === 'EN') return connectionCaasaEnriquez;
         if (from.trim().toUpperCase() === 'SA') return connectionCaasaSayula;
+        if (from.trim().toUpperCase() === 'SB') return connectionCaasaSayula;
+        if (from.trim().toUpperCase() === 'ST') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'SU') return connectionCaasaSuper;
+        if (from.trim().toUpperCase() === 'MA') return connectionCaasaSuper;
+        if (from.trim().toUpperCase() === 'RE') return connectionCaasaSuper;
+        if (from.trim().toUpperCase() === 'CO') return connectionCaasaSuper;
     }
 
     const getListConnectionByCompany = (company = '') => {
@@ -59,7 +64,12 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'GENERAL') return undefined;
         if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'EN';
         if (categoria.toUpperCase() === 'CAASASAYULA') return 'SA';
-        if (categoria.toUpperCase() === 'CAASASUPER') return 'SU';
+        if (categoria.toUpperCase() === 'CAASASAYULABODEGA') return 'SB';
+        if (categoria.toUpperCase() === 'CAASATORTILLERIASAYULA') return 'ST';
+        if (categoria.toUpperCase() === 'CAASAAUTOSERVICIO') return 'SU';
+        if (categoria.toUpperCase() === 'CAASAMEDIOMAYOREO') return 'MA';
+        if (categoria.toUpperCase() === 'CAASABODEGA') return 'RE';
+        if (categoria.toUpperCase() === 'CAASAOFICINA') return 'CO';
         if (categoria.toUpperCase() === 'SPABODEGA') return 'BO';
         if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
         if (categoria.toUpperCase() === 'SPAJALTIPAN') return 'JL';
@@ -71,6 +81,7 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'HUAMUCHIL') return undefined;
         if (categoria.toUpperCase() === 'TXTLABOYA') return undefined;
         if (categoria.toUpperCase() === 'TXTLAESCONDIDA') return undefined;
+        return undefined
     }
 
     const getSucursalByAlmacen = (almacen = '') => {

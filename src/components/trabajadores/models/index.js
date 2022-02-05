@@ -31,7 +31,7 @@ const modelsTrabajadores = (() => {
         } catch (error) {
             console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener precios',
+                'Fallo la conexion con base de datos al intentar obtener la lista de asistencias',
                 error
             );
         }

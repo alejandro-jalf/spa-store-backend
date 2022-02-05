@@ -5,7 +5,14 @@ const validationTrabajadores = (() => {
     const validateSucursal = (sucursal = '') => {
         if (
             sucursal.toUpperCase() !== 'GENERAL' &&
-            sucursal.toUpperCase() !== 'SAENRIQUEZ' &&
+            sucursal.toUpperCase() !== 'ENRIQUEZ' &&
+            sucursal.toUpperCase() !== 'SAYULA' &&
+            sucursal.toUpperCase() !== 'SAYULABODEGA' &&
+            sucursal.toUpperCase() !== 'TORTILLERIASAYULA' &&
+            sucursal.toUpperCase() !== 'AUTOSERVICIO' &&
+            sucursal.toUpperCase() !== 'MEDIOMAYOREO' &&
+            sucursal.toUpperCase() !== 'BODEGA' &&
+            sucursal.toUpperCase() !== 'OFICINA' &&
             sucursal.toUpperCase() !== 'SPABODEGA' &&
             sucursal.toUpperCase() !== 'SPACATEMACO' &&
             sucursal.toUpperCase() !== 'SPAJALTIPAN' &&

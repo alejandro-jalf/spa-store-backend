@@ -10,7 +10,7 @@ const moment = require('moment')
 
 const ServicesTrabajadores = (() => {
     
-    const getAllAssists = async (sucursal, fechaini, fechafin) => {
+    const getAllAssists = async (sucursal, fechaini, fechafin, empresa = 'SPA') => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
             return createResponse(400, validate);
@@ -23,7 +23,10 @@ const ServicesTrabajadores = (() => {
         if (!validate.success)
             return createResponse(400, validate);
 
-        const conexion = getConnectionFrom(getSucursalByCategory(sucursal));
+        empresa = empresa.trim().toUpperCase()
+        const sucursalUtils = empresa === 'CAASA' ? empresa + sucursal : sucursal
+        const conexion = getConnectionFrom(getSucursalByCategory(sucursalUtils));
+        if (conexion === null) return createResponse(400, createContentError('Verifique que la sucursal pertenesca a la empresa'))
         const response  = await getAsistenciasBySucursal(conexion, sucursal, fechaini, fechafin);
 
         if (!response.success) return createResponse(400, response)
