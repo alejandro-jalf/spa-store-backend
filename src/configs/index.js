@@ -24,7 +24,10 @@ const configs = (() => {
         VC: process.env.SPA_DATABASE_VC,
         OU: process.env.SPA_DATABASE_OU,
         JL: process.env.SPA_DATABASE_JL,
-        BO: process.env.SPA_DATABASE_BO
+        BO: process.env.SPA_DATABASE_BO,
+        SU: process.env.SPA_DATABASE_SU,
+        EN: process.env.SPA_DATABASE_EN,
+        SA: process.env.SPA_DATABASE_SA,
     }
 
     return {
