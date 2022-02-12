@@ -56,10 +56,12 @@ const ServicesCocina = (() => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
             return createResponse(400, validate);
+        sucursal = sucursal.toUpperCase()
 
         validate = validateSucursalWithCompany(sucursal, company);
         if (!validate.success)
             return createResponse(400, validate);
+        company = company.toUpperCase()
 
         validate = validateDayMinAndMax(daymin, daymax);
         if (!validate.success)
