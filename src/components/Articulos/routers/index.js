@@ -9,8 +9,8 @@ router.route("/api/v1/articulos/:articulo/precio").get(async (req, res) => {
 });
 
 router.route("/api/v1/articulos/stocks").get(async (req, res) => {
-    const { sucursal, company } = req.query;
-    const { status, response } = await getDataForStocks(sucursal, company);
+    const { sucursal, company, daymin, daymax } = req.query;
+    const { status, response } = await getDataForStocks(sucursal, company, daymin, daymax);
     res.status(status).json(response);
 });
 

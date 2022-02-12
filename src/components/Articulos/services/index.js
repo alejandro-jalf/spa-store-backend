@@ -5,7 +5,12 @@ const {
     getDateActual,
 } = require('../../../utils');
 const { dataBase } = require('../../../configs');
-const { validateSucursal, validateCodigoBarras, validateSucursalWithCompany } = require('../validations');
+const {
+    validateSucursal,
+    validateCodigoBarras,
+    validateSucursalWithCompany,
+    validateDayMinAndMax,
+} = require('../validations');
 const { getPrecio, calculateStocks, updateStockByScripts } = require('../models');
 
 const ServicesCocina = (() => {
@@ -47,7 +52,7 @@ const ServicesCocina = (() => {
         }
     }
 
-    const getDataForStocks = async (sucursal, company) => {
+    const getDataForStocks = async (sucursal, company, daymin = 30, daymax = 45) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
             return createResponse(400, validate);
@@ -56,12 +61,15 @@ const ServicesCocina = (() => {
         if (!validate.success)
             return createResponse(400, validate);
 
+        validate = validateDayMinAndMax(daymin, daymax);
+        if (!validate.success)
+            return createResponse(400, validate);
+
         const databaseOld = getDatabaseOldBySucAndCompany(sucursal, company);
-        console.log(databaseOld);
 
         const conexion = getConnectionFrom(sucursal);
 
-        const response = await calculateStocks(conexion, sucursal, databaseOld);
+        const response = await calculateStocks(conexion, sucursal, databaseOld, daymin, daymax);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
     }

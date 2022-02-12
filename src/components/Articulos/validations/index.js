@@ -40,8 +40,19 @@ const validationArticulos = (() => {
         return createContentAssert('Codigo correcto');
     }
 
+    const validateDayMinAndMax = (daymin, daymax) => {
+        if (daymin === null) return createContentError('El dia de stock minimo no puede ser nulo');
+        if (daymax === null) return createContentError('El dia de stock maximo no puede ser nulo');
+
+        if (daymin === 0 || daymax === 0) return createContentError('Los dias de stock no pueden ser 0');
+        if (daymin > daymax) return createContentError('El dia de stock minimo no puede ser mayor que el maximo')
+
+        return createContentAssert('Dias validos')
+    }
+
     return {
         validateSucursal,
+        validateDayMinAndMax,
         validateCodigoBarras,
         validateSucursalWithCompany,
     }

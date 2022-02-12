@@ -44,7 +44,7 @@ const modelsCocina = (() => {
         }
     }
 
-    const calculateStocks = async (cadenaConexion = '', sucursal = 'ZR', databaseOld = '') => {
+    const calculateStocks = async (cadenaConexion = '', sucursal = 'ZR', databaseOld = '', dayMin = 30, dayMax = 45) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -57,8 +57,8 @@ const modelsCocina = (() => {
                 DECLARE @MesAnterior3Inicio DATETIME = DATEADD(MM,DATEDIFF(MM,0,@toDay) - 3,0);
                 DECLARE @MesAnterior3Final DATETIME = DATEADD(MM,DATEDIFF(MM,0,@toDay) - 2,0) - 1;
 
-                DECLARE @DiasStockMin INT = 30
-                DECLARE @DiasStockMax INT = 45
+                DECLARE @DiasStockMin INT = ${dayMin}
+                DECLARE @DiasStockMax INT = ${dayMax}
 
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}'
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'OU' THEN 19 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 WHEN @Sucursal = 'SA' THEN 6 WHEN @Sucursal = 'SU' THEN 2 WHEN @Sucursal = 'MA' THEN 3 WHEN @Sucursal = 'RE' THEN 1 WHEN @Sucursal = 'EN' THEN 14 ELSE 0 END
