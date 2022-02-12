@@ -41,6 +41,8 @@ const validationArticulos = (() => {
     }
 
     const validateDayMinAndMax = (daymin, daymax) => {
+        daymin = parseInt(daymin)
+        daymax = parseInt(daymax)
         if (daymin === null) return createContentError('El dia de stock minimo no puede ser nulo');
         if (daymax === null) return createContentError('El dia de stock maximo no puede ser nulo');
 
