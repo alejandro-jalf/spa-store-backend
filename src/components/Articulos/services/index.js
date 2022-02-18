@@ -13,7 +13,7 @@ const {
 } = require('../validations');
 const { getPrecio, calculateStocks, updateStockByScripts } = require('../models');
 
-const ServicesCocina = (() => {
+const ServicesArticulos = (() => {
     
     const getPriceArticle = async (sucursal, codigoBarras) => {
         let validate = validateSucursal(sucursal);
@@ -82,4 +82,4 @@ const ServicesCocina = (() => {
     }
 })();
 
-module.exports = ServicesCocina;
+module.exports = ServicesArticulos;

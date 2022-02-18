@@ -1,6 +1,6 @@
 const joi = require('joi');
 
-const schemasCocina = (() => {
+const schemasArticulos = (() => {
 
     const schemaFecha = joi.string().regex(/^\d{8,8}$/);
     const schemaCodigoBarras = joi.string().regex(/^\d{1,14}$/);
@@ -12,4 +12,4 @@ const schemasCocina = (() => {
     }
 })() ;
 
-module.exports = schemasCocina;
+module.exports = schemasArticulos;

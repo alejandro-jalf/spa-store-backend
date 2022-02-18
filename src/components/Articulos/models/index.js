@@ -5,7 +5,7 @@ const {
     createContentError
 } = require('../../../utils');
 
-const modelsCocina = (() => {
+const modelsArticulos = (() => {
     const getPrecio = async (cadenaConexion = '', sucursal = 'ZR', codigoBarrasArticulo = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -136,4 +136,4 @@ const modelsCocina = (() => {
     }
 })();
 
-module.exports = modelsCocina;
+module.exports = modelsArticulos;
