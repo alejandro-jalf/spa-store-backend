@@ -15,6 +15,7 @@ const configs = (() => {
     const connectionBodega = process.env.SPA_BO_SEQUELIZE;
     const connectionCaasaEnriquez = process.env.CAASA_EN_SEQUELIZE;
     const connectionCaasaSayula = process.env.CAASA_SA_SEQUELIZE;
+    const connectionCaasaSayulaT = process.env.CAASA_ST_SEQUELIZE;
     const connectionCaasaSuper = process.env.CAASA_SU_SEQUELIZE;
 
     const listOriginAccept = [origin1, origin2];
@@ -45,6 +46,7 @@ const configs = (() => {
         connectionCaasaEnriquez,
         connectionCaasaSayula,
         connectionCaasaSuper,
+        connectionCaasaSayulaT,
     }
 })();
 

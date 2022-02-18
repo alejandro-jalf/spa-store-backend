@@ -6,6 +6,7 @@ const {
     connectionBodega,
     connectionCaasaEnriquez,
     connectionCaasaSayula,
+    connectionCaasaSayulaT,
     connectionCaasaSuper,
     dataBase,
 } = require('../configs');
@@ -35,7 +36,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'EN') return connectionCaasaEnriquez;
         if (from.trim().toUpperCase() === 'SA') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'SB') return connectionCaasaSayula;
-        if (from.trim().toUpperCase() === 'ST') return connectionCaasaSayula;
+        if (from.trim().toUpperCase() === 'ST') return connectionCaasaSayulaT;
         if (from.trim().toUpperCase() === 'SU') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'MA') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'RE') return connectionCaasaSuper;
@@ -65,7 +66,7 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'EN';
         if (categoria.toUpperCase() === 'CAASASAYULA') return 'SA';
         if (categoria.toUpperCase() === 'CAASASAYULABODEGA') return 'SB';
-        if (categoria.toUpperCase() === 'CAASATORTILLERIASAYULA') return 'ST';
+        if (categoria.toUpperCase() === 'CAASATSAYULA') return 'ST';
         if (categoria.toUpperCase() === 'CAASAAUTOSERVICIO') return 'SU';
         if (categoria.toUpperCase() === 'CAASAMEDIOMAYOREO') return 'MA';
         if (categoria.toUpperCase() === 'CAASABODEGA') return 'RE';

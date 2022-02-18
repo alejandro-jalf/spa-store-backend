@@ -13,15 +13,15 @@ const ServicesTrabajadores = (() => {
     const getAllAssists = async (sucursal, fechaini, fechafin, empresa = 'SPA') => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
-            return createResponse(400, validate);
+          return createResponse(400, validate);
 
         validate = validateDate(fechaini);
         if (!validate.success)
-            return createResponse(400, validate);
+          return createResponse(400, validate);
 
         validate = validateDate(fechafin);
         if (!validate.success)
-            return createResponse(400, validate);
+          return createResponse(400, validate);
 
         empresa = empresa.trim().toUpperCase()
         const sucursalUtils = empresa === 'CAASA' ? empresa + sucursal : sucursal
