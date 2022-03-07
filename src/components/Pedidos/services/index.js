@@ -122,6 +122,26 @@ const ServicesPedidos = (() => {
         return createResponse(201, response)
     }
 
+    const updateStatuOrder = async (
+        database = 'SPASUC2021',
+        source = 'BO',
+        article = '',
+        folio = '',
+        status = ''
+    ) => {
+        let validate = validateSucursal(source);
+        if (!validate.success) return createResponse(400, validate);
+        
+        validate = validateBodyAddArticle(bodyArticle)
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(source);
+        const response  = await addArticle(conexion, database, article, bodyArticle);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(201, response)
+    }
+
     return {
         getOrdersBodega,
         getOrdersBySucursal,
@@ -132,6 +152,7 @@ const ServicesPedidos = (() => {
         getReportArticles,
         createPedido,
         addArticleToOrder,
+        updateStatuOrder,
     }
 })();
 
