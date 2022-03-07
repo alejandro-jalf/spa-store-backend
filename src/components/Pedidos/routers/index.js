@@ -51,7 +51,7 @@ router.route("/api/v1/pedidos/detalles/:sucursal/:folio/reporte").get(async (req
 router.route("/api/v1/pedidos/maestros/:sucursal").get(async (req, res) => {
     const { database, source } = req.query;
     const { sucursal } = req.params;
-    const { status, response } = await getOrdersBySucursal(database, sucursal, source);
+    const { status, response } = await getOrdersBySucursal(database, source, sucursal);
     res.status(status).json(response);
 });
 

@@ -16,23 +16,23 @@ const {
 
 const ServicesPedidos = (() => {
 
-    const getOrdersBodega = async (database = 'SPASUC2021', sucursal = 'BO') => {
-        let validate = validateSucursal(sucursal);
+    const getOrdersBodega = async (database = 'SPASUC2021', source = 'BO') => {
+        let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
-        const conexion = getConnectionFrom(sucursal);
+        const conexion = getConnectionFrom(source);
         const response  = await getPedidosEnBodega(conexion, database);
 
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
     }
 
-    const getOrdersBySucursal = async (database = 'SPASUC2021', sucursal = '', source = 'BO') => {
+    const getOrdersBySucursal = async (database = 'SPASUC2021', source = 'BO', sucursal = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(source);
-        const response  = await getPedidosBySucursal(conexion, sucursal, database);
+        const response  = await getPedidosBySucursal(conexion, database, sucursal);
 
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
@@ -43,7 +43,7 @@ const ServicesPedidos = (() => {
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(source);
-        const response  = await getListaArticulosByArticulo(conexion, article, folio, sucursal, database);
+        const response  = await getListaArticulosByArticulo(conexion, database, article, folio, sucursal);
 
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)

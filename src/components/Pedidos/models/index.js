@@ -24,7 +24,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const getPedidosBySucursal = async (cadenaConexion = '', sucursal = '', database = 'SPASUC2021') => {
+    const getPedidosBySucursal = async (cadenaConexion = '', database = '', sucursal = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -42,7 +42,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const getListaArticulosByArticulo = async (cadenaConexion = '', articulo = '', folio = '', sucursal = '', database = 'SPASUC2021') => {
+    const getListaArticulosByArticulo = async (cadenaConexion = '', database = '', articulo = '', folio = '', sucursal = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
