@@ -14,6 +14,7 @@ const {
     getListaArticulosByDias,
     getListaArticulos,
     getReporteListaArticulos,
+    addPedido,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -95,6 +96,17 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
+    const createPedido = async (database = 'SPASUC2021', source = 'BO', sucursal = '') => {
+        let validate = validateSucursal(source);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(source);
+        const response  = await addPedido(conexion, database, sucursal);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
     return {
         getOrdersBodega,
         getOrdersBySucursal,
@@ -103,6 +115,7 @@ const ServicesPedidos = (() => {
         getArticlesByDias,
         getArticles,
         getReportArticles,
+        createPedido,
     }
 })();
 

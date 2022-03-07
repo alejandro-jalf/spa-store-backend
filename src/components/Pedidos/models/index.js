@@ -138,7 +138,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const addPedido = async (cadenaConexion = '', sucursal = '', database = 'SPASUC2021') => {
+    const addPedido = async (cadenaConexion = '', database = '', sucursal = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
