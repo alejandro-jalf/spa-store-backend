@@ -102,7 +102,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const getReporteListaArticulos = async (cadenaConexion = '', folio = '', sucursal = '', database = 'SPASUC2021') => {
+    const getReporteListaArticulos = async (cadenaConexion = '', database = '', sucursal = '', folio = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
