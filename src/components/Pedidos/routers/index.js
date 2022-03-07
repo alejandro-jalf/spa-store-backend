@@ -3,6 +3,7 @@ const {
     getOrdersBodega,
     getOrdersBySucursal,
     getArticlesByArticle,
+    getArticlesByName,
 } = require('../services')
 
 const response = {
@@ -25,7 +26,10 @@ router.route("/api/v1/pedidos/detalles/:sucursal/:folio/articulos/:articulo").ge
 });
 
 router.route("/api/v1/pedidos/detalles/:sucursal/:folio/nombres/:nombre").get(async (req, res) => {
-    res.status(200).json(response);
+    const { database, source } = req.query;
+    const { sucursal, folio, nombre } = req.params;
+    const { status, response } = await getArticlesByName(database, source, sucursal, folio, nombre);
+    res.status(status).json(response);
 });
 
 router.route("/api/v1/pedidos/detalles/:sucursal/:folio/dias/:dias").get(async (req, res) => {
