@@ -2,6 +2,7 @@ const router = require("express").Router();
 const {
     getOrdersBodega,
     getOrdersBySucursal,
+    getArticlesByArticle,
 } = require('../services')
 
 const response = {
@@ -11,16 +12,19 @@ const response = {
 }
 
 router.route("/api/v1/pedidos/maestros").get(async (req, res) => {
-    const { database, suc } = req.query;
-    const { status, response } = await getOrdersBodega(database, suc);
+    const { database, source } = req.query;
+    const { status, response } = await getOrdersBodega(database, source);
     res.status(status).json(response);
 });
 
-router.route("/api/v1/pedidos/detalles/:sucursal/:folio/articulo/:articulo").get(async (req, res) => {
-    res.status(200).json(response);
+router.route("/api/v1/pedidos/detalles/:sucursal/:folio/articulos/:articulo").get(async (req, res) => {
+    const { database, source } = req.query;
+    const { sucursal, folio, articulo } = req.params;
+    const { status, response } = await getArticlesByArticle(database, source, sucursal, folio, articulo);
+    res.status(status).json(response);
 });
 
-router.route("/api/v1/pedidos/detalles/:sucursal/:folio/nombre/:nombre").get(async (req, res) => {
+router.route("/api/v1/pedidos/detalles/:sucursal/:folio/nombres/:nombre").get(async (req, res) => {
     res.status(200).json(response);
 });
 

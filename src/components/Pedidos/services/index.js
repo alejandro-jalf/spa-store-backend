@@ -9,6 +9,7 @@ const {
 const {
     getPedidosEnBodega,
     getPedidosBySucursal,
+    getListaArticulosByArticulo,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -35,9 +36,21 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
+    const getArticlesByArticle = async (database = 'SPASUC2021', source = 'BO', sucursal = '', folio = '', article = '') => {
+        let validate = validateSucursal(source);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(source);
+        const response  = await getListaArticulosByArticulo(conexion, article, folio, sucursal, database);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
     return {
         getOrdersBodega,
         getOrdersBySucursal,
+        getArticlesByArticle
     }
 })();
 
