@@ -5,6 +5,7 @@ const {
     getArticlesByArticle,
     getArticlesByName,
     getArticlesByDias,
+    getArticles,
 } = require('../services')
 
 const response = {
@@ -41,7 +42,10 @@ router.route("/api/v1/pedidos/detalles/:sucursal/:folio/dias/:dias").get(async (
 });
 
 router.route("/api/v1/pedidos/detalles/:sucursal/:folio").get(async (req, res) => {
-    res.status(200).json(response);
+    const { database, source } = req.query;
+    const { sucursal, folio } = req.params;
+    const { status, response } = await getArticles(database, source, sucursal, folio);
+    res.status(status).json(response);
 });
 
 router.route("/api/v1/pedidos/detalles/:sucursal/:folio/reporte").get(async (req, res) => {
