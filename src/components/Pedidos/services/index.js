@@ -4,7 +4,7 @@ const {
 } = require('../../../utils');
 const {
     validateSucursal,
-    validateSucursalWithCompany,
+    validateBodyAddArticle,
 } = require('../validations');
 const {
     getPedidosEnBodega,
@@ -15,6 +15,7 @@ const {
     getListaArticulos,
     getReporteListaArticulos,
     addPedido,
+    addArticle,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -104,7 +105,21 @@ const ServicesPedidos = (() => {
         const response  = await addPedido(conexion, database, sucursal);
 
         if (!response.success) return createResponse(400, response)
-        return createResponse(200, response)
+        return createResponse(201, response)
+    }
+
+    const addArticleToOrder = async (database = 'SPASUC2021', source = 'BO', article = '', bodyArticle = {}) => {
+        let validate = validateSucursal(source);
+        if (!validate.success) return createResponse(400, validate);
+        
+        validate = validateBodyAddArticle(bodyArticle)
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(source);
+        const response  = await addArticle(conexion, database, article, bodyArticle);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(201, response)
     }
 
     return {
@@ -116,6 +131,7 @@ const ServicesPedidos = (() => {
         getArticles,
         getReportArticles,
         createPedido,
+        addArticleToOrder,
     }
 })();
 

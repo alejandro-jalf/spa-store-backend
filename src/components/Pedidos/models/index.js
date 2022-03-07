@@ -147,7 +147,7 @@ const modelsPedidos = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Pedido creado', result[0]);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar agregar un nuevo pedido',
@@ -156,19 +156,19 @@ const modelsPedidos = (() => {
         }
     }
 
-    const addArticle = async (cadenaConexion = '', articulo = '', body = {}, database = 'SPASUC2021') => {
+    const addArticle = async (cadenaConexion = '', database = 'SPASUC2021', articulo = '', body = {}) => {
         try {
-            const { Pedido, Sucursal, PeCaja, PePieza } = body;
+            const { pedido, sucursal, PeCaja, PePieza } = body;
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `USE ${database}
                 EXECUTE RegistroPedidos @Articulo = '${articulo}',
-                    @Sucursal = '${Sucursal}', @Pedido = '${Pedido}',
+                    @Sucursal = '${sucursal}', @Pedido = '${pedido}',
                     @PeCaja = ${PeCaja}, @PePieza = ${PePieza}`,
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Articulo agregado', result[0]);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar agregar un articulo al pedido',

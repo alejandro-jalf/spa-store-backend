@@ -8,6 +8,7 @@ const {
     getArticles,
     getReportArticles,
     createPedido,
+    addArticleToOrder,
 } = require('../services')
 
 const response = {
@@ -72,7 +73,11 @@ router.route("/api/v1/pedidos/maestros/:sucursal").post(async (req, res) => {
 });
 
 router.route("/api/v1/pedidos/detalles/:articulo").post(async (req, res) => {
-    res.status(200).json(response);
+    const { database, source } = req.query;
+    const { articulo } = req.params;
+    const bodyArticle = req.body;
+    const { status, response } = await addArticleToOrder(database, source, articulo, bodyArticle);
+    res.status(status).json(response);
 });
 
 router.route("/api/v1/pedidos/maestros/:sucursal/:folio/:estatus").put(async (req, res) => {
