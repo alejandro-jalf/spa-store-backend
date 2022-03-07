@@ -82,12 +82,12 @@ const modelsPedidos = (() => {
         }
     }
 
-    const getListaArticulosByDias = async (cadenaConexion = '', dias = '', folio = '', sucursal = '', database = 'SPASUC2021') => {
+    const getListaArticulosByDias = async (cadenaConexion = '', database = '', sucursal = '', folio = '', dias = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `USE ${database}
-                EXECUTE ListaExistenciasAyuda @Dias = ${dias},
+                EXECUTE ListaExistenciasAyudaTop @Dias = ${dias},
                     @Sucursal = '${sucursal}',
                     @Folio = ${folio}`,
                 QueryTypes.SELECT

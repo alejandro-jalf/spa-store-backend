@@ -4,6 +4,7 @@ const {
     getOrdersBySucursal,
     getArticlesByArticle,
     getArticlesByName,
+    getArticlesByDias,
 } = require('../services')
 
 const response = {
@@ -33,7 +34,10 @@ router.route("/api/v1/pedidos/detalles/:sucursal/:folio/nombres/:nombre").get(as
 });
 
 router.route("/api/v1/pedidos/detalles/:sucursal/:folio/dias/:dias").get(async (req, res) => {
-    res.status(200).json(response);
+    const { database, source } = req.query;
+    const { sucursal, folio, dias } = req.params;
+    const { status, response } = await getArticlesByDias(database, source, sucursal, folio, dias);
+    res.status(status).json(response);
 });
 
 router.route("/api/v1/pedidos/detalles/:sucursal/:folio").get(async (req, res) => {
