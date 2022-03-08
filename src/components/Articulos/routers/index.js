@@ -4,6 +4,7 @@ const {
     getDataForStocks,
     getExistenciasByNombre,
     getDetallesExistenciasBySku,
+    getDetallesArticulosByCodificador,
 } = require("../services");
 
 router.route("/api/v1/articulos/:articulo/precio").get(async (req, res) => {
@@ -29,6 +30,13 @@ router.route("/api/v1/articulos/:sku/existencias/detalles").get(async (req, res)
     const { sku } = req.params;
     const { sucursal } = req.query;
     const { status, response } = await getDetallesExistenciasBySku(sucursal, sku);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/articulos/:barcode/codificador").get(async (req, res) => {
+    const { barcode } = req.params;
+    const { sucursal } = req.query;
+    const { status, response } = await getDetallesArticulosByCodificador(sucursal, barcode);
     res.status(status).json(response);
 });
 
