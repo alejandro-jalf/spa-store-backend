@@ -11,10 +11,15 @@ const {
     validateSucursalWithCompany,
     validateDayMinAndMax,
 } = require('../validations');
-const { getPrecio, calculateStocks, updateStockByScripts } = require('../models');
+const {
+    getPrecio,
+    calculateStocks,
+    updateStockByScripts,
+    getDetailsArticleForCodificador,
+} = require('../models');
 
 const ServicesArticulos = (() => {
-    
+
     const getPriceArticle = async (sucursal, codigoBarras) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
@@ -76,9 +81,27 @@ const ServicesArticulos = (() => {
         return createResponse(200, response)
     }
 
+    const getDetallesArticulosByCodificador = async (sucursal, codigoBarras) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateCodigoBarras(codigoBarras);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getDetailsArticleForCodificador(conexion, sucursal, codigoBarras);
+
+        if (!response.success) return createResponse(400, response)
+        if (response.data.length === 0)
+            return createResponse(400, createContentError('No se encontro el articulo'))
+        return createResponse(200, response)
+    }
+
     return {
         getPriceArticle,
         getDataForStocks,
+        getDetallesArticulosByCodificador,
     }
 })();
 
