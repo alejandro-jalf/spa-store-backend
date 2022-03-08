@@ -177,7 +177,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const sendPedido = async (cadenaConexion = '', sucursal = '', folio = '', database = 'SPASUC2021') => {
+    const sendPedido = async (cadenaConexion = '', database = '', sucursal = '', folio = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -186,7 +186,7 @@ const modelsPedidos = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Pedido enviado', result[0]);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar enviar el pedido',
@@ -195,7 +195,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const enProcesoPedido = async (cadenaConexion = '', sucursal = '', folio = '', database = 'SPASUC2021') => {
+    const enProcesoPedido = async (cadenaConexion = '', database = '', sucursal = '', folio = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -204,7 +204,7 @@ const modelsPedidos = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Pedido en proceso', result[0]);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar poner en proceso el pedido',
@@ -213,7 +213,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const cancelPedido = async (cadenaConexion = '', sucursal = '', folio = '', database = 'SPASUC2021') => {
+    const cancelPedido = async (cadenaConexion = '', database = '', sucursal = '', folio = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -222,7 +222,7 @@ const modelsPedidos = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Pedido Cancelado', result[0]);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar cancelar el pedido',
@@ -231,7 +231,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const atendidoPedido = async (cadenaConexion = '', sucursal = '', folio = '', entrada = '', salida = '', database = 'SPASUC2021') => {
+    const atendidoPedido = async (cadenaConexion = '', database = '', sucursal = '', folio = '', entrada = '', salida = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -241,7 +241,7 @@ const modelsPedidos = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Pedido atendido', result[0]);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar atender el pedido',

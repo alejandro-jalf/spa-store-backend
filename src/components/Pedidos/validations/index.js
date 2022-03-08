@@ -27,8 +27,20 @@ const validationPedidos = (() => {
         return createContentAssert('Body correcto');
     }
 
+    const validateStatusPedido = (status = '') => {
+        if (status.trim() === '') return createContentError('Se recibio estatus vacio');
+        if (
+            status.trim().toUpperCase() !== 'PEDIDO CANCELADO' &&
+            status.trim().toUpperCase() !== 'PEDIDO EN PROCESO' &&
+            status.trim().toUpperCase() !== 'PEDIDO ENVIADO' &&
+            status.trim().toUpperCase() !== 'PEDIDO ATENDIDO'
+        ) return createContentError('Estatus invalido');
+        return createContentAssert('Estatus correcto');
+    }
+
     return {
         validateSucursal,
+        validateStatusPedido,
         validateBodyAddArticle,
     }
 })();

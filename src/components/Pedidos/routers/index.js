@@ -9,6 +9,7 @@ const {
     getReportArticles,
     createPedido,
     addArticleToOrder,
+    updateStatuOrder,
 } = require('../services')
 
 const response = {
@@ -81,7 +82,10 @@ router.route("/api/v1/pedidos/detalles/:articulo").post(async (req, res) => {
 });
 
 router.route("/api/v1/pedidos/maestros/:sucursal/:folio/:estatus").put(async (req, res) => {
-    res.status(200).json(response);
+    const { database, source, entrada, salida } = req.query;
+    const { sucursal, folio, estatus } = req.params;
+    const { status, response } = await updateStatuOrder(database, source, sucursal, folio, estatus, entrada, salida);
+    res.status(status).json(response);
 });
 
 module.exports = router;

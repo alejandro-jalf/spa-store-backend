@@ -5,6 +5,7 @@ const {
 const {
     validateSucursal,
     validateBodyAddArticle,
+    validateStatusPedido,
 } = require('../validations');
 const {
     getPedidosEnBodega,
@@ -16,6 +17,10 @@ const {
     getReporteListaArticulos,
     addPedido,
     addArticle,
+    cancelPedido,
+    enProcesoPedido,
+    sendPedido,
+    atendidoPedido,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -125,21 +130,30 @@ const ServicesPedidos = (() => {
     const updateStatuOrder = async (
         database = 'SPASUC2021',
         source = 'BO',
-        article = '',
+        sucursal = '',
         folio = '',
-        status = ''
+        status = '',
+        entrada = '',
+        salida = ''
     ) => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
-        
-        validate = validateBodyAddArticle(bodyArticle)
+
+        validate = validateStatusPedido(status);
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(source);
-        const response  = await addArticle(conexion, database, article, bodyArticle);
+        let response = null;
+        if (status.trim().toUpperCase() === 'PEDIDO CANCELADO')
+            response  = await cancelPedido(conexion, database, sucursal, folio);
+        else if (status.trim().toUpperCase() === 'PEDIDO EN PROCESO')
+            response  = await enProcesoPedido(conexion, database, sucursal, folio);
+        else if (status.trim().toUpperCase() === 'PEDIDO ENVIADO')
+            response  = await sendPedido(conexion, database, sucursal, folio);
+        else response  = await atendidoPedido(conexion, database, sucursal, folio, entrada, salida);
 
         if (!response.success) return createResponse(400, response)
-        return createResponse(201, response)
+        return createResponse(200, response)
     }
 
     return {
