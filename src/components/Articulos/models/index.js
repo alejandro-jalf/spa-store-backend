@@ -141,7 +141,7 @@ const modelsArticulos = (() => {
                 DECLARE @article NVARCHAR(15) = ISNULL(@articulo, '${article}');
 
                 SELECT
-                    A.Nombre, A.CodigoBarras, A.Articulo, A.Descripcion, E.ExistenciaActualRegular,
+                A.Nombre, A.CodigoBarras, A.Articulo, A.Descripcion, E.ExistenciaActualRegular, E.ExistenciaActualUC,
                     Relacion = CAST(CAST(A.FactorVenta AS int) AS nvarchar) + A.UnidadVenta + '/' + CAST(CAST(A.FactorCompra AS int) AS nvarchar) + A.UnidadCompra
                 FROM QVListaprecioConCosto AS A
                 INNER JOIN QVExistencias AS E ON A.Articulo = E.Articulo
