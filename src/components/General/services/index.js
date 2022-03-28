@@ -66,6 +66,11 @@ const ServicesGeneral = (() => {
         const response = await updateFoliosSucursal(conexion, sucursal, newFolio);
         if (!response.success) return createResponse(400, response);
 
+        if (response.data[1] === 0) return createResponse(
+            400,
+            createContentError("No se pudo actualizar el folio, verifique que el nuevo folio final sea mayor que el actual o que la sucursal sea la correcta")
+        );
+
         return createResponse(200, response);
     }
 
