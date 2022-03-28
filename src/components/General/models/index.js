@@ -56,7 +56,7 @@ const modelsGeneral = (() => {
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
-            return createContentAssert('Rasultado de actualizacion de folios', result[0]);
+            return createContentAssert('Resultado de actualizacion de folios', result);
         } catch (error) {
             return createContentError('Fallo al intentar actualizar los folios', error);
         }

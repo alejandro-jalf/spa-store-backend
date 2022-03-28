@@ -3,6 +3,7 @@ const {
     createContentError,
     createContentAssert,
     getListConnectionByCompany,
+    getConnectionFrom,
 } = require('../../../utils');
 const {
     validateEmpresa,
@@ -42,7 +43,7 @@ const ServicesGeneral = (() => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        validate = validateNumber(promMensual);
+        validate = validateNumber(promMensual, 'Promedio mensual');
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
@@ -57,7 +58,7 @@ const ServicesGeneral = (() => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        validate = validateNumber(newFolio);
+        validate = validateNumber(newFolio, 'Nuevo folio final');
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);

@@ -26,10 +26,10 @@ const validationGeneral = (() => {
         return createContentAssert('Sucursal valida');
     }
 
-    const validateNumber = (number = 0) => {
+    const validateNumber = (number = 0, nameCamp = '') => {
         number = parseInt(number);
         if (number.toString() === 'NaN') return createContentError('Envio un valor no numerico');
-        if (number <= 0) return createContentError('No puede ser menor que o igual a 0');
+        if (number <= 0) return createContentError(nameCamp+ ' no puede ser menor que o igual a 0');
         return createContentAssert('Numero valido');
     }    
 
