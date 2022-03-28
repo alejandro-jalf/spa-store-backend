@@ -48,11 +48,15 @@ const modelsGeneral = (() => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `UPDATE SeriesFolios SET FolioFinal = ${newFolio} WHERE Serie = '${sucursal}'`,
+                `UPDATE SeriesFolios
+                SET
+                    FolioFinal = ${newFolio}
+                WHERE Serie = '${sucursal}'
+                    AND FolioFinal < ${newFolio}`,
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos de folios encontrados', result[0]);
+            return createContentAssert('Rasultado de actualizacion de folios', result[0]);
         } catch (error) {
             return createContentError('Fallo al intentar actualizar los folios', error);
         }
