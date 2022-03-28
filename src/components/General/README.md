@@ -7,5 +7,5 @@ Componente para controlar las rutas relacionadas con la informacion general de S
 | **Metodo** | **Ruta** | **Request** | **Descripcion** |
 |------------|----------|-------------|-----------------|
 | **GET** | _/api/v1/general/:empresa/conexiones/activas_ |  | Obtiene el estatus de las conexiones de los dyndns de la empresa |
-| **GET** | _/api/v1/general/folios/:sucursal_ |  | Obtiene un calculo de los folios necesarios para terminar el mes entrante de una sucursal determinada |
-| **PUT** | _/api/v1/general/folios/:sucursal_ |  | Actualiza los folios disponibles de una sucursal determinada |
+| **GET** | _/api/v1/general/folios/:sucursal_ | query = { promMensual: Number }  | Obtiene un calculo de los folios necesarios para terminar el mes entrante de una sucursal determinada |
+| **PUT** | _/api/v1/general/folios/:sucursal_ | query = { newFolio: Number } | Actualiza los folios disponibles de una sucursal determinada |
