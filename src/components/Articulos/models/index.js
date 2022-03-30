@@ -119,7 +119,7 @@ const modelsArticulos = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(script, QueryTypes.UPDATE);
             dbmssql.closeConexion();
-            return createContentAssert('Stock actualizados', result[0]);
+            return createContentAssert('Stock actualizados', result);
         } catch (error) {
             console.log(error);
             return createContentError(

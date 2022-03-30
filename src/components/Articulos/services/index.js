@@ -81,6 +81,24 @@ const ServicesArticulos = (() => {
         return createResponse(200, response)
     }
 
+    const updateStocksBySucursal = async (sucursal, company, script = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+        sucursal = sucursal.toUpperCase()
+
+        validate = validateSucursalWithCompany(sucursal, company);
+        if (!validate.success)
+            return createResponse(400, validate);
+        company = company.toUpperCase();
+
+        const conexion = getConnectionFrom(sucursal);
+
+        const response = await updateStockByScripts(conexion, script);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
     const getDetallesArticulosByCodificador = async (sucursal, codigoBarras) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
@@ -101,6 +119,7 @@ const ServicesArticulos = (() => {
     return {
         getPriceArticle,
         getDataForStocks,
+        updateStocksBySucursal,
         getDetallesArticulosByCodificador,
     }
 })();
