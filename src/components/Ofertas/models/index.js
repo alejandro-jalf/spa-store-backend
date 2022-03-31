@@ -63,7 +63,10 @@ const modelsOfertas = (() => {
                     Nombre,
                     Descripcion,
                     Precio1IVAUV,
-                    UltimoCosto
+                    UltimoCosto,
+                    ExistenciaActualRegular,
+                    ExistenciaActualUC,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta
                 FROM
                     QVListaprecioConCosto
                 WHERE Tienda = @Tienda AND Almacen = @Almacen AND (Articulo = '${Articulo}' OR CodigoBarras = '${Articulo}');
@@ -96,7 +99,10 @@ const modelsOfertas = (() => {
                     Nombre,
                     Descripcion,
                     Precio1IVAUV,
-                    UltimoCosto
+                    UltimoCosto,
+                    ExistenciaActualRegular,
+                    ExistenciaActualUC,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta
                 FROM
                     QVListaprecioConCosto
                 WHERE Tienda = @Tienda AND Almacen = @Almacen AND Nombre LIKE '${name}';
