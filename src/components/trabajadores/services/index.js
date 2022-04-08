@@ -26,6 +26,7 @@ const ServicesTrabajadores = (() => {
         empresa = empresa.trim().toUpperCase()
         const sucursalUtils = empresa === 'CAASA' ? empresa + sucursal : sucursal
         const conexion = getConnectionFrom(getSucursalByCategory(sucursalUtils));
+        if (!conexion) return createResponse(400, createContentError('No se encontro la conexion para la base de datos'))
         if (conexion === null) return createResponse(400, createContentError('Verifique que la sucursal pertenesca a la empresa'))
         const response  = await getAsistenciasBySucursal(conexion, sucursal, fechaini, fechafin);
 

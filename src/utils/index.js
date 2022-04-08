@@ -8,6 +8,8 @@ const {
     connectionCaasaSayula,
     connectionCaasaSayulaT,
     connectionCaasaSuper,
+    connectionEnriquez,
+    connectionSayula,
     dataBase,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
@@ -33,8 +35,10 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'OU') return connectionOluta;
         if (from.trim().toUpperCase() === 'JL') return connectionJaltipan;
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
-        if (from.trim().toUpperCase() === 'EN') return connectionCaasaEnriquez;
-        if (from.trim().toUpperCase() === 'SA') return connectionCaasaSayula;
+        if (from.trim().toUpperCase() === 'EN') return connectionEnriquez;
+        if (from.trim().toUpperCase() === 'SA') return connectionSayula;
+        if (from.trim().toUpperCase() === 'CEN') return connectionCaasaEnriquez;
+        if (from.trim().toUpperCase() === 'CSA') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'SB') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'ST') return connectionCaasaSayulaT;
         if (from.trim().toUpperCase() === 'SU') return connectionCaasaSuper;
@@ -46,11 +50,14 @@ const utils = (() => {
     const getListConnectionByCompany = (company = '') => {
         if (company === '') return [];
         if (company.trim().toUpperCase() === 'CAASA') return [
+            { name: 'SUPER', connection: connectionCaasaSuper },
+            { name: 'SAYULAT', connection: connectionCaasaSayulaT },
             { name: 'ENRIQUEZ', connection: connectionCaasaEnriquez },
             { name: 'SAYULA', connection: connectionCaasaSayula },
-            { name: 'SUPER', connection: connectionCaasaSuper },
         ]
         if (company.trim().toUpperCase() === 'SPA') return [
+            { name: 'ENRIQUEZ', connection: connectionEnriquez },
+            { name: 'SAYULA', connection: connectionSayula },
             { name: 'ZARAGOZA', connection: connectionZaragoza },
             { name: 'VICTORIA', connection: connectionVictoria },
             { name: 'OLUTA', connection: connectionOluta },
@@ -63,8 +70,8 @@ const utils = (() => {
     const getSucursalByCategory = (categoria = '') => {
         if (categoria.trim() === '') return undefined;
         if (categoria.toUpperCase() === 'GENERAL') return undefined;
-        if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'EN';
-        if (categoria.toUpperCase() === 'CAASASAYULA') return 'SA';
+        if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'CEN'; //Quitar al migrar
+        if (categoria.toUpperCase() === 'CAASASAYULA') return 'CSA'; //Quitar al migrar
         if (categoria.toUpperCase() === 'CAASASAYULABODEGA') return 'SB';
         if (categoria.toUpperCase() === 'CAASATSAYULA') return 'ST';
         if (categoria.toUpperCase() === 'CAASAAUTOSERVICIO') return 'SU';
@@ -72,13 +79,15 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'CAASABODEGA') return 'RE';
         if (categoria.toUpperCase() === 'CAASAOFICINA') return 'CO';
         if (categoria.toUpperCase() === 'SPABODEGA') return 'BO';
-        if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
         if (categoria.toUpperCase() === 'SPAJALTIPAN') return 'JL';
         if (categoria.toUpperCase() === 'SPAOFICINA') return 'ZR';
         if (categoria.toUpperCase() === 'SPAOLUTA') return 'OU';
-        if (categoria.toUpperCase() === 'SPASANANDRES') return undefined;
+        if (categoria.toUpperCase() === 'SPAENRIQUEZ') return 'EN';
+        if (categoria.toUpperCase() === 'SPASAYULA') return 'SA';
         if (categoria.toUpperCase() === 'SPAVICTORIA') return 'VC';
         if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';
+        if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
+        if (categoria.toUpperCase() === 'SPASANANDRES') return undefined;
         if (categoria.toUpperCase() === 'HUAMUCHIL') return undefined;
         if (categoria.toUpperCase() === 'TXTLABOYA') return undefined;
         if (categoria.toUpperCase() === 'TXTLAESCONDIDA') return undefined;
@@ -103,6 +112,12 @@ const utils = (() => {
             almacen.trim().toLowerCase() === 'spa-jaltipan-punto de venta' ||
             almacen.trim().toLowerCase() === 'spa-jaltipan-confiteria'
         ) return 'JL';
+
+        if (almacen.trim().toLowerCase() === 'spa-enriquez-punto de venta')
+            return 'EN';
+
+        if (almacen.trim().toLowerCase() === 'spa-sayula-punto de venta')
+            return 'SA';
 
         if (
             almacen.trim().toLowerCase() === 'bodega bocardo' ||

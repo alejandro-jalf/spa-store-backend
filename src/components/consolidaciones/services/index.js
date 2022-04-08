@@ -13,6 +13,7 @@ const servicesConsolidaciones = (() => {
     const getConsolidacionesForDate = async (sucursal = '', dateStart, dateEnd) => {
         let validate = validateFechas(dateStart, dateEnd);
         if (!validate.success) return createResponse(400, validate);
+        sucursal = sucursal.trim().toLocaleUpperCase();
         validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
         
