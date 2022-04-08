@@ -37,6 +37,8 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
         if (from.trim().toUpperCase() === 'EN') return connectionEnriquez;
         if (from.trim().toUpperCase() === 'SA') return connectionSayula;
+        if (from.trim().toUpperCase() === 'CEN') return connectionCaasaEnriquez;
+        if (from.trim().toUpperCase() === 'CSA') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'SB') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'ST') return connectionCaasaSayulaT;
         if (from.trim().toUpperCase() === 'SU') return connectionCaasaSuper;
@@ -50,6 +52,8 @@ const utils = (() => {
         if (company.trim().toUpperCase() === 'CAASA') return [
             { name: 'SUPER', connection: connectionCaasaSuper },
             { name: 'SAYULAT', connection: connectionCaasaSayulaT },
+            { name: 'ENRIQUEZ', connection: connectionCaasaEnriquez },
+            { name: 'SAYULA', connection: connectionCaasaSayula },
         ]
         if (company.trim().toUpperCase() === 'SPA') return [
             { name: 'ENRIQUEZ', connection: connectionEnriquez },
@@ -66,6 +70,8 @@ const utils = (() => {
     const getSucursalByCategory = (categoria = '') => {
         if (categoria.trim() === '') return undefined;
         if (categoria.toUpperCase() === 'GENERAL') return undefined;
+        if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'CEN'; //Quitar al migrar
+        if (categoria.toUpperCase() === 'CAASASAYULA') return 'CSA'; //Quitar al migrar
         if (categoria.toUpperCase() === 'CAASASAYULABODEGA') return 'SB';
         if (categoria.toUpperCase() === 'CAASATSAYULA') return 'ST';
         if (categoria.toUpperCase() === 'CAASAAUTOSERVICIO') return 'SU';

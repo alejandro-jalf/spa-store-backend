@@ -5,6 +5,8 @@ const validationTrabajadores = (() => {
     const validateSucursal = (sucursal = '') => {
         if (
             sucursal.toUpperCase() !== 'GENERAL' &&
+            sucursal.toUpperCase() !== 'ENRIQUEZ' &&
+            sucursal.toUpperCase() !== 'SAYULA' &&
             sucursal.toUpperCase() !== 'SPAENRIQUEZ' &&
             sucursal.toUpperCase() !== 'SPASAYULA' &&
             sucursal.toUpperCase() !== 'SAYULABODEGA' &&
