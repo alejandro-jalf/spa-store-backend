@@ -11,9 +11,9 @@ const modelsConsolidaciones = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
-                USE ${DB}
-                DECLARE @FechaInicio DATETIME = CAST('${fechaIni}' AS DATETIME)
-                DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME)
+                USE ${DB};
+                DECLARE @FechaInicio DATETIME = CAST('${fechaIni}' AS DATETIME);
+                DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME);
 
                 SET LANGUAGE Español;
 
