@@ -35,7 +35,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'OU') return connectionOluta;
         if (from.trim().toUpperCase() === 'JL') return connectionJaltipan;
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
-        if (from.trim().toUpperCase() === 'EN') return connectionEnriquez;
+        if (from.trim().toUpperCase() === 'ER') return connectionEnriquez;
         if (from.trim().toUpperCase() === 'SA') return connectionSayula;
         if (from.trim().toUpperCase() === 'CEN') return connectionCaasaEnriquez;
         if (from.trim().toUpperCase() === 'CSA') return connectionCaasaSayula;
@@ -82,7 +82,7 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'SPAJALTIPAN') return 'JL';
         if (categoria.toUpperCase() === 'SPAOFICINA') return 'ZR';
         if (categoria.toUpperCase() === 'SPAOLUTA') return 'OU';
-        if (categoria.toUpperCase() === 'SPAENRIQUEZ') return 'EN';
+        if (categoria.toUpperCase() === 'SPAENRIQUEZ') return 'ER';
         if (categoria.toUpperCase() === 'SPASAYULA') return 'SA';
         if (categoria.toUpperCase() === 'SPAVICTORIA') return 'VC';
         if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';

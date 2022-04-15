@@ -20,7 +20,7 @@ const validationGeneral = (() => {
             sucursal.toUpperCase() !== 'SU' &&
             sucursal.toUpperCase() !== 'MA' &&
             sucursal.toUpperCase() !== 'RE' &&
-            sucursal.toUpperCase() !== 'EN' &&
+            sucursal.toUpperCase() !== 'ER' &&
             sucursal.toUpperCase() !== 'BO'
         ) return createContentError('La sucursal no es valida');
         return createContentAssert('Sucursal valida');
