@@ -114,7 +114,7 @@ const utils = (() => {
         ) return 'JL';
 
         if (almacen.trim().toLowerCase() === 'spa-enriquez-punto de venta')
-            return 'EN';
+            return 'ER';
 
         if (almacen.trim().toLowerCase() === 'spa-sayula-punto de venta')
             return 'SA';
