@@ -20,7 +20,7 @@ const validationArticulos = (() => {
     }
 
     const validateSucursalWithCompany = (sucursal = '', company = '') => {
-        const sucForSPA = [ 'ZR', 'VC', 'OU', 'JL', 'BO' ];
+        const sucForSPA = [ 'ZR', 'VC', 'OU', 'JL', 'BO', 'ER' ];
         const sucForCAASA = [ 'SA', 'SB', 'SU', 'MA', 'RE', 'EN', 'CO' ];
         let sucFinded;
         if (company.toUpperCase() === 'SPA')
