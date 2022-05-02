@@ -84,7 +84,6 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'SPAOFICINA') return 'ZR';
         if (categoria.toUpperCase() === 'SPAOLUTA') return 'OU';
         if (categoria.toUpperCase() === 'SPAENRIQUEZ') return 'ER';
-        if (categoria.toUpperCase() === 'SPASAYULA') return 'SA';
         if (categoria.toUpperCase() === 'SPASAYULA') return 'SY';
         if (categoria.toUpperCase() === 'SPAVICTORIA') return 'VC';
         if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';
