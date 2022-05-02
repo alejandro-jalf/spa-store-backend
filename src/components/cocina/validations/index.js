@@ -45,6 +45,7 @@ const validationCocina = (() => {
             sucursal !== 'JL' &&
             sucursal !== 'ER' &&
             sucursal !== 'SA' &&
+            sucursal !== 'SY' &&
             sucursal !== 'BO'
         ) return createContentError('La sucursal no es valida');
         return createContentAssert('Sucursal valida');

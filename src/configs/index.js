@@ -14,7 +14,7 @@ const configs = (() => {
     const connectionJaltipan = process.env.SPA_JL_SEQUELIZE;
     const connectionBodega = process.env.SPA_BO_SEQUELIZE;
     const connectionEnriquez = process.env.SPA_EN_SEQUELIZE;
-    const connectionSayula = process.env.SPA_SA_SEQUELIZE;
+    const connectionSayula = process.env.SPA_SY_SEQUELIZE;
     const connectionCaasaEnriquez = process.env.CAASA_EN_SEQUELIZE;
     const connectionCaasaSayula = process.env.CAASA_SA_SEQUELIZE;
     const connectionCaasaSayulaT = process.env.CAASA_ST_SEQUELIZE;
@@ -30,7 +30,8 @@ const configs = (() => {
         BO: process.env.SPA_DATABASE_BO,
         SU: process.env.SPA_DATABASE_SU,
         ER: process.env.SPA_DATABASE_EN,
-        SA: process.env.SPA_DATABASE_SA,
+        SA: process.env.SPA_DATABASE_SY,
+        SY: process.env.SPA_DATABASE_SY,
     }
 
     return {

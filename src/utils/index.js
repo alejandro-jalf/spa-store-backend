@@ -37,6 +37,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'BO') return connectionBodega;
         if (from.trim().toUpperCase() === 'ER') return connectionEnriquez;
         if (from.trim().toUpperCase() === 'SA') return connectionSayula;
+        if (from.trim().toUpperCase() === 'SY') return connectionSayula;
         if (from.trim().toUpperCase() === 'CEN') return connectionCaasaEnriquez;
         if (from.trim().toUpperCase() === 'CSA') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'SB') return connectionCaasaSayula;
@@ -84,6 +85,7 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'SPAOLUTA') return 'OU';
         if (categoria.toUpperCase() === 'SPAENRIQUEZ') return 'ER';
         if (categoria.toUpperCase() === 'SPASAYULA') return 'SA';
+        if (categoria.toUpperCase() === 'SPASAYULA') return 'SY';
         if (categoria.toUpperCase() === 'SPAVICTORIA') return 'VC';
         if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';
         if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
@@ -117,7 +119,7 @@ const utils = (() => {
             return 'ER';
 
         if (almacen.trim().toLowerCase() === 'spa-sayula-punto de venta')
-            return 'SA';
+            return 'SY';
 
         if (
             almacen.trim().toLowerCase() === 'bodega bocardo' ||
