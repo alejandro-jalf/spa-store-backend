@@ -7,6 +7,8 @@ const validationReportes = (() => {
             sucursal.toUpperCase() !== 'VC' &&
             sucursal.toUpperCase() !== 'OU' &&
             sucursal.toUpperCase() !== 'JL' &&
+            sucursal.toUpperCase() !== 'ER' &&
+            sucursal.toUpperCase() !== 'SY' &&
             sucursal.toUpperCase() !== 'BO'
         ) return createContentError('La sucursal no es valida');
         return createContentAssert('Sucursal valida');
