@@ -1,4 +1,9 @@
-const { createContentAssert, createContentError } = require('../../../utils');
+const {
+    createContentAssert,
+    createContentError,
+    toMoment,
+} = require('../../../utils');
+const { schemaFecha } = require('../schemas')
 
 const validationReportes = (() => {
     const validateSucursal = (sucursal = '') => {
@@ -29,9 +34,27 @@ const validationReportes = (() => {
         }
     }
 
+    const validateDate = (date = '') => {
+        const resultValidate = schemaFecha.validate(date);
+        if (resultValidate.error)
+            return createContentError('La fecha no tiene el formato correcto YYYYMMDD', resultValidate.error);
+
+        return createContentAssert('Fecha correcta');
+    }
+
+    const validateDates = (fechaIni = '', fechaFin = '') => {
+        const dateStart = toMoment(fechaIni.slice(0, 4) + '-' + fechaIni.slice(4, 6) + '-' + fechaIni.slice(6, 8));
+        const dateEnd = toMoment(fechaFin.slice(0, 4) + '-' + fechaFin.slice(4, 6) + '-' + fechaFin.slice(6, 8));
+        if (dateStart.isAfter(dateEnd))
+            return createContentError('La fecha de inicio no puede ser menor que la fecha de termino')
+        return createContentAssert('Fechas correctas');
+    }
+
     return {
         validateSucursal,
         validateAlmacenTienda,
+        validateDate,
+        validateDates,
     }
 })();
 
