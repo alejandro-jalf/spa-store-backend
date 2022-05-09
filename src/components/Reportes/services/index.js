@@ -3,8 +3,16 @@ const {
     getConnectionFrom,
     createContentError,
 } = require('../../../utils');
-const { validateSucursal, validateAlmacenTienda } = require('../validations');
-const { getInventoryByShopAndWarehouse } = require('../models');
+const {
+    validateSucursal,
+    validateAlmacenTienda,
+    validateDate,
+    validateDates
+} = require('../validations');
+const {
+    getInventoryByShopAndWarehouse,
+    GetSalesForDate,
+} = require('../models');
 
 const ServicesReportes = (() => {
     
@@ -27,9 +35,34 @@ const ServicesReportes = (() => {
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
     }
+    
+    const getVentasPorDia = async (sucursal = '', FechaIni = '', FechaFin = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaIni);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDates(FechaIni, FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await GetSalesForDate(conexion, sucursal, FechaIni, FechaFin);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
 
     return {
         getInventoryCloseYear,
+        getVentasPorDia,
     }
 })();
 
