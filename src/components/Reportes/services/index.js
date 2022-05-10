@@ -2,6 +2,7 @@ const {
     createResponse,
     getConnectionFrom,
     createContentError,
+    getNameBySiglas,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -54,7 +55,7 @@ const ServicesReportes = (() => {
             return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
-        const response  = await GetSalesForDate(conexion, sucursal, FechaIni, FechaFin);
+        const response  = await GetSalesForDate(conexion, getNameBySiglas(sucursal), FechaIni, FechaFin);
 
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
