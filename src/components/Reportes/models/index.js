@@ -46,8 +46,58 @@ const modelsReportes = (() => {
         }
     }
 
+    const GetSalesForDate = async (cadenaConexion = '', sucursal = '', fechaIni = '', fechaFin = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
+                DECLARE @FechaInicial DATETIME = CAST('${fechaIni}' AS DATETIME);
+                DECLARE @FechaFinal DATETIME = CAST('${fechaFin}' AS DATETIME);
+                WITH VentasPorDocumento (Fecha, VentaTotal, CostoTotal)
+                AS (
+                    SELECT
+                        Fecha,
+                        VentaTotal = SUM(VentaValorNeta),
+                        CostoTotal = SUM(CostoValorNeto)
+                    FROM QVDEMovAlmacen
+                    WHERE (Fecha BETWEEN @FechaInicial AND @FechaFinal)
+                        AND TipoDocumento = 'V'
+                        AND Estatus = 'E'
+                    GROUP BY Fecha, Documento
+                )
+
+                SELECT
+                    Sucursal = @Sucursal,
+                    Fecha,
+                    VentaTotal = SUM(VentaTotal),
+                    CostoTotal = SUM(CostoTotal),
+                    UtilidadTotal = SUM(VentaTotal) - SUM(CostoTotal),
+                    UtilidadPorcentual = 1 - (SUM(CostoTotal) / SUM(VentaTotal)),
+                    TicketsTotales = COUNT(*),
+                    MejorTicket = MAX(VentaTotal),
+                    PeorTicket = MIN(VentaTotal),
+                    TicketPromedio = AVG(VentaTotal)
+                FROM VentasPorDocumento
+                GROUP BY Fecha
+                ORDER BY Fecha DESC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultados de ventas', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las ventas por dia',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
+        GetSalesForDate,
     }
 })();
 

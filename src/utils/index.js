@@ -48,6 +48,26 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'CO') return connectionCaasaSuper;
     }
 
+    const getNameBySiglas= (from = '') => {
+        if (from.trim() === '') return from;
+        if (from.trim().toUpperCase() === 'HU') return 'Huamuchil';
+        if (from.trim().toUpperCase() === 'ZR') return 'SPA Zaragoza';
+        if (from.trim().toUpperCase() === 'VC') return 'SPA Victoria';
+        if (from.trim().toUpperCase() === 'OU') return 'SPA Oluta';
+        if (from.trim().toUpperCase() === 'JL') return 'SPA Jaltipan';
+        if (from.trim().toUpperCase() === 'BO') return 'SPA Bodega';
+        if (from.trim().toUpperCase() === 'ER') return 'SPA Enriquez';
+        if (from.trim().toUpperCase() === 'SA') return 'CAASA Sayula';
+        if (from.trim().toUpperCase() === 'SY') return 'SPA Sayula';
+        if (from.trim().toUpperCase() === 'SB') return 'Sayula Tortilleria';
+        if (from.trim().toUpperCase() === 'ST') return 'Sayula Tortilleria';
+        if (from.trim().toUpperCase() === 'SU') return 'Super';
+        if (from.trim().toUpperCase() === 'MA') return 'Mayoreo';
+        if (from.trim().toUpperCase() === 'RE') return 'Reparto';
+        if (from.trim().toUpperCase() === 'CO') return 'CAASA Oficina';
+        return from;
+    }
+
     const getListConnectionByCompany = (company = '') => {
         if (company === '') return [];
         if (company.trim().toUpperCase() === 'CAASA') return [
@@ -246,6 +266,7 @@ const utils = (() => {
         getEndDayMonth,
         completeDateHour,
         getSucursalByAlmacen,
+        getNameBySiglas,
         createUUID,
         toDate,
         getDateActual,
