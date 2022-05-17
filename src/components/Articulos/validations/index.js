@@ -9,6 +9,7 @@ const validationArticulos = (() => {
             sucursal.toUpperCase() !== 'OU' &&
             sucursal.toUpperCase() !== 'JL' &&
             sucursal.toUpperCase() !== 'SA' &&
+            sucursal.toUpperCase() !== 'SY' &&
             sucursal.toUpperCase() !== 'SB' &&
             sucursal.toUpperCase() !== 'SU' &&
             sucursal.toUpperCase() !== 'MA' &&
@@ -20,7 +21,7 @@ const validationArticulos = (() => {
     }
 
     const validateSucursalWithCompany = (sucursal = '', company = '') => {
-        const sucForSPA = [ 'ZR', 'VC', 'OU', 'JL', 'BO', 'ER' ];
+        const sucForSPA = [ 'ZR', 'VC', 'OU', 'JL', 'BO', 'ER', 'SY' ];
         const sucForCAASA = [ 'SA', 'SB', 'SU', 'MA', 'RE', 'EN', 'CO' ];
         let sucFinded;
         if (company.toUpperCase() === 'SPA')
