@@ -78,10 +78,10 @@ const modelsArticulos = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Articulos con utilidad baja', result[0]);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener precios',
+                'Fallo la conexion con base de datos al intentar obtener los articulos con utilidad baja',
                 error
             );
         }
