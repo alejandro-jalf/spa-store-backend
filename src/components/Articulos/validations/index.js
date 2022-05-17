@@ -41,6 +41,12 @@ const validationArticulos = (() => {
         return createContentAssert('Codigo correcto');
     }
 
+    const validatePorcentaje = (porcentaje = 10) => {
+        if (parseInt(porcentaje) === NaN)
+            return createContentError(`El procentaje "${porcentaje}" no es valido`)
+        return createContentAssert('Porcentaje correcto');
+    }
+
     const validateDayMinAndMax = (daymin, daymax) => {
         daymin = parseInt(daymin)
         daymax = parseInt(daymax)
@@ -55,6 +61,7 @@ const validationArticulos = (() => {
 
     return {
         validateSucursal,
+        validatePorcentaje,
         validateDayMinAndMax,
         validateCodigoBarras,
         validateSucursalWithCompany,
