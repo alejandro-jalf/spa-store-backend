@@ -5,6 +5,7 @@ const {
     getExistenciasByNombre,
     getDetallesExistenciasBySku,
     getDetallesArticulosByCodificador,
+    getArticlesWithLowUtilities,
     updateStocksBySucursal,
 } = require("../services");
 
@@ -12,6 +13,13 @@ router.route("/api/v1/articulos/:articulo/precio").get(async (req, res) => {
     const { articulo } = req.params;
     const { sucursal } = req.query;
     const { status, response } = await getPriceArticle(sucursal, articulo);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/articulos/utilidades/:sucursal").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { porcentajeUtilidad } = req.query;
+    const { status, response } = await getArticlesWithLowUtilities(sucursal, porcentajeUtilidad);
     res.status(status).json(response);
 });
 

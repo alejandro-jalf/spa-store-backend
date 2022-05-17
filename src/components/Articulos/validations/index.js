@@ -9,6 +9,7 @@ const validationArticulos = (() => {
             sucursal.toUpperCase() !== 'OU' &&
             sucursal.toUpperCase() !== 'JL' &&
             sucursal.toUpperCase() !== 'SA' &&
+            sucursal.toUpperCase() !== 'SY' &&
             sucursal.toUpperCase() !== 'SB' &&
             sucursal.toUpperCase() !== 'SU' &&
             sucursal.toUpperCase() !== 'MA' &&
@@ -20,7 +21,7 @@ const validationArticulos = (() => {
     }
 
     const validateSucursalWithCompany = (sucursal = '', company = '') => {
-        const sucForSPA = [ 'ZR', 'VC', 'OU', 'JL', 'BO', 'ER' ];
+        const sucForSPA = [ 'ZR', 'VC', 'OU', 'JL', 'BO', 'ER', 'SY' ];
         const sucForCAASA = [ 'SA', 'SB', 'SU', 'MA', 'RE', 'EN', 'CO' ];
         let sucFinded;
         if (company.toUpperCase() === 'SPA')
@@ -40,6 +41,12 @@ const validationArticulos = (() => {
         return createContentAssert('Codigo correcto');
     }
 
+    const validatePorcentaje = (porcentaje = 10) => {
+        if (parseInt(porcentaje) === NaN)
+            return createContentError(`El procentaje "${porcentaje}" no es valido`)
+        return createContentAssert('Porcentaje correcto');
+    }
+
     const validateDayMinAndMax = (daymin, daymax) => {
         daymin = parseInt(daymin)
         daymax = parseInt(daymax)
@@ -54,6 +61,7 @@ const validationArticulos = (() => {
 
     return {
         validateSucursal,
+        validatePorcentaje,
         validateDayMinAndMax,
         validateCodigoBarras,
         validateSucursalWithCompany,

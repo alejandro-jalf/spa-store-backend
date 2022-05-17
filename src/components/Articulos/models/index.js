@@ -44,6 +44,49 @@ const modelsArticulos = (() => {
         }
     }
 
+    const getArticulosConUtilidadBaja = async (cadenaConexion = '', sucursal = 'ZR', porcentajeUtilidad = 0.1) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                DECLARE @UtilidadMinima FLOAT = ${porcentajeUtilidad};
+
+                WITH ArticulosUtilidad (
+                    Articulo, Nombre, Relacion, ExistenciaActualRegular, UltimoCosto, Precio1IVAUV, Precio2IVAUV, Precio3IVAUV,
+                    Utilidad1, Utilidad2, Utilidad3, CantidadParaPrecio1, CantidadParaPrecio2, CantidadParaPrecio3
+                ) AS (
+                    SELECT
+                        Articulo, Nombre,
+                        Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
+                        ExistenciaActualRegular,
+                        UltimoCosto, Precio1IVAUV, Precio2IVAUV, Precio3IVAUV,
+                        Utilidad1 = CASE WHEN Precio1IVAUV = 0 THEN 0 ELSE (1 - (UltimoCosto / Precio1IVAUV)) END,
+                        Utilidad2 = CASE WHEN Precio2IVAUV = 0 THEN 0 ELSE (1 - (UltimoCosto / Precio2IVAUV)) END,
+                        Utilidad3 = CASE WHEN Precio3IVAUV = 0 THEN 0 ELSE (1 - (UltimoCosto / Precio3IVAUV)) END,
+                        CantidadParaPrecio1, CantidadParaPrecio2, CantidadParaPrecio3
+                    FROM QVListaPrecioConCosto
+                    WHERE Tienda = @Tienda AND Almacen = @Almacen
+                        AND ExistenciaActualRegular > 0
+                )
+
+                SELECT * FROM ArticulosUtilidad WHERE Utilidad1 < @UtilidadMinima OR Utilidad2 < @UtilidadMinima OR Utilidad3 < @UtilidadMinima
+
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Articulos con utilidad baja', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener los articulos con utilidad baja',
+                error
+            );
+        }
+    }
+
     const calculateStocks = async (cadenaConexion = '', sucursal = 'ZR', databaseOld = '', dayMin = 30, dayMax = 45) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -166,6 +209,7 @@ const modelsArticulos = (() => {
 
     return {
         getDetailsArticleForCodificador,
+        getArticulosConUtilidadBaja,
         updateStockByScripts,
         calculateStocks,
         getPrecio,
