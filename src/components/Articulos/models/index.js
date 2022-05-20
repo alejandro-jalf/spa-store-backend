@@ -56,7 +56,7 @@ const modelsArticulos = (() => {
 
                 WITH ArticulosUtilidad (
                     Articulo, Nombre, Relacion, ExistenciaActualRegular, UltimoCosto, Precio1IVAUV, Precio2IVAUV, Precio3IVAUV,
-                    Utilidad1, Utilidad2, Utilidad3, CantidadParaPrecio1, CantidadParaPrecio2, CantidadParaPrecio3
+                    Utilidad1, Utilidad2, Utilidad3, CantidadParaPrecio1, CantidadParaPrecio2, CantidadParaPrecio3, UtilidadMinima
                 ) AS (
                     SELECT
                         Articulo, Nombre,
