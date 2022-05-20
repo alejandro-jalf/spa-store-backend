@@ -11,6 +11,7 @@ const validationTrabajadores = (() => {
             sucursal.toUpperCase() !== 'SPASAYULA' &&
             sucursal.toUpperCase() !== 'SAYULABODEGA' &&
             sucursal.toUpperCase() !== 'TSAYULA' &&
+            sucursal.toUpperCase() !== 'SPASAYULAT' &&
             sucursal.toUpperCase() !== 'AUTOSERVICIO' &&
             sucursal.toUpperCase() !== 'MEDIOMAYOREO' &&
             sucursal.toUpperCase() !== 'BODEGA' &&
