@@ -66,7 +66,8 @@ const modelsArticulos = (() => {
                         Utilidad1 = CASE WHEN Precio1IVAUV = 0 THEN 0 ELSE (1 - (UltimoCosto / Precio1IVAUV)) END,
                         Utilidad2 = CASE WHEN Precio2IVAUV = 0 THEN 0 ELSE (1 - (UltimoCosto / Precio2IVAUV)) END,
                         Utilidad3 = CASE WHEN Precio3IVAUV = 0 THEN 0 ELSE (1 - (UltimoCosto / Precio3IVAUV)) END,
-                        CantidadParaPrecio1, CantidadParaPrecio2, CantidadParaPrecio3
+                        CantidadParaPrecio1, CantidadParaPrecio2, CantidadParaPrecio3,
+                        UtilidadMinima = ${porcentajeUtilidad}
                     FROM QVListaPrecioConCosto
                     WHERE Tienda = @Tienda AND Almacen = @Almacen
                         AND ExistenciaActualRegular > 0
