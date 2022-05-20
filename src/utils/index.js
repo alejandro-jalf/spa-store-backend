@@ -10,6 +10,7 @@ const {
     connectionCaasaSuper,
     connectionEnriquez,
     connectionSayula,
+    connectionSayulaT,
     dataBase,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
@@ -41,7 +42,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'CEN') return connectionCaasaEnriquez;
         if (from.trim().toUpperCase() === 'CSA') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'SB') return connectionCaasaSayula;
-        if (from.trim().toUpperCase() === 'ST') return connectionCaasaSayulaT;
+        if (from.trim().toUpperCase() === 'ST') return connectionSayulaT;
         if (from.trim().toUpperCase() === 'SU') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'MA') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'RE') return connectionCaasaSuper;
@@ -72,13 +73,11 @@ const utils = (() => {
         if (company === '') return [];
         if (company.trim().toUpperCase() === 'CAASA') return [
             { name: 'SUPER', connection: connectionCaasaSuper },
-            { name: 'SAYULAT', connection: connectionCaasaSayulaT },
-            { name: 'ENRIQUEZ', connection: connectionCaasaEnriquez },
-            { name: 'SAYULA', connection: connectionCaasaSayula },
         ]
         if (company.trim().toUpperCase() === 'SPA') return [
             { name: 'ENRIQUEZ', connection: connectionEnriquez },
             { name: 'SAYULA', connection: connectionSayula },
+            { name: 'SAYULA T.', connection: connectionSayulaT },
             { name: 'ZARAGOZA', connection: connectionZaragoza },
             { name: 'VICTORIA', connection: connectionVictoria },
             { name: 'OLUTA', connection: connectionOluta },
@@ -94,7 +93,7 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'CEN'; //Quitar al migrar
         if (categoria.toUpperCase() === 'CAASASAYULA') return 'CSA'; //Quitar al migrar
         if (categoria.toUpperCase() === 'CAASASAYULABODEGA') return 'SB';
-        if (categoria.toUpperCase() === 'CAASATSAYULA') return 'ST';
+        if (categoria.toUpperCase() === 'SPASAYULAT') return 'ST';
         if (categoria.toUpperCase() === 'CAASAAUTOSERVICIO') return 'SU';
         if (categoria.toUpperCase() === 'CAASAMEDIOMAYOREO') return 'MA';
         if (categoria.toUpperCase() === 'CAASABODEGA') return 'RE';
