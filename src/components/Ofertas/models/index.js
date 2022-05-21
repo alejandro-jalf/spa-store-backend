@@ -19,11 +19,11 @@ const modelsOfertas = (() => {
                 SELECT
                     Suc = @Sucursal,
                     O.Articulo, O.CodigoBarras, O.Nombre, 
-                    UtilidadOferta = 1 - (C.UltimoCostoNeto/(Precio1IVAUV - Descuento)),
-                    OfertaValida = CASE WHEN (1 - (C.UltimoCostoNeto/(Precio1IVAUV - Descuento))) < 0.1 THEN 'NO' ELSE 'SI' END,
-                    Descuento, C.UltimoCostoNeto, Precio1IVAUV,
-                    UtilidadVenta = 1 - (UltimoCostoNeto/Precio1IVAUV),
-                    Precio1Valido = CASE WHEN (1 - (C.UltimoCostoNeto/Precio1IVAUV)) < 0.1 THEN 'NO' ELSE 'SI' END,
+                    UtilidadOferta = 1 - (C.UltimoCosto/(Precio1IVAUV - Descuento)),
+                    OfertaValida = CASE WHEN (1 - (C.UltimoCosto/(Precio1IVAUV - Descuento))) < 0.1 THEN 'NO' ELSE 'SI' END,
+                    Descuento, C.UltimoCosto, Precio1IVAUV,
+                    UtilidadVenta = 1 - (UltimoCosto/Precio1IVAUV),
+                    Precio1Valido = CASE WHEN (1 - (C.UltimoCosto/Precio1IVAUV)) < 0.1 THEN 'NO' ELSE 'SI' END,
                     PrecioOferta = Precio1IVAUV - Descuento,
                     FechaInicial, FechaFinal,OfertaCaduca,
                     O.Disponible, O.Limite, O.Tienda, O.NivelPrecio
