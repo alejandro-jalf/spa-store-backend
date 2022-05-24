@@ -10,6 +10,7 @@ const {
     createPedido,
     addArticleToOrder,
     updateStatuOrder,
+    getPedidoSujerido,
 } = require('../services')
 
 const response = {
@@ -21,6 +22,12 @@ const response = {
 router.route("/api/v1/pedidos/maestros").get(async (req, res) => {
     const { database, source } = req.query;
     const { status, response } = await getOrdersBodega(database, source);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/pedidos/:sucursal/sujerido").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { status, response } = await getPedidoSujerido(sucursal);
     res.status(status).json(response);
 });
 
