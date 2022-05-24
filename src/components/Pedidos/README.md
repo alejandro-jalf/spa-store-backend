@@ -6,6 +6,7 @@ Componente para controlar el backend de la aplicacion de pedidos
 
 | **Metodo** | **Ruta** | **Request** | **Descripcion** |
 |------------|----------|-------------|-----------------|
+| **GET** | _/api/v1/pedidos/:sucursal/sujerido_ | | Obtiene una lista de articulos sujeridos para solicitar a bodega |
 | **GET** | _/api/v1/pedidos/detalles/:sucursal/:folio/articulos/:articulo_ | query = { database = '', source = '' } | Obtiene la lista de los articulos haciendo una busqueda por articulo |
 | **GET** | _/api/v1/pedidos/detalles/:sucursal/:folio/nombres/:nombre_ | query = { database = '', source = '' } | Obtiene la lista de los articulos haciendo una busqueda por nombre |
 | **GET** | _/api/v1/pedidos/detalles/:sucursal/:folio/dias/:dias_ | query = { database = '', source = '' } | Obtiene la lista de los articulos haciendo una busqueda por dias atras |
