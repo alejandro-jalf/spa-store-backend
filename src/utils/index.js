@@ -12,9 +12,11 @@ const {
     connectionSayula,
     connectionSayulaT,
     dataBase,
+    listHost,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
 const moment = require('moment');
+const { database } = require('pg/lib/defaults');
 
 const utils = (() => {
     const createContentAssert = (message, data = null) => (data === null) ?
@@ -147,6 +149,18 @@ const utils = (() => {
         ) return 'BO';
     }
 
+    const getHostBySuc = (sucursal = 'ZR') => {
+        const host = listHost[sucursal.toUpperCase()];
+        if (host) return host;
+        return listHost.ZR;
+    }
+
+    const getDatabaseBySuc = (sucursal = 'ZR') => {
+        const db = dataBase[sucursal.toUpperCase()];
+        if (db) return db;
+        return dataBase.ZR;
+    }
+
     const getDatabase = (date = new Date(), sucursal = 'ZR') => {
         let dateActual = new Date();
         
@@ -271,6 +285,8 @@ const utils = (() => {
         getDateActual,
         getSucursalByCategory,
         toMoment,
+        getHostBySuc,
+        getDatabaseBySuc,
         roundTo,
         getListConnectionByCompany,
     }

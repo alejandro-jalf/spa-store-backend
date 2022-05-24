@@ -1,6 +1,8 @@
 const {
     createResponse,
     getConnectionFrom,
+    getHostBySuc,
+    getDatabaseBySuc,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -21,6 +23,7 @@ const {
     enProcesoPedido,
     sendPedido,
     atendidoPedido,
+    getOrdersSuggested,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -31,6 +34,19 @@ const ServicesPedidos = (() => {
 
         const conexion = getConnectionFrom(source);
         const response  = await getPedidosEnBodega(conexion, database);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
+    const getPedidoSujerido = async (sucursal = 'ZR') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+
+        const conexion = getConnectionFrom('BO');
+        const response  = await getOrdersSuggested(conexion, sucursal, hostDatabase);
 
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
@@ -167,6 +183,7 @@ const ServicesPedidos = (() => {
         createPedido,
         addArticleToOrder,
         updateStatuOrder,
+        getPedidoSujerido,
     }
 })();
 
