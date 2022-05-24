@@ -77,10 +77,10 @@ const modelsPedidos = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Pedido sujerido', result[0]);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener los pedidos en bodega',
+                'Fallo la conexion con base de datos al intentar obtener el pedido sujerido',
                 error
             );
         }
