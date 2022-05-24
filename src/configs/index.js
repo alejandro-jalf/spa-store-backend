@@ -36,9 +36,21 @@ const configs = (() => {
         ST: process.env.SPA_DATABASE_ST,
     }
 
+    const listHost = {
+        ZR: process.env.SPA_HOST_ZR,
+        VC: process.env.SPA_HOST_VC,
+        ER: process.env.SPA_HOST_EN,
+        OU: process.env.SPA_HOST_OU,
+        SY: process.env.SPA_HOST_SY,
+        JL: process.env.SPA_HOST_JL,
+        BO: process.env.SPA_HOST_ST,
+        SU: process.env.CAASA_HOST_SU,
+    }
+
     return {
         port,
         listOriginAccept,
+        listHost,
         token,
         connectionMongoDB,
         connectionPostgres,
