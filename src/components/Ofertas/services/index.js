@@ -154,7 +154,7 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        const statusActual = response.data[0].status;
+        const statusActual = response.data[0].estatus;
         const statusNew = bodyMaster.status;
 
         validate = validateStatus(statusNew, statusActual, utilsOfertas);
@@ -188,6 +188,10 @@ const ServicesOfertas = (() => {
         return createResponse(201, response);
     }
 
+    const validaArticlesOffer = (uuid_maestro = '') => {
+
+    }
+
     const changeDataMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
         let validate = validateBodyUpdateMasterOffer(bodyMaster);
         if (!validate.success) return createResponse(400, validate);
@@ -201,7 +205,7 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal !== sucursal.toUpperCase())
         return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        const statusActual = response.data[0].status;
+        const statusActual = response.data[0].estatus;
         const statusNew = bodyMaster.status;
 
         if (statusActual !== OFERTA_CREADA && statusActual !== OFERTA_EN_PROCESO)
@@ -235,7 +239,7 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        const statusActual = response.data[0].status;
+        const statusActual = response.data[0].estatus;
         if (statusActual !== OFERTA_CANCELADA)
             return createResponse(
                 200,
@@ -265,10 +269,10 @@ const ServicesOfertas = (() => {
         let response = await getMasterOffers(conexionDB, bodyArticle.uuid_maestro);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
-        if (response.data[0].status !== OFERTA_CREADA)
+        if (response.data[0].estatus !== OFERTA_CREADA)
             return createResponse(
                 200,
-                createContentError('No puede agregar articulos a la lista de oferta debido a que esta ' + utilsOfertas.parseStatusOferta(response.data[0].status))
+                createContentError('No puede agregar articulos a la lista de oferta debido a que esta ' + utilsOfertas.parseStatusOferta(response.data[0].estatus))
             );
 
         const conexion = getConnectionFrom(sucursal);
@@ -304,7 +308,7 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        const statusActual = response.data[0].status;
+        const statusActual = response.data[0].estatus;
 
         if (statusActual !== OFERTA_CREADA && statusActual !== OFERTA_EN_PROCESO)
             return createResponse(
@@ -347,7 +351,7 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        const statusActual = response.data[0].status;
+        const statusActual = response.data[0].estatus;
         if (statusActual !== OFERTA_CREADA)
             return createResponse(
                 200,

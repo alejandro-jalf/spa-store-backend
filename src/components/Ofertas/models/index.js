@@ -208,7 +208,7 @@ const modelsOfertas = (() => {
                 `USE CA2015;
                 UPDATE maestroofertas 
                 SET
-                    status = ${bodyMaster.status},
+                    estatus = ${bodyMaster.status},
                     fechamodificado = CAST('${bodyMaster.fechamodificado}' AS DATETIME),
                     modificadopor = '${bodyMaster.modificadoPor}'
                 WHERE uuid = '${uuid}'`,
@@ -237,7 +237,7 @@ const modelsOfertas = (() => {
                 USE CA2015;
                 UPDATE maestroofertas
                 SET
-                    status = ${status}, Editable = ${editable}, TipoOferta = '${tipoOferta}',
+                    estatus = ${status}, Editable = ${editable}, TipoOferta = '${tipoOferta}',
                     FechaInicio = CAST('${fechaInicio}' AS DATETIME), FechaFin = CAST('${fechaFin}' AS DATETIME), Descripcion = '${descripcion}',
                     fechaModificado = CAS('${fechaModificado}' AS DATETIME), modificadoPor= '${modificadoPor}'
                 WHERE uuid = '${uuid}'
