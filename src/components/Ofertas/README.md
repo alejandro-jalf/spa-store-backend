@@ -11,7 +11,7 @@ Las tablas para programar las ofertas estaran conformadas por dos:
 | **Campo** | **Tipo** | **Tamaño** | **Descripcion** |
 |-----------|----------|------------|-----------------|
 | uuid | varchar | 100 | primary key |
-| sucursal | varchar | 5 |  |
+| sucursal | varchar | 10 |  |
 | status | int | | 0: Creada, 1: Enviada, 2: En revision, 3: Programada, 4: cancelada |
 | editable | boolean | |  |
 | tipoOferta | varchar | 200 |  |
@@ -22,6 +22,23 @@ Las tablas para programar las ofertas estaran conformadas por dos:
 | creadoPor | varchar | 100 |  |
 | fechaModificado | date | |  |
 | modificadoPor | varchar | 100 |  |
+
+```sql
+CREATE TABLE MaestroOfertas(
+    uuid NVARCHAR(100) PRIMARY KEY,
+    sucursal NVARCHAR(10) NOT NULL,
+    estatus INT NOT NULL,
+    editable BIT NOT NULL,
+    tipoOferta NVARCHAR(200) NOT NULL,
+    fechaInicio DATETIME NOT NULL,
+    fechaFin DATETIME NOT NULL,
+    descripcion NVARCHAR(200) NOT NULL,
+    fechaAlta DATETIME NOT NULL,
+    creadoPor NVARCHAR(100) NOT NULL,
+    fechaModificado DATETIME NOT NULL,
+    modificadoPor NVARCHAR(100) NOT NULL,
+)
+```
 
 #### articulosoferta
 
@@ -38,6 +55,24 @@ Las tablas para programar las ofertas estaran conformadas por dos:
 | creadoPor | varchar | 100 |  |
 | fechaModificado | date | |  |
 | modificadoPor | varchar | 100 |  |
+
+```sql
+CREATE TABLE ArticulosOferta(
+    uuid_maestro NVARCHAR(100),
+    articulo NVARCHAR(10) NOT NULL,
+    nombre NVARCHAR(150) NOT NULL,
+    costo float NOT NULL,
+    descripcion NVARCHAR(150) NOT NULL,
+    precio float NOT NULL,
+    oferta float NOT NULL,
+    fechaAlta DATETIME NOT NULL,
+    creadoPor NVARCHAR(100) NOT NULL,
+    fechaModificado DATETIME NOT NULL,
+    modificadoPor NVARCHAR(100) NOT NULL,
+    PRIMARY KEY(uuid_maestro, articulo),
+    CONSTRAINT FK_UUID_ARTICULOOFERTA FOREIGN KEY(uuid_maestro) REFERENCES MaestroOfertas(uuid) ON DELETE NO ACTION ON UPDATE CASCADE
+)
+```
 
 ### Rutas del componente
 

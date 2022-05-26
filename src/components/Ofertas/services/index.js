@@ -34,7 +34,6 @@ const {
     getDetailsArticleByArticle,
     getDetailsArticleByName,
 } = require('../models');
-const { connectionPostgres } = require('../../../configs');
 
 const utilsOfertas = (() => {
     const parseStatusOferta = (status) => {
@@ -60,6 +59,7 @@ const utilsOfertas = (() => {
 })()
 
 const ServicesOfertas = (() => {
+    const conexionDB = getConnectionFrom('ZR');
     
     const getOfferValidation = async (sucursal) => {
         let validate = validateSucursal(sucursal);
@@ -103,11 +103,11 @@ const ServicesOfertas = (() => {
         if (!validate.success) return createResponse(400, validate);
 
         if (sucursal.toUpperCase() === 'ALL') {
-            const response = await getAllMasterOffers(connectionPostgres);
+            const response = await getAllMasterOffers(conexionDB);
             if (!response.success) return createResponse(400, response);
             return createResponse(200, response);
         } else {
-            const response = await getAllMasterOffersOf(connectionPostgres, sucursal.toUpperCase());
+            const response = await getAllMasterOffersOf(conexionDB, sucursal.toUpperCase());
             if (!response.success) return createResponse(400, response);
             return createResponse(200, response);
         }
@@ -124,7 +124,7 @@ const ServicesOfertas = (() => {
         bodyMaster.fechaFin = bodyMaster.fechaFin.split('T')[0]
         bodyMaster.fechaAlta = getDateActual().format('YYYY-MM-DD')
 
-        const response = await createMasterOffers(connectionPostgres, bodyMaster);
+        const response = await createMasterOffers(conexionDB, bodyMaster);
         if (!response.success) return createResponse(400, response);
 
         response.data = {
@@ -143,7 +143,7 @@ const ServicesOfertas = (() => {
         validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        let response = await getMasterOffers(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
         if (response.data[0].sucursal !== sucursal.toUpperCase())
@@ -167,7 +167,7 @@ const ServicesOfertas = (() => {
                 )
         }
 
-        response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
+        response = await getOffersByMasterOffer(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (statusNew === 1 && response.data.length === 0)
             return createResponse(
@@ -177,7 +177,7 @@ const ServicesOfertas = (() => {
 
         bodyMaster.fechamodificado = getDateActual().format('YYYY-MM-DD');
 
-        response = await updateStatusMasterOffer(connectionPostgres, uuidmaster, bodyMaster);
+        response = await updateStatusMasterOffer(conexionDB, uuidmaster, bodyMaster);
         if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);
@@ -190,7 +190,7 @@ const ServicesOfertas = (() => {
         validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        let response = await getMasterOffers(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'))
         if (response.data[0].sucursal !== sucursal.toUpperCase())
@@ -214,7 +214,7 @@ const ServicesOfertas = (() => {
         bodyMaster.fechaFin = bodyMaster.fechaFin.split('T')[0]
         bodyMaster.fechaModificado = getDateActual().format('YYYY-MM-DD');
 
-        response = await updateDataMasterOffer(connectionPostgres, uuidmaster, bodyMaster);
+        response = await updateDataMasterOffer(conexionDB, uuidmaster, bodyMaster);
         if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);
@@ -224,7 +224,7 @@ const ServicesOfertas = (() => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        let response = await getMasterOffers(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
         if (response.data[0].sucursal !== sucursal.toUpperCase())
@@ -237,18 +237,18 @@ const ServicesOfertas = (() => {
                 createContentError(`No puede eliminar la oferta maestro debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
             );
 
-        response = await deleteMasterOffer(connectionPostgres, uuidmaster, sucursal);
+        response = await deleteMasterOffer(conexionDB, uuidmaster, sucursal);
         if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);
     }
 
     const getArticlesByUUIDMaster = async (uuidmaster) => {
-        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        let response = await getMasterOffers(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
 
-        response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
+        response = await getOffersByMasterOffer(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
     }
@@ -257,7 +257,7 @@ const ServicesOfertas = (() => {
         let validate = validateBodyCreateArticle(bodyArticle);
         if (!validate.success) return createResponse(400, validate);
 
-        let response = await getMasterOffers(connectionPostgres, bodyArticle.uuid_maestro);
+        let response = await getMasterOffers(conexionDB, bodyArticle.uuid_maestro);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
         if (response.data[0].status !== 0)
@@ -280,7 +280,7 @@ const ServicesOfertas = (() => {
         if (rounded < 0.08)
             return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'));
 
-        response = await createOffers(connectionPostgres, bodyArticle);
+        response = await createOffers(conexionDB, bodyArticle);
         if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);
@@ -293,7 +293,7 @@ const ServicesOfertas = (() => {
         validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        let response = await getMasterOffers(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'))
         if (response.data[0].sucursal !== sucursal.toUpperCase())
@@ -309,7 +309,7 @@ const ServicesOfertas = (() => {
 
         bodyArticle.fechaModificado = getDateActual().format('YYYY-MM-DD');
 
-        response = await getOffersByMasterOffer(connectionPostgres, uuidmaster);
+        response = await getOffersByMasterOffer(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         const existArticle = response.data.find((article) => article.articulo === articulo)
 
@@ -326,7 +326,7 @@ const ServicesOfertas = (() => {
             return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'));
 
 
-        response = await updateOffer(connectionPostgres, articulo, uuidmaster, bodyArticle);
+        response = await updateOffer(conexionDB, articulo, uuidmaster, bodyArticle);
         if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);
@@ -336,7 +336,7 @@ const ServicesOfertas = (() => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        let response = await getMasterOffers(connectionPostgres, uuidmaster);
+        let response = await getMasterOffers(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
         if (response.data[0].sucursal !== sucursal.toUpperCase())
@@ -349,7 +349,7 @@ const ServicesOfertas = (() => {
                 createContentError(`No puede eliminar el articulo debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
             );
 
-        response = await deleteOffer(connectionPostgres, articulo, uuidmaster);
+        response = await deleteOffer(conexionDB, articulo, uuidmaster);
         if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);

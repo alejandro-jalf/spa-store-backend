@@ -1,5 +1,5 @@
 const { QueryTypes } = require('sequelize');
-const { dbmssql, dbpostgres } = require('../../../services')
+const { dbmssql } = require('../../../services')
 const {
     createContentAssert,
     createContentError
@@ -123,12 +123,12 @@ const modelsOfertas = (() => {
 
     const getAllMasterOffers = async (cadenaConexion = '') => {
         try {
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                'SELECT * FROM maestroofertas',
+                'USE CA2015; SELECT * FROM maestroofertas',
                 QueryTypes.SELECT
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Datos encontrados en la base de datos', result[0]);
         } catch (error) {
             console.log(error);
@@ -141,12 +141,12 @@ const modelsOfertas = (() => {
 
     const getAllMasterOffersOf = async (cadenaConexion = '', sucursal = 'ZR') => {
         try {
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `SELECT * FROM maestroofertas WHERE sucursal = '${sucursal.toUpperCase()}'`,
+                `USE CA2015; SELECT * FROM maestroofertas WHERE sucursal = '${sucursal.toUpperCase()}'`,
                 QueryTypes.SELECT
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Datos encontrados en la base de datos', result[0]);
         } catch (error) {
             console.log(error);
@@ -159,12 +159,12 @@ const modelsOfertas = (() => {
 
     const getMasterOffers = async (cadenaConexion = '', uuid) => {
         try {
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `SELECT * FROM maestroofertas WHERE uuid = '${uuid}'`,
+                `USE CA2015; SELECT * FROM maestroofertas WHERE uuid = '${uuid}'`,
                 QueryTypes.SELECT
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Datos encontrados en la base de datos', result[0]);
         } catch (error) {
             console.log(error);
@@ -181,16 +181,16 @@ const modelsOfertas = (() => {
                 uuid, sucursal, status, editable, tipoOferta, fechaInicio, fechaFin,
                 descripcion, fechaAlta, creadoPor
             } = bodyMaster
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-            `INSERT INTO maestroofertas VALUES(
+            `USE CA2015; INSERT INTO maestroofertas VALUES(
                 '${uuid}', '${sucursal}', ${status}, ${editable}, '${tipoOferta}', '${fechaInicio}',
                 '${fechaFin}', '${descripcion}', '${fechaAlta}', '${creadoPor}', '${fechaAlta}',
                 '${creadoPor}'
             )`,
                 QueryTypes.INSERT
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Nueva oferta maestro creado', result);
         } catch (error) {
             console.log(error);
@@ -203,9 +203,10 @@ const modelsOfertas = (() => {
 
     const updateStatusMasterOffer = async (cadenaConexion = '', uuid, bodyMaster) => {
         try {
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `UPDATE maestroofertas 
+                `USE CA2015;
+                UPDATE maestroofertas 
                 SET
                     status = ${bodyMaster.status},
                     fechamodificado = '${bodyMaster.fechamodificado}',
@@ -213,7 +214,7 @@ const modelsOfertas = (() => {
                 WHERE uuid = '${uuid}'`,
                 QueryTypes.UPDATE
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Estatus de maestro oferta fue actualizado', result);
         } catch (error) {
             console.log(error);
@@ -230,9 +231,10 @@ const modelsOfertas = (() => {
                 status, editable, tipoOferta, fechaInicio, fechaFin,
                 descripcion, fechaModificado, modificadoPor
             } = bodyMaster
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE CA2015;
                 UPDATE maestroofertas
                 SET
                     status = ${status}, Editable = ${editable}, TipoOferta = '${tipoOferta}',
@@ -242,7 +244,7 @@ const modelsOfertas = (() => {
                 `,
                 QueryTypes.UPDATE
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Datos de la maestro oferta ha sido actualizado', result);
         } catch (error) {
             console.log(error);
@@ -255,12 +257,12 @@ const modelsOfertas = (() => {
 
     const deleteMasterOffer = async (cadenaConexion = '', uuid, sucursal = '') => {
         try {
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `DELETE FROM maestroofertas WHERE uuid = '${uuid}' AND sucursal = '${sucursal.toUpperCase()}'`,
+                `USE CA2015; DELETE FROM maestroofertas WHERE uuid = '${uuid}' AND sucursal = '${sucursal.toUpperCase()}'`,
                 QueryTypes.DELETE
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             if (result.rowCount) {
                 if (result.rowCount === 0) 
                     return createContentError('No se pudo eliminar la oferta maestro', result);
@@ -281,12 +283,12 @@ const modelsOfertas = (() => {
 
     const getOffersByMasterOffer = async (cadenaConexion = '', uuid) => {
         try {
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `SELECT * FROM articulosofertas WHERE uuid_maestro = '${uuid}'`,
+                `USE CA2015; SELECT * FROM articulosofertas WHERE uuid_maestro = '${uuid}'`,
                 QueryTypes.SELECT
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             if (result[0].length === 0)
                 return createContentAssert('Lista de articulos vacios', result[0])
             return createContentAssert('Datos encontrados en la base de datos', result[0]);
@@ -305,15 +307,15 @@ const modelsOfertas = (() => {
                 uuid_maestro, articulo, nombre, costo, descripcion, precio, oferta,
                 fechaAlta, creadoPor, fechaModificado, modificadoPor
             } = bodyArticle
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-            `INSERT INTO articulosofertas VALUES(
+            `USE CA2015; INSERT INTO articulosofertas VALUES(
                 '${uuid_maestro}', '${articulo}', '${nombre}', ${costo}, '${descripcion}', ${precio},
                 ${oferta}, '${fechaAlta}', '${creadoPor}', '${fechaModificado}', '${modificadoPor}'
             )`,
                 QueryTypes.INSERT
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Articulo agregado a la oferta', result);
         } catch (error) {
             if (error.parent.detail !== undefined) {
@@ -340,9 +342,10 @@ const modelsOfertas = (() => {
                 nombre, costo, descripcion, precio, oferta,
                 fechaModificado, modificadoPor
             } = bodyArticulo
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE CA2015;
                 UPDATE articulosofertas
                 SET
                     nombre = '${nombre}', costo = ${costo}, descripcion = '${descripcion}',
@@ -353,7 +356,7 @@ const modelsOfertas = (() => {
                 `,
                 QueryTypes.UPDATE
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             return createContentAssert('Datos del articulo han sido actualizados', result);
         } catch (error) {
             console.log(error);
@@ -366,15 +369,16 @@ const modelsOfertas = (() => {
 
     const deleteOffer = async (cadenaConexion = '', articulo = '', uuid_maestro = '') => {
         try {
-            const accessToDataBase = dbpostgres.getConexion(cadenaConexion);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE CA2015;
                 DELETE FROM articulosofertas
                 WHERE uuid_maestro = '${uuid_maestro}' AND articulo = '${articulo}'
                 `,
                 QueryTypes.DELETE
             );
-            dbpostgres.closeConexion();
+            dbmssql.closeConexion();
             if (typeof result[1] !== 'undefined' && typeof result[1].rowCount !== 'undefined') {
                 if (result[1].rowCount === 0) 
                     return createContentError('No se pudo eliminar el articulo de la oferta', result);
