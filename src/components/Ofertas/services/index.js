@@ -60,6 +60,11 @@ const utilsOfertas = (() => {
 
 const ServicesOfertas = (() => {
     const conexionDB = getConnectionFrom('ZR');
+    const OFERTA_CREADA = 0;
+    const OFERTA_ENVIADA = 1;
+    const OFERTA_EN_PROCESO = 2;
+    const OFERTA_PROGRAMADA = 3;
+    const OFERTA_CANCELADA = 4;
     
     const getOfferValidation = async (sucursal) => {
         let validate = validateSucursal(sucursal);
@@ -159,7 +164,7 @@ const ServicesOfertas = (() => {
             return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
 
         const dateinit = toMoment(response.data[0].fechainicio + ' 23:59:59.999');
-        if (statusNew === 1) {
+        if (statusNew === OFERTA_ENVIADA) {
             if (dateinit.isBefore(getDateActual()))
                 return createResponse(
                     200,
@@ -169,7 +174,7 @@ const ServicesOfertas = (() => {
 
         response = await getOffersByMasterOffer(conexionDB, uuidmaster);
         if (!response.success) return createResponse(400, response);
-        if (statusNew === 1 && response.data.length === 0)
+        if (statusNew === OFERTA_ENVIADA && response.data.length === 0)
             return createResponse(
                 200, 
                 createContentError('No puede enviar la oferta debido a que no contiene articulos')
@@ -199,7 +204,7 @@ const ServicesOfertas = (() => {
         const statusActual = response.data[0].status;
         const statusNew = bodyMaster.status;
 
-        if (statusActual !== 0)
+        if (statusActual !== OFERTA_CREADA && statusActual !== OFERTA_EN_PROCESO)
             return createResponse(
                 200,
                 createContentError(`No puede modificar la oferta maestro debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
@@ -231,7 +236,7 @@ const ServicesOfertas = (() => {
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
         const statusActual = response.data[0].status;
-        if (statusActual !== 4)
+        if (statusActual !== OFERTA_CANCELADA)
             return createResponse(
                 200,
                 createContentError(`No puede eliminar la oferta maestro debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
@@ -260,7 +265,7 @@ const ServicesOfertas = (() => {
         let response = await getMasterOffers(conexionDB, bodyArticle.uuid_maestro);
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
-        if (response.data[0].status !== 0)
+        if (response.data[0].status !== OFERTA_CREADA)
             return createResponse(
                 200,
                 createContentError('No puede agregar articulos a la lista de oferta debido a que esta ' + utilsOfertas.parseStatusOferta(response.data[0].status))
@@ -301,7 +306,7 @@ const ServicesOfertas = (() => {
 
         const statusActual = response.data[0].status;
 
-        if (statusActual !== 0)
+        if (statusActual !== OFERTA_CREADA && statusActual !== OFERTA_EN_PROCESO)
             return createResponse(
                 200,
                 createContentError(`No puede modificar la oferta maestro debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
@@ -343,7 +348,7 @@ const ServicesOfertas = (() => {
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
         const statusActual = response.data[0].status;
-        if (statusActual !== 0)
+        if (statusActual !== OFERTA_CREADA)
             return createResponse(
                 200,
                 createContentError(`No puede eliminar el articulo debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
