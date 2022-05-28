@@ -49,6 +49,59 @@ const modelsOfertas = (() => {
         }
     }
 
+    const getValidationArticlesByUuuiMaster = async (cadenaConexion = '', sucursal = 'ZR', now = '', uuid_master = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @FechaActual DATETIME = CAST('${now}' AS datetime);
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                WITH ArticulosEnOfertas(
+                    Articulo, Nombre, Precio1IVAUV, Oferta, UltimoCosto, UtilidadOferta, OfertaValida
+                )
+                AS (
+                    SELECT
+                        A.Articulo, A.Nombre, L.Precio1IVAUV, A.oferta,
+                        L.UltimoCosto, UtilidadOferta = 1 - (L.UltimoCostoNeto / A.oferta),
+                        OfertaValida = CASE WHEN (1 - (L.UltimoCostoNeto / A.oferta)) < 0.1 THEN 'NO' ELSE 'SI' END
+                    FROM CA2015.dbo.ArticulosOfertas AS A
+                    LEFT JOIN QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo
+                    WHERE A.uuid_maestro = '${uuid_master}'
+                        AND L.Tienda = @Tienda AND L.Almacen = @Almacen
+                ),
+                ArticulosConOfertas(
+                    Articulo, OfertaCaduca, FechaInicial, FechaFinal, OfertaFechaVigente
+                ) AS (
+                    SELECT
+                        Articulo, OfertaCaduca, FechaInicial, FechaFinal,
+                        OfertaFechaVigente = CASE WHEN FechaFinal >= @FechaActual THEN 'SI' ELSE 'NO' END
+                    FROM QVOfertas
+                    WHERE OfertaCaduca = 'NO'
+                        OR FechaFinal >= @FechaActual
+                        AND Tienda = @Tienda
+                )
+
+                SELECT
+                    A.*, O.OfertaCaduca, O.OfertaFechaVigente, O.FechaInicial, O.FechaFinal
+                FROM ArticulosEnOfertas AS A
+                LEFT JOIN ArticulosConOfertas AS O ON O.Articulo = A.Articulo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar verificar las ofertas',
+                error
+            );
+        }
+    }
+
     const getDetailsArticleByArticle = async (cadenaConexion = '', sucursal = 'ZR', Articulo = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -398,6 +451,7 @@ const modelsOfertas = (() => {
     }
 
     return {
+        getValidationArticlesByUuuiMaster,
         getDetailsArticleByArticle,
         getDetailsArticleByName,
         getValidOffers,
