@@ -19,7 +19,8 @@ const modelsPedidos = (() => {
                     Tienda,Almacen,DescripcionSubfamilia,
                     Articulo,Nombre,StockMinimo,
                     tipoRotacion,estatusRotacion,FactorCompra,FactorVenta,
-                    ExistLoc,ExistExt,tipoSugerido, CalculoRotacion
+                    ExistLoc,ExistExt,tipoSugerido, CalculoRotacion,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta
                 FROM (
                 SELECT
                     A.Tienda,A.Almacen,A.Subfamilia,A.DescripcionSubfamilia,
@@ -44,7 +45,7 @@ const modelsPedidos = (() => {
                             WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 'ROTACION MEDIA'  
                             ELSE 'ROTACION BAJA' 
                         END,
-                    A.FactorCompra,A.FactorVenta,
+                    A.FactorCompra,A.FactorVenta,A.UnidadCompra,A.UnidadVenta,
                     ExistLoc = A.ExistenciaActualRegular,ExistExt = B.ExistenciaActualRegular,
                     tipoSugerido =
                         CASE
@@ -72,7 +73,7 @@ const modelsPedidos = (() => {
                     --AND (A.StockMinimo / 4) > A.ExistenciaActualRegular
                 ) AS Tabla
                 WHERE tipoSugerido > 0
-                ORDER BY tipoRotacion,tipoSugerido DESC,Subfamilia,Articulo
+                ORDER BY Subfamilia,tipoRotacion,tipoSugerido DESC,Articulo
                 `,
                 QueryTypes.SELECT
             );
