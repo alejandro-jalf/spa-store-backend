@@ -139,6 +139,7 @@ const modelsArticulos = (() => {
                     Promedio = AVG(Cant),
                     StockMin = ROUND(AVG(Cant) * @DiasStockMin, 0),
                     StockMax = ROUND(AVG(Cant) * @DiasStockMax, 0),
+                    Almacen,
                     SQL_QUERY = 'UPDATE Existencias SET StockMinimo = ' + CAST(ROUND(AVG(Cant) * @DiasStockMin, 0) AS nvarchar) + ', StockMaximo = ' + CAST(ROUND(AVG(Cant) * @DiasStockMax, 0)  AS nvarchar) + ' WHERE Almacen = ' + CAST(@Almacen AS NVARCHAR) + ' AND Articulo = ''' + Articulo + ''''
                 FROM VentasPorDia
                 GROUP BY Articulo, CodigoBarrAS, Nombre
