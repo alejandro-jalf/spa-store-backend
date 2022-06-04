@@ -117,7 +117,7 @@ const modelsArticulos = (() => {
                 WHERE TipoDocumento = 'V' AND Estatus = 'E'
                     AND ( Fecha BETWEEN @MesAnterior3Inicio AND @MesAnteriorFinal )
                     AND Almacen = @Almacen
-                GROUP BY Fecha, Articulo, CodigoBarrAS, Nombre
+                GROUP BY Fecha, Articulo, CodigoBarrAS, Nombre, Almacen
                 
                 UNION ALL
 
@@ -127,7 +127,7 @@ const modelsArticulos = (() => {
                 WHERE TipoDocumento = 'V' AND Estatus = 'E'
                     AND ( Fecha BETWEEN @MesAnterior3Inicio AND @MesAnteriorFinal )
                     AND Almacen = @Almacen
-                GROUP BY Fecha, Articulo, CodigoBarrAS, Nombre
+                GROUP BY Fecha, Articulo, CodigoBarrAS, Nombre, Almacen
                 )
 
                 SELECT 
@@ -142,7 +142,7 @@ const modelsArticulos = (() => {
                     Almacen,
                     SQL_QUERY = 'UPDATE Existencias SET StockMinimo = ' + CAST(ROUND(AVG(Cant) * @DiasStockMin, 0) AS nvarchar) + ', StockMaximo = ' + CAST(ROUND(AVG(Cant) * @DiasStockMax, 0)  AS nvarchar) + ' WHERE Almacen = ' + CAST(@Almacen AS NVARCHAR) + ' AND Articulo = ''' + Articulo + ''''
                 FROM VentasPorDia
-                GROUP BY Articulo, CodigoBarrAS, Nombre
+                GROUP BY Articulo, CodigoBarrAS, Nombre, Almacen
                 ORDER BY Articulo
                 `,
                 QueryTypes.SELECT
