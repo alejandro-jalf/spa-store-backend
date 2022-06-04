@@ -56,6 +56,7 @@ const ServicesArticulos = (() => {
 
     const getDatabaseOldBySucAndCompany = (sucursal, company) => {
         let DB = dataBase[`${sucursal.toUpperCase()}`];
+        if (sucursal === 'ER' || sucursal === 'SY') return DB;
         const dateActual = getDateActual();
         const yearOld = parseInt(getDateActual().format('YYYY')) - 1;
         const monthActual = parseInt(getDateActual().format('MM'));
@@ -64,7 +65,7 @@ const ServicesArticulos = (() => {
             return `${DB}_${yearOld}08`
         } else {
             const sucGlobal = {
-                EN: 'EN', SA: 'SA', SB: 'SA', ST: 'SA', SU: 'SU', MA: 'SU', RE: 'SU', CO: 'SU'
+                ER: 'ER', SY: 'SY', SB: 'SA', ST: 'SA', SU: 'SU', MA: 'SU', RE: 'SU', CO: 'SU'
             }
             const dbGlobal = sucGlobal[`${sucursal.toUpperCase()}`]
             DB = dataBase[`${dbGlobal}`];
