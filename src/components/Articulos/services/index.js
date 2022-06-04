@@ -3,6 +3,7 @@ const {
     getConnectionFrom,
     createContentError,
     getDateActual,
+    createContentAssert,
 } = require('../../../utils');
 const { dataBase } = require('../../../configs');
 const {
@@ -98,7 +99,7 @@ const ServicesArticulos = (() => {
         return createResponse(200, response)
     }
 
-    const updateStocksBySucursal = async (sucursal, company, script = '') => {
+    const updateStocksBySucursal = async (sucursal, company, dataUpdates) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
             return createResponse(400, validate);
@@ -110,6 +111,12 @@ const ServicesArticulos = (() => {
         company = company.toUpperCase();
 
         const conexion = getConnectionFrom(sucursal);
+
+        let script = '';
+        const updates = dataUpdates.data;
+        updates.forEach((update) => {
+            script += `UPDATE Existencias SET StockMinimo = ${update.StockMinimo}, StockMaximo = ${update.StockMaximo} WHERE Almacen = ${dataUpdates.Almacen} AND Articulo = '${update.Articulo}'; `;
+        });
 
         const response = await updateStockByScripts(conexion, script);
         if (!response.success) return createResponse(400, response);
