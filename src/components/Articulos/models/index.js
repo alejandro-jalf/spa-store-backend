@@ -109,10 +109,10 @@ const modelsArticulos = (() => {
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 WHEN @Sucursal = 'SA' THEN 2 WHEN @Sucursal = 'SU' THEN 5 WHEN @Sucursal = 'MA' THEN 1 WHEN @Sucursal = 'RE' THEN 1 WHEN @Sucursal = 'EN' THEN 6 ELSE 0 END;
 
                 WITH VentasPorDia (
-                Fecha, Articulo, CodigoBarrAS, Nombre, Cant
+                Fecha, Articulo, CodigoBarrAS, Nombre, Cant, Almacen
                 ) AS (
                 SELECT
-                    Fecha,Articulo, CodigoBarrAS, Nombre, Cant = SUM(CantidadRegular)
+                    Fecha,Articulo, CodigoBarrAS, Nombre, Cant = SUM(CantidadRegular), Almacen
                 FROM ${databaseOld}.dbo.QVDEMovAlmacen
                 WHERE TipoDocumento = 'V' AND Estatus = 'E'
                     AND ( Fecha BETWEEN @MesAnterior3Inicio AND @MesAnteriorFinal )
@@ -122,7 +122,7 @@ const modelsArticulos = (() => {
                 UNION ALL
 
                 SELECT
-                    Fecha,Articulo, CodigoBarrAS, Nombre, Cant = SUM(CantidadRegular)
+                    Fecha,Articulo, CodigoBarrAS, Nombre, Cant = SUM(CantidadRegular), Almacen
                 FROM QVDEMovAlmacen
                 WHERE TipoDocumento = 'V' AND Estatus = 'E'
                     AND ( Fecha BETWEEN @MesAnterior3Inicio AND @MesAnteriorFinal )
