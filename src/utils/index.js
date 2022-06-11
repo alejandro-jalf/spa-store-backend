@@ -7,6 +7,7 @@ const {
     connectionCaasaEnriquez,
     connectionCaasaSayula,
     connectionCaasaSayulaT,
+    connectionTortilleriaAcayucan,
     connectionCaasaSuper,
     connectionEnriquez,
     connectionSayula,
@@ -44,7 +45,8 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'CEN') return connectionCaasaEnriquez;
         if (from.trim().toUpperCase() === 'CSA') return connectionCaasaSayula;
         if (from.trim().toUpperCase() === 'SB') return connectionCaasaSayula;
-        if (from.trim().toUpperCase() === 'ST') return connectionSayulaT;
+        if (from.trim().toUpperCase() === 'TY') return connectionSayulaT;
+        if (from.trim().toUpperCase() === 'TF') return connectionTortilleriaAcayucan;
         if (from.trim().toUpperCase() === 'SU') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'MA') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'RE') return connectionCaasaSuper;
@@ -63,7 +65,8 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'SA') return 'CAASA Sayula';
         if (from.trim().toUpperCase() === 'SY') return 'SPA Sayula';
         if (from.trim().toUpperCase() === 'SB') return 'Sayula Tortilleria';
-        if (from.trim().toUpperCase() === 'ST') return 'Sayula Tortilleria';
+        if (from.trim().toUpperCase() === 'TY') return 'Sayula Tortilleria';
+        if (from.trim().toUpperCase() === 'TF') return 'Tortilleria Acayucan';
         if (from.trim().toUpperCase() === 'SU') return 'Super';
         if (from.trim().toUpperCase() === 'MA') return 'Mayoreo';
         if (from.trim().toUpperCase() === 'RE') return 'Reparto';
@@ -80,6 +83,7 @@ const utils = (() => {
             { name: 'ENRIQUEZ', connection: connectionEnriquez },
             { name: 'SAYULA', connection: connectionSayula },
             { name: 'SAYULA T.', connection: connectionSayulaT },
+            { name: 'TORTILLERIA F.', connection: connectionTortilleriaAcayucan },
             { name: 'ZARAGOZA', connection: connectionZaragoza },
             { name: 'VICTORIA', connection: connectionVictoria },
             { name: 'OLUTA', connection: connectionOluta },
@@ -95,7 +99,8 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'CAASAENRIQUEZ') return 'CEN'; //Quitar al migrar
         if (categoria.toUpperCase() === 'CAASASAYULA') return 'CSA'; //Quitar al migrar
         if (categoria.toUpperCase() === 'CAASASAYULABODEGA') return 'SB';
-        if (categoria.toUpperCase() === 'SPASAYULAT') return 'ST';
+        if (categoria.toUpperCase() === 'SPASAYULAT') return 'TY';
+        if (categoria.toUpperCase() === 'SPATORTILLERIAF') return 'TF';
         if (categoria.toUpperCase() === 'CAASAAUTOSERVICIO') return 'SU';
         if (categoria.toUpperCase() === 'CAASAMEDIOMAYOREO') return 'MA';
         if (categoria.toUpperCase() === 'CAASABODEGA') return 'RE';
