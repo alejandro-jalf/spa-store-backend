@@ -54,12 +54,13 @@ const modelsReportes = (() => {
                 DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
                 DECLARE @FechaInicial DATETIME = CAST('${fechaIni}' AS DATETIME);
                 DECLARE @FechaFinal DATETIME = CAST('${fechaFin}' AS DATETIME);
-                WITH VentasPorDocumento (Fecha, VentaTotal, CostoTotal)
+                WITH VentasPorDocumento (Fecha, VentaTotal, CostoTotal, UnidadesTotales)
                 AS (
                     SELECT
                         Fecha,
                         VentaTotal = SUM(VentaValorNeta),
-                        CostoTotal = SUM(CostoValorNeto)
+                        CostoTotal = SUM(CostoValorNeto),
+                        UnidadesTotales = COUNT(*)
                     FROM QVDEMovAlmacen
                     WHERE (Fecha BETWEEN @FechaInicial AND @FechaFinal)
                         AND TipoDocumento = 'V'
@@ -74,6 +75,7 @@ const modelsReportes = (() => {
                     CostoTotal = SUM(CostoTotal),
                     UtilidadTotal = SUM(VentaTotal) - SUM(CostoTotal),
                     UtilidadPorcentual = 1 - (SUM(CostoTotal) / SUM(VentaTotal)),
+                    UnidadesVendidas = SUM(UnidadesTotales),
                     TicketsTotales = COUNT(*),
                     MejorTicket = MAX(VentaTotal),
                     PeorTicket = MIN(VentaTotal),
