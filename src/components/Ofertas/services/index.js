@@ -186,7 +186,9 @@ const ServicesOfertas = (() => {
 
             case OFERTA_PROGRAMADA:
                 response = await validaArticlesOffer(sucursal, uuidmaster);
-                return createResponse(200, response);
+                if (!response.success) return createResponse(200, response);
+                
+                break;
         
             default:
                 break;
@@ -200,6 +202,20 @@ const ServicesOfertas = (() => {
         return createResponse(201, response);
     }
 
+    const getValidationArticlesOffersForWincaja = async (sucursal = '', uuid_maestro = '') => {
+        const validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(conexionDB, uuid_maestro);
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+        if (response.data[0].sucursal.toUpperCase() !== sucursal.toUpperCase())
+            return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
+
+        response = await validaArticlesOffer(sucursal, uuid_maestro);
+        return createResponse(200, response);
+    }
+
     const validaArticlesOffer = async (sucursal = '', uuid_maestro = '') => {
         const now = getDateActual().format('YYYYMMDD');
         let response = await getValidationArticlesByUuuiMaster(conexionDB, sucursal, now, uuid_maestro);
@@ -210,7 +226,7 @@ const ServicesOfertas = (() => {
                 'Hay articulos con detalles, Verifica los detalles para poder programar las ofertas',
                 articlesWithFails
             )
-        return response;
+        return createContentAssert('Articulos Validados y listos para programar', articlesWithFails);
     }
 
     const changeDataMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
@@ -386,6 +402,7 @@ const ServicesOfertas = (() => {
     }
 
     return {
+        getValidationArticlesOffersForWincaja,
         changeStatusMasterOffer,
         changeDataMasterOffer,
         getOfferValidation,
