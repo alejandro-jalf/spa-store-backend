@@ -12,6 +12,7 @@ const {
     changeDataOffer,
     getDetailsArticleByLike,
     getDetailsArticleByArticulo,
+    getValidationArticlesOffersForWincaja,
 } = require("../services");
 
 router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
@@ -35,6 +36,12 @@ router.route("/api/v1/ofertas/:sucursal/articulos/:articulo").get(async (req, re
 router.route("/api/v1/ofertas/:sucursal/articulos/:name/details").get(async (req, res) => {
     const { sucursal, name } = req.params;
     const { status, response } = await getDetailsArticleByLike(sucursal, name);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/ofertas/:sucursal/articulos/validos/:uuidmaster").get(async (req, res) => {
+    const { sucursal, uuidmaster } = req.params;
+    const { status, response } = await getValidationArticlesOffersForWincaja(sucursal, uuidmaster);
     res.status(status).json(response);
 });
 
