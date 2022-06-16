@@ -231,13 +231,15 @@ const modelsOfertas = (() => {
     const createOffersInWincaja = async (cadenaConexion = '', bodyOffers) => {
         try {
             const {
-                articulo, descuento, tienda, fechaInicio, fechaFin
+                articulo, descuento, sucursal, fechaInicio, fechaFin
             } = bodyOffers
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 DECLARE @FechaInicial DATETIME = CAST('${fechaInicio}' AS smalldatetime);
                 DECLARE @FechaFinal DATETIME = CAST('${fechaFin}' AS smalldatetime);
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
                 DECLARE @Consecutivo INT = (SELECT TOP 1 Consecutivo  FROM Ofertas ORDER BY Consecutivo DESC);
                 INSERT INTO Ofertas(
                     Consecutivo, ID_Oferta,
@@ -246,7 +248,7 @@ const modelsOfertas = (() => {
                 ) VALUES (
                     @Consecutivo + 1, CAST((@Consecutivo + 1) AS nvarchar) + REPLACE(CONVERT(nvarchar, GETDATE(), 108), ':', ''),
                     '${articulo}', ${descuento}, 0, 1, @FechaInicial, @FechaFinal, 0.0, 0.0,
-                    GETDATE(), GETDATE(), 0 ,${tienda}, 0, 0.00, 0
+                    GETDATE(), GETDATE(), 0 ,@Tienda, 0, 0.00, 0
                 )`,
                 QueryTypes.INSERT
             );
