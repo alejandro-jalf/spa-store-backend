@@ -228,6 +228,39 @@ const modelsOfertas = (() => {
         }
     }
 
+    const createOffersInWincaja = async (cadenaConexion = '', bodyOffers) => {
+        try {
+            const {
+                articulo, descuento, tienda, fechaInicio, fechaFin
+            } = bodyOffers
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @FechaInicial DATETIME = CAST('${fechaInicio}' AS smalldatetime);
+                DECLARE @FechaFinal DATETIME = CAST('${fechaFin}' AS smalldatetime);
+                DECLARE @Consecutivo INT = (SELECT TOP 1 Consecutivo  FROM Ofertas ORDER BY Consecutivo DESC);
+                INSERT INTO Ofertas(
+                    Consecutivo, ID_Oferta,
+                    Articulo, Descuento, Porcentaje, NivelPrecio, FechaInicial, FechaFinal, Limite, Remanente,
+                    FechaUltimaModificacion, FechaAlta, NoCaduca, Tienda, AntesDeIVA, LimiteXVenta, TipoVenta
+                ) VALUES (
+                    @Consecutivo + 1, CAST((@Consecutivo + 1) AS nvarchar) + REPLACE(CONVERT(nvarchar, GETDATE(), 108), ':', ''),
+                    '${articulo}', ${descuento}, 0, 1, @FechaInicial, @FechaFinal, 0.0, 0.0,
+                    GETDATE(), GETDATE(), 0 ,${tienda}, 0, 0.00, 0
+                )`,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Se ha creado una nueva oferta en wincaja', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al crear una nueva oferta en wincaja',
+                error
+            );
+        }
+    }
+
     const createMasterOffers = async (cadenaConexion = '', bodyMaster) => {
         try {
             const {
@@ -463,6 +496,7 @@ const modelsOfertas = (() => {
         updateDataMasterOffer,
         deleteMasterOffer,
         getOffersByMasterOffer,
+        createOffersInWincaja,
         createOffers,
         updateOffer,
         deleteOffer,
