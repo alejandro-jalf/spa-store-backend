@@ -33,6 +33,7 @@ const {
     deleteOffer,
     getDetailsArticleByArticle,
     getDetailsArticleByName,
+    getValidationArticlesByUuuiMaster,
 } = require('../models');
 
 const utilsOfertas = (() => {
@@ -163,22 +164,33 @@ const ServicesOfertas = (() => {
         if (statusNew === statusActual)
             return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
 
-        const dateinit = toMoment(response.data[0].fechainicio + ' 23:59:59.999');
-        if (statusNew === OFERTA_ENVIADA) {
-            if (dateinit.isBefore(getDateActual()))
-                return createResponse(
-                    200,
-                    createContentError('La fecha de inicio no puede ser menor que la fecha actual')
-                )
-        }
-
-        response = await getOffersByMasterOffer(conexionDB, uuidmaster);
-        if (!response.success) return createResponse(400, response);
-        if (statusNew === OFERTA_ENVIADA && response.data.length === 0)
+        const dateObject = response.data[0].fechaInicio;
+        const dateString = `${dateObject.getFullYear()}-${completeDateHour(dateObject.getMonth() + 1)}-${completeDateHour(dateObject.getDate())}`;
+        const dateinit = toMoment(dateString + ' 23:59:59.999');
+        if (dateinit.isBefore(getDateActual()))
             return createResponse(
-                200, 
-                createContentError('No puede enviar la oferta debido a que no contiene articulos')
+                200,
+                createContentError('La fecha de inicio no puede ser menor que la fecha actual')
             )
+
+        switch (statusNew) {
+            case OFERTA_ENVIADA:
+                response = await getOffersByMasterOffer(conexionDB, uuidmaster);
+                if (!response.success) return createResponse(400, response);
+                if (response.data.length === 0)
+                    return createResponse(
+                        200, 
+                        createContentError('No puede enviar la oferta debido a que no contiene articulos')
+                    )
+                break;
+
+            case OFERTA_PROGRAMADA:
+                response = await validaArticlesOffer(sucursal, uuidmaster);
+                return createResponse(200, response);
+        
+            default:
+                break;
+        }
 
         bodyMaster.fechamodificado = getDateActual().format('YYYY-MM-DD');
 
@@ -188,8 +200,17 @@ const ServicesOfertas = (() => {
         return createResponse(201, response);
     }
 
-    const validaArticlesOffer = (uuid_maestro = '') => {
-
+    const validaArticlesOffer = async (sucursal = '', uuid_maestro = '') => {
+        const now = getDateActual().format('YYYYMMDD');
+        let response = await getValidationArticlesByUuuiMaster(conexionDB, sucursal, now, uuid_maestro);
+        const articlesWithFails = response.data.filter((article) => (
+            article.OfertaValida === 'NO' || article.OfertaCaduca === 'NO' || article.OfertaFechaVigente === 'SI'
+        ));
+        if (articlesWithFails.length > 0) return createContentError(
+                'Hay articulos con detalles, Verifica los detalles para poder programar las ofertas',
+                articlesWithFails
+            )
+        return response;
     }
 
     const changeDataMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
