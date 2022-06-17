@@ -275,6 +275,48 @@ const utils = (() => {
 
     const createUUID = () => uuidv4();
 
+    const getTiendaBySucursal = (sucursal) => {
+        switch (sucursal) {
+            case 'ZR':
+                return 1;
+            case 'VC':
+                return 2;
+            case 'ER':
+                return 3;
+            case 'OU':
+                return 5;
+            case 'SY':
+                return 9;
+            case 'JL':
+                return 4;
+            case 'BO':
+                return 6;
+            default:
+                return 0;
+        }
+    }
+
+    const getAlmacenBySucursal = (sucursal) => {
+        switch (sucursal) {
+            case 'ZR':
+                return 2;
+            case 'VC':
+                return 3;
+            case 'ER':
+                return 5;
+            case 'OU':
+                return 19;
+            case 'SY':
+                return 16;
+            case 'JL':
+                return 7;
+            case 'BO':
+                return 21;
+            default:
+                return 0;
+        }
+    }
+
     return {
         createContentAssert,
         createContentError,
@@ -286,6 +328,8 @@ const utils = (() => {
         getSucursalByAlmacen,
         getNameBySiglas,
         createUUID,
+        getTiendaBySucursal,
+        getAlmacenBySucursal,
         toDate,
         getDateActual,
         getSucursalByCategory,
