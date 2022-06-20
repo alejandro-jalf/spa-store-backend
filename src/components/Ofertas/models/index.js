@@ -230,26 +230,19 @@ const modelsOfertas = (() => {
 
     const createOffersInWincaja = async (cadenaConexion = '', bodyOffers) => {
         try {
-            const {
-                articulo, descuento, sucursal, fechaInicio, fechaFin
-            } = bodyOffers
+            const { sucursal, fechaInicio, fechaFin, articulos } = bodyOffers;
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 DECLARE @FechaInicial DATETIME = CAST('${fechaInicio}' AS smalldatetime);
                 DECLARE @FechaFinal DATETIME = CAST('${fechaFin}' AS smalldatetime);
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
                 DECLARE @Consecutivo INT = (SELECT TOP 1 Consecutivo  FROM Ofertas ORDER BY Consecutivo DESC);
                 INSERT INTO Ofertas(
                     Consecutivo, ID_Oferta,
                     Articulo, Descuento, Porcentaje, NivelPrecio, FechaInicial, FechaFinal, Limite, Remanente,
                     FechaUltimaModificacion, FechaAlta, NoCaduca, Tienda, AntesDeIVA, LimiteXVenta, TipoVenta
-                ) VALUES (
-                    @Consecutivo + 1, CAST((@Consecutivo + 1) AS nvarchar) + REPLACE(CONVERT(nvarchar, GETDATE(), 108), ':', ''),
-                    '${articulo}', ${descuento}, 0, 1, @FechaInicial, @FechaFinal, 0.0, 0.0,
-                    GETDATE(), GETDATE(), 0 ,@Tienda, 0, 0.00, 0
-                )`,
+                ) VALUES ${articulos};`,
                 QueryTypes.INSERT
             );
             dbmssql.closeConexion();
@@ -369,11 +362,23 @@ const modelsOfertas = (() => {
         }
     }
 
-    const getOffersByMasterOffer = async (cadenaConexion = '', uuid) => {
+    const getOffersByMasterOffer = async (cadenaConexion = '', sucursal, uuid = '', hostOrigin = '', hostDatabase = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `USE CA2015; SELECT * FROM articulosofertas WHERE uuid_maestro = '${uuid}'`,
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    O.*, PrecioActual = L.Precio1IVAUV, Descuento = L.Precio1IVAUV - O.oferta
+                FROM [${hostOrigin}].[CA2015].dbo.articulosofertas AS O
+                LEFT JOIN ${hostDatabase}.dbo.QVListaprecioConCosto AS L ON  L.Articulo COLLATE Modern_Spanish_CI_AS = O.articulo 
+                WHERE O.uuid_maestro = '${uuid}'
+                    AND L.Tienda = @Tienda
+                    AND L.Almacen = @Almacen
+                `,
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
