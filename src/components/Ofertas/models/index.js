@@ -49,6 +49,42 @@ const modelsOfertas = (() => {
         }
     }
 
+    const getTimedOffersByDate = async (cadenaConexion = '', sucursal = 'ZR', dateInit = '', dateEnd = '', articles = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @FechaInicial DATETIME = CAST('${dateInit}' AS DATETIME);
+                DECLARE @FechaFinal DATETIME = CAST('${dateEnd}' AS DATETIME);
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    Suc = @Sucursal,
+                    Articulo, CodigoBarras, Nombre, Descuento,
+                    FechaInicial, FechaFinal, OfertaCaduca,
+                    Disponible, Limite, Tienda, NivelPrecio
+                FROM QvOfertas
+                WHERE CONVERT(nvarchar, FechaFinal, 103) = CONVERT(datetime, @FechaFinal, 103)
+                    AND CONVERT(nvarchar, FechaInicial, 103) = CONVERT(datetime, @FechaInicial, 103)
+                    AND Tienda = @Tienda
+                    AND Articulo IN (
+                        ${articles}
+                    )
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de la verificacion de articulos ofertados', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar verificar los articulos ofertados por fecha',
+                error
+            );
+        }
+    }
+
     const getValidationArticlesByUuuiMaster = async (cadenaConexion = '', sucursal = 'ZR', now = '', uuid_master = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -494,6 +530,7 @@ const modelsOfertas = (() => {
         getValidationArticlesByUuuiMaster,
         getDetailsArticleByArticle,
         getDetailsArticleByName,
+        getTimedOffersByDate,
         getValidOffers,
         getAllMasterOffers,
         getAllMasterOffersOf,
