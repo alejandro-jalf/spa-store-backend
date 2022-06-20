@@ -329,9 +329,9 @@ const ServicesOfertas = (() => {
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
 
         const conexionOrigin = getConnectionFrom('BO');
+        const sucursal = response.data[0].sucursal;
         const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
         const hostOrigin = getHostBySuc('ZR');
-        const sucursal = response.data[0].sucursal;
 
         response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
         if (!response.success) return createResponse(400, response);
