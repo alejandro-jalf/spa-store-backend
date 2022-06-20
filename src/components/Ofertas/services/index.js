@@ -181,9 +181,13 @@ const ServicesOfertas = (() => {
                 createContentError('La fecha de inicio no puede ser menor que la fecha actual')
             )
 
+        const conexionOrigin = getConnectionFrom('BO');
+        const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+        const hostOrigin = getHostBySuc('ZR');
+
         switch (statusNew) {
             case OFERTA_ENVIADA:
-                response = await getOffersByMasterOffer(conexionDB, uuidmaster);
+                response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
                 if (!response.success) return createResponse(400, response);
                 if (response.data.length === 0)
                     return createResponse(
@@ -196,9 +200,6 @@ const ServicesOfertas = (() => {
                 response = await validaArticlesOffer(sucursal, uuidmaster);
                 if (!response.success) return createResponse(200, response);
                 const conexionSucursal = getConnectionFrom(sucursal);
-                const conexionOrigin = getConnectionFrom('BO');
-                const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
-                const hostOrigin = getHostBySuc(sucursal);
 
                 response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
 
@@ -327,7 +328,12 @@ const ServicesOfertas = (() => {
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
 
-        response = await getOffersByMasterOffer(conexionDB, uuidmaster);
+        const conexionOrigin = getConnectionFrom('BO');
+        const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+        const hostOrigin = getHostBySuc('ZR');
+        const sucursal = response.data[0].sucursal;
+
+        response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
     }
@@ -388,7 +394,11 @@ const ServicesOfertas = (() => {
 
         bodyArticle.fechaModificado = getDateActual().format('YYYY-MM-DD');
 
-        response = await getOffersByMasterOffer(conexionDB, uuidmaster);
+        const conexionOrigin = getConnectionFrom('BO');
+        const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+        const hostOrigin = getHostBySuc('ZR');
+
+        response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
         if (!response.success) return createResponse(400, response);
         const existArticle = response.data.find((article) => article.articulo === articulo)
 
