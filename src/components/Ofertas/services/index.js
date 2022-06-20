@@ -8,6 +8,9 @@ const {
     createContentAssert,
     toMoment,
     roundTo,
+    getTiendaBySucursal,
+    getHostBySuc,
+    getDatabaseBySuc,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -34,6 +37,7 @@ const {
     getDetailsArticleByArticle,
     getDetailsArticleByName,
     getValidationArticlesByUuuiMaster,
+    createOffersInWincaja,
 } = require('../models');
 
 const utilsOfertas = (() => {
@@ -150,12 +154,13 @@ const ServicesOfertas = (() => {
         if (!validate.success) return createResponse(400, validate);
 
         let response = await getMasterOffers(conexionDB, uuidmaster);
+        const offersMaster = response.data[0];
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
-        if (response.data[0].sucursal !== sucursal.toUpperCase())
+        if (offersMaster.sucursal !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        const statusActual = response.data[0].estatus;
+        const statusActual = offersMaster.estatus;
         const statusNew = bodyMaster.status;
 
         validate = validateStatus(statusNew, statusActual, utilsOfertas);
@@ -164,10 +169,13 @@ const ServicesOfertas = (() => {
         if (statusNew === statusActual)
             return createResponse(200, createContentError('El estatus actual y el nuevo son iguales'))
 
-        const dateObject = response.data[0].fechaInicio;
-        const dateString = `${dateObject.getFullYear()}-${completeDateHour(dateObject.getMonth() + 1)}-${completeDateHour(dateObject.getDate())}`;
-        const dateinit = toMoment(dateString + ' 23:59:59.999');
-        if (dateinit.isBefore(getDateActual()))
+        const dateInitObject = offersMaster.fechaInicio;
+        const dateEndObject = offersMaster.fechaFin;
+        const dateInitString = `${dateInitObject.getFullYear()}-${completeDateHour(dateInitObject.getMonth() + 1)}-${completeDateHour(dateInitObject.getDate())}`;
+        const dateEndString = `${dateEndObject.getFullYear()}-${completeDateHour(dateEndObject.getMonth() + 1)}-${completeDateHour(dateEndObject.getDate())}`;
+        const dateInit = toMoment(dateInitString + ' 23:59:59.999');
+        const dateEnd = toMoment(dateEndString + ' 23:59:59.999');
+        if (dateInit.isBefore(getDateActual()))
             return createResponse(
                 200,
                 createContentError('La fecha de inicio no puede ser menor que la fecha actual')
@@ -187,8 +195,33 @@ const ServicesOfertas = (() => {
             case OFERTA_PROGRAMADA:
                 response = await validaArticlesOffer(sucursal, uuidmaster);
                 if (!response.success) return createResponse(200, response);
-                
-                break;
+                const conexionSucursal = getConnectionFrom(sucursal);
+                const conexionOrigin = getConnectionFrom('BO');
+                const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+                const hostOrigin = getHostBySuc(sucursal);
+
+                response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
+
+                let querysInserts = '';
+                const tienda = getTiendaBySucursal(sucursal.toUpperCase());
+                response.data.forEach((article, indexArticle) => {
+                    if (indexArticle > 0) querysInserts += ',';
+                    querysInserts += `
+                    (
+                        @Consecutivo + 1 + ${indexArticle}, CAST((@Consecutivo + 1 + ${indexArticle}) AS nvarchar) + REPLACE(CONVERT(nvarchar, GETDATE(), 108), ':', ''),
+                        '${article.articulo}', ${article.Descuento}, 0, 1, @FechaInicial, @FechaFinal, 0.0, 0.0,
+                        GETDATE(), GETDATE(), 0 ,${tienda}, 0, 0.00, 0
+                    )
+                    `;
+                })
+                const bodyOffers = {
+                    sucursal,
+                    fechaInicio: dateInit.format('YYYYMMDD'),
+                    fechaFin: dateEnd.format('YYYYMMDD'),
+                    articulos: querysInserts
+                }
+                response = await createOffersInWincaja(conexionSucursal, bodyOffers);
+                if (!response.success) return createResponse(400, response);
         
             default:
                 break;
