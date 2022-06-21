@@ -59,14 +59,14 @@ const modelsOfertas = (() => {
                 DECLARE @FechaFinal DATETIME = CAST('${dateEnd}' AS DATETIME);
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
 
-                SELECT
+                SELECT TOP 10
                     Suc = @Sucursal,
                     Articulo, CodigoBarras, Nombre, Descuento,
                     FechaInicial, FechaFinal, OfertaCaduca,
                     Disponible, Limite, Tienda, NivelPrecio
                 FROM QvOfertas
-                WHERE CONVERT(nvarchar, FechaFinal, 103) = CONVERT(datetime, @FechaFinal, 103)
-                    AND CONVERT(nvarchar, FechaInicial, 103) = CONVERT(datetime, @FechaInicial, 103)
+                WHERE CONVERT(nvarchar, FechaFinal, 103) = CONVERT(nvarchar, @FechaFinal, 103)
+                    AND CONVERT(nvarchar, FechaInicial, 103) = CONVERT(nvarchar, @FechaInicial, 103)
                     AND Tienda = @Tienda
                     AND Articulo IN (
                         ${articles}

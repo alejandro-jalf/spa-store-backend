@@ -13,6 +13,7 @@ const {
     getDetailsArticleByLike,
     getDetailsArticleByArticulo,
     getValidationArticlesOffersForWincaja,
+    getCheckArticlesOffers,
 } = require("../services");
 
 router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
@@ -48,6 +49,12 @@ router.route("/api/v1/ofertas/:sucursal/articulos/validos/:uuidmaster").get(asyn
 router.route("/api/v1/ofertas/articulos/:uuidmaster").get(async (req, res) => {
     const { uuidmaster } = req.params;
     const { status, response } = await getArticlesByUUIDMaster(uuidmaster);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/ofertas/:sucursal/articulos/:uuidmaster/check").get(async (req, res) => {
+    const { sucursal, uuidmaster } = req.params;
+    const { status, response } = await getCheckArticlesOffers(sucursal, uuidmaster);
     res.status(status).json(response);
 });
 

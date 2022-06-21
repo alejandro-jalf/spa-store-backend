@@ -38,6 +38,7 @@ const {
     getDetailsArticleByName,
     getValidationArticlesByUuuiMaster,
     createOffersInWincaja,
+    getTimedOffersByDate,
 } = require('../models');
 
 const utilsOfertas = (() => {
@@ -81,6 +82,39 @@ const ServicesOfertas = (() => {
 
         const response  = await getValidOffers(conexion, sucursal, now);
 
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response);
+    }
+
+    const getCheckArticlesOffers = async (sucursal, uuidmaster = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(conexionDB, uuidmaster);
+        const offersMaster = response.data[0];
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+        if (offersMaster.sucursal !== sucursal.toUpperCase())
+            return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
+
+        const conexion = getConnectionFrom(sucursal);
+        const dateInitObject = offersMaster.fechaInicio;
+        const dateEndObject = offersMaster.fechaFin;
+        const dateInitString = `${dateInitObject.getFullYear()}${completeDateHour(dateInitObject.getMonth() + 1)}${completeDateHour(dateInitObject.getDate())}`;
+        const dateEndString = `${dateEndObject.getFullYear()}${completeDateHour(dateEndObject.getMonth() + 1)}${completeDateHour(dateEndObject.getDate())}`;
+
+        const conexionOrigin = getConnectionFrom('BO');
+        const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+        const hostOrigin = getHostBySuc('ZR');
+        response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
+        if (!response.success) return createResponse(400, response);
+        const articles = response.data.reduce((acumArticle, article, index) => {
+            if (index > 0) acumArticle += ',';
+            acumArticle += `'${article.articulo}'`;
+            return acumArticle;
+        }, '')
+
+        response  = await getTimedOffersByDate(conexion, sucursal, dateInitString, dateEndString, articles);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
     }
@@ -202,6 +236,7 @@ const ServicesOfertas = (() => {
                 const conexionSucursal = getConnectionFrom(sucursal);
 
                 response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
+                if (!response.success) return createResponse(400, response);
 
                 let querysInserts = '';
                 const tienda = getTiendaBySucursal(sucursal.toUpperCase());
@@ -446,6 +481,7 @@ const ServicesOfertas = (() => {
 
     return {
         getValidationArticlesOffersForWincaja,
+        getCheckArticlesOffers,
         changeStatusMasterOffer,
         changeDataMasterOffer,
         getOfferValidation,
