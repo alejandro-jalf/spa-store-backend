@@ -313,6 +313,7 @@ const ServicesOfertas = (() => {
 
         const statusActual = response.data[0].estatus;
         const statusNew = bodyMaster.status;
+        bodyMaster.editable = bodyMaster.editable ? 1 : 0
 
         if (statusActual !== OFERTA_CREADA && statusActual !== OFERTA_EN_PROCESO)
             return createResponse(
