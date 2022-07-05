@@ -231,7 +231,9 @@ const ServicesOfertas = (() => {
                 break;
 
             case OFERTA_PROGRAMADA:
-                response = await validaArticlesOffer(sucursal, uuidmaster);
+                response = await validaArticlesOffer(
+                    conexionOrigin, sucursal, dateInit.format('YYYYMMDD'), dateEnd.format('YYYYMMDD'), uuidmaster, hostOrigin, hostDatabase
+                );
                 if (!response.success) return createResponse(200, response);
                 const conexionSucursal = getConnectionFrom(sucursal);
 
@@ -281,13 +283,26 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal.toUpperCase() !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        response = await validaArticlesOffer(sucursal, uuid_maestro);
+        const dateInitObject = response.data[0].fechaInicio;
+        const dateEndObject = response.data[0].fechaFin;
+        const fechaInicio = `${dateInitObject.getFullYear()}${completeDateHour(dateInitObject.getMonth() + 1)}${completeDateHour(dateInitObject.getDate())}`;
+        const fechaFin = `${dateEndObject.getFullYear()}${completeDateHour(dateEndObject.getMonth() + 1)}${completeDateHour(dateEndObject.getDate())}`;
+
+        console.log(dateInitObject, fechaInicio, dateEndObject, fechaFin);
+        const conexionOrigin = getConnectionFrom('BO');
+        const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+        const hostOrigin = getHostBySuc('ZR');
+        response = await validaArticlesOffer(conexionOrigin, sucursal, fechaInicio, fechaFin, uuid_maestro, hostOrigin, hostDatabase);
         return createResponse(200, response);
     }
 
-    const validaArticlesOffer = async (sucursal = '', uuid_maestro = '') => {
+    const validaArticlesOffer = async (
+        conexionOrigin, sucursal = '', fechaInicio, fechaFin, uuid_maestro = '', hostOrigin, hostDatabase
+    ) => {
         const now = getDateActual().format('YYYYMMDD');
-        let response = await getValidationArticlesByUuuiMaster(conexionDB, sucursal, now, uuid_maestro);
+        let response = await getValidationArticlesByUuuiMaster(
+            conexionOrigin, sucursal, now, fechaInicio, fechaFin, uuid_maestro, hostOrigin, hostDatabase
+        );
         const articlesWithFails = response.data.filter((article) => (
             article.OfertaValida === 'NO' || article.OfertaCaduca === 'NO' || article.OfertaFechaVigente === 'SI'
         ));

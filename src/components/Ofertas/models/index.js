@@ -85,13 +85,18 @@ const modelsOfertas = (() => {
         }
     }
 
-    const getValidationArticlesByUuuiMaster = async (cadenaConexion = '', sucursal = 'ZR', now = '', uuid_master = '') => {
+    const getValidationArticlesByUuuiMaster = async (
+        cadenaConexion = '', sucursal = 'ZR', now = '', fechaInicio = '',
+        fechaFin = '', uuid_master = '', hostOrigin = '', hostDatabase = ''
+    ) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 DECLARE @FechaActual DATETIME = CAST('${now}' AS datetime);
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @FechaInicial DATETIME = CAST('${fechaInicio} 12:00:00.000' AS datetime);
+                DECLARE @FechaFinal DATETIME = CAST('${fechaFin} 12:00:00.000' AS datetime);
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
 
@@ -103,8 +108,8 @@ const modelsOfertas = (() => {
                         A.Articulo, A.Nombre, L.Precio1IVAUV, A.oferta,
                         L.UltimoCosto, UtilidadOferta = 1 - (L.UltimoCostoNeto / A.oferta),
                         OfertaValida = CASE WHEN (1 - (L.UltimoCostoNeto / A.oferta)) < 0.1 THEN 'NO' ELSE 'SI' END
-                    FROM CA2015.dbo.ArticulosOfertas AS A
-                    LEFT JOIN QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo
+                    FROM [${hostOrigin}].[CA2015].dbo.ArticulosOfertas AS A
+                    LEFT JOIN ${hostDatabase}.dbo.QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo
                     WHERE A.uuid_maestro = '${uuid_master}'
                         AND L.Tienda = @Tienda AND L.Almacen = @Almacen
                 ),
@@ -114,7 +119,7 @@ const modelsOfertas = (() => {
                     SELECT
                         Articulo, OfertaCaduca, FechaInicial, FechaFinal,
                         OfertaFechaVigente = CASE WHEN FechaFinal >= @FechaActual THEN 'SI' ELSE 'NO' END
-                    FROM QVOfertas
+                    FROM ${hostDatabase}.dbo.QVOfertas
                     WHERE OfertaCaduca = 'NO'
                         OR FechaFinal >= @FechaActual
                         AND Tienda = @Tienda
@@ -124,6 +129,7 @@ const modelsOfertas = (() => {
                     A.*, O.OfertaCaduca, O.OfertaFechaVigente, O.FechaInicial, O.FechaFinal
                 FROM ArticulosEnOfertas AS A
                 LEFT JOIN ArticulosConOfertas AS O ON O.Articulo = A.Articulo
+                AND @FechaInicial >= O.FechaInicial AND @FechaFinal <= O.FechaFinal
                 `,
                 QueryTypes.SELECT
             );
