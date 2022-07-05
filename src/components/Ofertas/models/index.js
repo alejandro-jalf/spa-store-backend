@@ -376,7 +376,11 @@ const modelsOfertas = (() => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `USE CA2015; DELETE FROM maestroofertas WHERE uuid = '${uuid}' AND sucursal = '${sucursal.toUpperCase()}'`,
+                `USE CA2015;
+                DELETE FROM articulosofertas
+                WHERE uuid_maestro = '${uuid}';
+                DELETE FROM maestroofertas WHERE uuid = '${uuid}' AND sucursal = '${sucursal.toUpperCase()}';
+                `,
                 QueryTypes.DELETE
             );
             dbmssql.closeConexion();
