@@ -209,7 +209,7 @@ const ServicesOfertas = (() => {
         const dateEndString = `${dateEndObject.getFullYear()}-${completeDateHour(dateEndObject.getMonth() + 1)}-${completeDateHour(dateEndObject.getDate())}`;
         const dateInit = toMoment(dateInitString + ' 23:59:59.999');
         const dateEnd = toMoment(dateEndString + ' 23:59:59.999');
-        if (dateInit.isBefore(getDateActual()))
+        if (statusNew !== OFERTA_CANCELADA && dateInit.isBefore(getDateActual()))
             return createResponse(
                 200,
                 createContentError('La fecha de inicio no puede ser menor que la fecha actual')
