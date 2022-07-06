@@ -308,7 +308,7 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
             `USE CA2015; INSERT INTO maestroofertas VALUES(
                 '${uuid}', '${sucursal}', ${status}, 1, '${tipoOferta}', CAST('${fechaInicio}' AS DATETIME),
-                CAST('${fechaFin}' AS DATETIME), '${descripcion}', NOW(), '${creadoPor}', NOW(),
+                CAST('${fechaFin}' AS DATETIME), '${descripcion}', getdate(), '${creadoPor}', getdate(),
                 '${creadoPor}'
             )`,
                 QueryTypes.INSERT
@@ -332,7 +332,7 @@ const modelsOfertas = (() => {
                 UPDATE maestroofertas 
                 SET
                     estatus = ${bodyMaster.status},
-                    fechamodificado = NOW(),
+                    fechamodificado = getdate(),
                     modificadopor = '${bodyMaster.modificadoPor}'
                 WHERE uuid = '${uuid}'`,
                 QueryTypes.UPDATE
@@ -362,7 +362,7 @@ const modelsOfertas = (() => {
                 SET
                     estatus = ${status}, Editable = ${editable}, TipoOferta = '${tipoOferta}',
                     FechaInicio = CAST('${fechaInicio}' AS DATETIME), FechaFin = CAST('${fechaFin}' AS DATETIME), Descripcion = '${descripcion}',
-                    fechaModificado = NOW()
+                    fechaModificado = getdate()
                 WHERE uuid = '${uuid}'
                 `,
                 QueryTypes.UPDATE
@@ -451,7 +451,7 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
             `USE CA2015; INSERT INTO articulosofertas VALUES(
                 '${uuid_maestro}', '${articulo}', '${nombre}', ${costo}, '${descripcion}', ${precio},
-                ${oferta}, NOW(), '${creadoPor}', NOW(), '${modificadoPor}'
+                ${oferta}, getdate(), '${creadoPor}', getdate(), '${modificadoPor}'
             )`,
                 QueryTypes.INSERT
             );
@@ -490,7 +490,7 @@ const modelsOfertas = (() => {
                 SET
                     nombre = '${nombre}', costo = ${costo}, descripcion = '${descripcion}',
                     precio = ${precio}, oferta = ${oferta},
-                    fechaModificado = NOW(), modificadoPor= '${modificadoPor}'
+                    fechaModificado = getdate(), modificadoPor= '${modificadoPor}'
                 WHERE articulo = '${articulo}'
                     AND uuid_maestro = '${uuidmaster}'
                 `,
