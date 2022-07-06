@@ -308,7 +308,7 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
             `USE CA2015; INSERT INTO maestroofertas VALUES(
                 '${uuid}', '${sucursal}', ${status}, 1, '${tipoOferta}', CAST('${fechaInicio}' AS DATETIME),
-                CAST('${fechaFin}' AS DATETIME), '${descripcion}', CAST('${fechaAlta}' AS DATETIME), '${creadoPor}', CAST('${fechaAlta}' AS DATETIME),
+                CAST('${fechaFin}' AS DATETIME), '${descripcion}', NOW(), '${creadoPor}', NOW(),
                 '${creadoPor}'
             )`,
                 QueryTypes.INSERT
@@ -332,7 +332,7 @@ const modelsOfertas = (() => {
                 UPDATE maestroofertas 
                 SET
                     estatus = ${bodyMaster.status},
-                    fechamodificado = CAST('${bodyMaster.fechamodificado}' AS DATETIME),
+                    fechamodificado = NOW(),
                     modificadopor = '${bodyMaster.modificadoPor}'
                 WHERE uuid = '${uuid}'`,
                 QueryTypes.UPDATE
@@ -362,7 +362,7 @@ const modelsOfertas = (() => {
                 SET
                     estatus = ${status}, Editable = ${editable}, TipoOferta = '${tipoOferta}',
                     FechaInicio = CAST('${fechaInicio}' AS DATETIME), FechaFin = CAST('${fechaFin}' AS DATETIME), Descripcion = '${descripcion}',
-                    fechaModificado = CAST('${fechaModificado}' AS DATETIME), modificadoPor= '${modificadoPor}'
+                    fechaModificado = NOW()
                 WHERE uuid = '${uuid}'
                 `,
                 QueryTypes.UPDATE
@@ -424,6 +424,7 @@ const modelsOfertas = (() => {
                 WHERE O.uuid_maestro = '${uuid}'
                     AND L.Tienda = @Tienda
                     AND L.Almacen = @Almacen
+                ORDER BY fechaAlta DESC
                 `,
                 QueryTypes.SELECT
             );
@@ -450,7 +451,7 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
             `USE CA2015; INSERT INTO articulosofertas VALUES(
                 '${uuid_maestro}', '${articulo}', '${nombre}', ${costo}, '${descripcion}', ${precio},
-                ${oferta}, CAST('${fechaAlta}' AS DATETIME), '${creadoPor}', CAST('${fechaModificado}' AS DATETIME), '${modificadoPor}'
+                ${oferta}, NOW(), '${creadoPor}', NOW(), '${modificadoPor}'
             )`,
                 QueryTypes.INSERT
             );
@@ -489,7 +490,7 @@ const modelsOfertas = (() => {
                 SET
                     nombre = '${nombre}', costo = ${costo}, descripcion = '${descripcion}',
                     precio = ${precio}, oferta = ${oferta},
-                    fechaModificado = CAST('${fechaModificado}' AS DATETIME), modificadoPor= '${modificadoPor}'
+                    fechaModificado = NOW(), modificadoPor= '${modificadoPor}'
                 WHERE articulo = '${articulo}'
                     AND uuid_maestro = '${uuidmaster}'
                 `,
