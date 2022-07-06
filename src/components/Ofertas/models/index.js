@@ -19,11 +19,11 @@ const modelsOfertas = (() => {
                 SELECT
                     Suc = @Sucursal,
                     O.Articulo, O.CodigoBarras, O.Nombre, 
-                    UtilidadOferta = 1 - (C.UltimoCosto/(Precio1IVAUV - Descuento)),
-                    OfertaValida = CASE WHEN (1 - (C.UltimoCosto/(Precio1IVAUV - Descuento))) < 0.1 THEN 'NO' ELSE 'SI' END,
-                    Descuento, C.UltimoCosto, Precio1IVAUV,
-                    UtilidadVenta = 1 - (UltimoCosto/Precio1IVAUV),
-                    Precio1Valido = CASE WHEN (1 - (C.UltimoCosto/Precio1IVAUV)) < 0.1 THEN 'NO' ELSE 'SI' END,
+                    UtilidadOferta = 1 - (C.UltimoCostoNeto/(Precio1IVAUV - Descuento)),
+                    OfertaValida = CASE WHEN (1 - (C.UltimoCostoNeto/(Precio1IVAUV - Descuento))) < 0.1 THEN 'NO' ELSE 'SI' END,
+                    Descuento, UltimoCosto = C.UltimoCostoNeto, Precio1IVAUV,
+                    UtilidadVenta = 1 - (UltimoCostoNeto/Precio1IVAUV),
+                    Precio1Valido = CASE WHEN (1 - (C.UltimoCostoNeto/Precio1IVAUV)) < 0.1 THEN 'NO' ELSE 'SI' END,
                     PrecioOferta = Precio1IVAUV - Descuento,
                     FechaInicial, FechaFinal,OfertaCaduca,
                     O.Disponible, O.Limite, O.Tienda, O.NivelPrecio
@@ -106,7 +106,7 @@ const modelsOfertas = (() => {
                 AS (
                     SELECT
                         A.Articulo, A.Nombre, L.Precio1IVAUV, A.oferta,
-                        L.UltimoCosto, UtilidadOferta = 1 - (L.UltimoCostoNeto / A.oferta),
+                        UltimoCosto = L.UltimoCostoNeto, UtilidadOferta = 1 - (L.UltimoCostoNeto / A.oferta),
                         OfertaValida = CASE WHEN (1 - (L.UltimoCostoNeto / A.oferta)) < 0.1 THEN 'NO' ELSE 'SI' END
                     FROM [${hostOrigin}].[CA2015].dbo.ArticulosOfertas AS A
                     LEFT JOIN ${hostDatabase}.dbo.QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo
@@ -159,7 +159,7 @@ const modelsOfertas = (() => {
                     Nombre,
                     Descripcion,
                     Precio1IVAUV,
-                    UltimoCosto,
+                    UltimoCosto = UltimoCostoNeto,
                     ExistenciaActualRegular,
                     ExistenciaActualUC,
                     Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta
@@ -195,7 +195,7 @@ const modelsOfertas = (() => {
                     Nombre,
                     Descripcion,
                     Precio1IVAUV,
-                    UltimoCosto,
+                    UltimoCosto = UltimoCostoNeto,
                     ExistenciaActualRegular,
                     ExistenciaActualUC,
                     Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta
