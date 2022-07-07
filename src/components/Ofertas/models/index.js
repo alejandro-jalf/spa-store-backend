@@ -108,7 +108,7 @@ const modelsOfertas = (() => {
                         A.Articulo, A.Nombre, L.Precio1IVAUV, A.oferta,
                         UltimoCosto = L.UltimoCostoNeto, UtilidadOferta = 1 - (L.UltimoCostoNeto / A.oferta),
                         OfertaValida = CASE WHEN (1 - (L.UltimoCostoNeto / A.oferta)) < 0.1 THEN 'NO' ELSE 'SI' END
-                    FROM [${hostOrigin}].[CA2015].dbo.ArticulosOfertas AS A
+                    FROM ${hostOrigin}[CA2015].dbo.ArticulosOfertas AS A
                     LEFT JOIN ${hostDatabase}.dbo.QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo COLLATE Modern_Spanish_CI_AS
                     WHERE A.uuid_maestro = '${uuid_master}'
                         AND L.Tienda = @Tienda AND L.Almacen = @Almacen
@@ -419,7 +419,7 @@ const modelsOfertas = (() => {
 
                 SELECT
                     O.*, PrecioActual = L.Precio1IVAUV, Descuento = L.Precio1IVAUV - O.oferta
-                FROM [${hostOrigin}].[CA2015].dbo.articulosofertas AS O
+                FROM ${hostOrigin}[CA2015].dbo.articulosofertas AS O
                 LEFT JOIN ${hostDatabase}.dbo.QVListaprecioConCosto AS L ON  L.Articulo COLLATE Modern_Spanish_CI_AS = O.articulo 
                 WHERE O.uuid_maestro = '${uuid}'
                     AND L.Tienda = @Tienda

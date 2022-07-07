@@ -103,9 +103,11 @@ const ServicesOfertas = (() => {
         const dateInitString = `${dateInitObject.getFullYear()}${completeDateHour(dateInitObject.getMonth() + 1)}${completeDateHour(dateInitObject.getDate())}`;
         const dateEndString = `${dateEndObject.getFullYear()}${completeDateHour(dateEndObject.getMonth() + 1)}${completeDateHour(dateEndObject.getDate())}`;
 
-        const conexionOrigin = getConnectionFrom('VC');
-        const hostDatabase = sucursal.toUpperCase() !== 'VC' ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}` : getDatabaseBySuc(sucursal);
-        const hostOrigin = getHostBySuc('ZR');
+        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
+        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
+            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
+            : getDatabaseBySuc(sucursal);
+        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
         response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
         if (!response.success) return createResponse(400, response);
         const articles = response.data.reduce((acumArticle, article, index) => {
@@ -215,9 +217,11 @@ const ServicesOfertas = (() => {
                 createContentError('La fecha de inicio no puede ser menor que la fecha actual')
             )
 
-        const conexionOrigin = getConnectionFrom('VC');
-        const hostDatabase = sucursal.toUpperCase() !== 'VC' ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}` : getDatabaseBySuc(sucursal);
-        const hostOrigin = getHostBySuc('ZR');
+        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
+        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
+            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
+            : getDatabaseBySuc(sucursal);
+        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
 
         switch (statusNew) {
             case OFERTA_ENVIADA:
@@ -289,9 +293,11 @@ const ServicesOfertas = (() => {
         const fechaFin = `${dateEndObject.getFullYear()}${completeDateHour(dateEndObject.getMonth() + 1)}${completeDateHour(dateEndObject.getDate())}`;
 
         console.log(dateInitObject, fechaInicio, dateEndObject, fechaFin);
-        const conexionOrigin = getConnectionFrom('VC');
-        const hostDatabase = sucursal.toUpperCase() !== 'VC' ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}` : getDatabaseBySuc(sucursal);
-        const hostOrigin = getHostBySuc('ZR');
+        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
+        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
+            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
+            : getDatabaseBySuc(sucursal);
+        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
         response = await validaArticlesOffer(conexionOrigin, sucursal, fechaInicio, fechaFin, uuid_maestro, hostOrigin, hostDatabase);
         return createResponse(200, response);
     }
@@ -379,10 +385,12 @@ const ServicesOfertas = (() => {
         if (!response.success) return createResponse(400, response);
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
 
-        const conexionOrigin = getConnectionFrom('VC');
         const sucursal = response.data[0].sucursal;
-        const hostDatabase = sucursal.toUpperCase() !== 'VC' ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}` : getDatabaseBySuc(sucursal);
-        const hostOrigin = getHostBySuc('ZR');
+        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
+        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
+            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
+            : getDatabaseBySuc(sucursal);
+        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
 
         response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
         if (!response.success) return createResponse(400, response);
@@ -445,9 +453,11 @@ const ServicesOfertas = (() => {
 
         bodyArticle.fechaModificado = getDateActual().format('YYYY-MM-DD');
 
-        const conexionOrigin = getConnectionFrom('VC');
-        const hostDatabase = sucursal.toUpperCase() !== 'VC' ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}` : getDatabaseBySuc(sucursal);
-        const hostOrigin = getHostBySuc('ZR');
+        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
+        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
+            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
+            : getDatabaseBySuc(sucursal);
+        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
 
         response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
         if (!response.success) return createResponse(400, response);
