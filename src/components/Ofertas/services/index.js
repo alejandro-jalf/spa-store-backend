@@ -116,8 +116,19 @@ const ServicesOfertas = (() => {
             return acumArticle;
         }, '')
 
+        const articlesInOffers = response.data;
+
         response  = await getTimedOffersByDate(conexion, sucursal, dateInitString, dateEndString, articles);
         if (!response.success) return createResponse(400, response);
+
+        const resultValidations = articlesInOffers.map((article) => {
+            const articleFinded = response.data.find((articleOffered) => articleOffered.Articulo === article.articulo)
+            if (articleFinded) article.Offered = true
+            else article.Offered = false
+            return article
+        })
+        response.data = resultValidations
+
         return createResponse(200, response);
     }
 
@@ -493,7 +504,7 @@ const ServicesOfertas = (() => {
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
         const statusActual = response.data[0].estatus;
-        if (statusActual !== OFERTA_CREADA)
+        if (statusActual !== OFERTA_CREADA && statusActual !== OFERTA_EN_PROCESO)
             return createResponse(
                 200,
                 createContentError(`No puede eliminar el articulo debido a que el estatus cambio a ${utilsOfertas.parseStatusOferta(statusActual)}`)
