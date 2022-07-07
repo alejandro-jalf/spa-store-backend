@@ -220,7 +220,16 @@ const modelsOfertas = (() => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                'USE CA2015; SELECT * FROM maestroofertas',
+                `
+                USE CA2015;
+                SELECT
+                    M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
+                    M.creadoPor, M.fechaModificado, M.modificadoPor, Articulos = COUNT(*)
+                FROM maestroofertas AS M
+                INNER JOIN ArticulosOfertas AS A ON M.uuid = A.uuid_maestro
+                GROUP BY M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
+                    M.creadoPor, M.fechaModificado, M.modificadoPor
+                `,
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
