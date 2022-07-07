@@ -109,7 +109,7 @@ const modelsOfertas = (() => {
                         UltimoCosto = L.UltimoCostoNeto, UtilidadOferta = 1 - (L.UltimoCostoNeto / A.oferta),
                         OfertaValida = CASE WHEN (1 - (L.UltimoCostoNeto / A.oferta)) < 0.1 THEN 'NO' ELSE 'SI' END
                     FROM [${hostOrigin}].[CA2015].dbo.ArticulosOfertas AS A
-                    LEFT JOIN ${hostDatabase}.dbo.QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo
+                    LEFT JOIN ${hostDatabase}.dbo.QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo COLLATE Modern_Spanish_CI_AS
                     WHERE A.uuid_maestro = '${uuid_master}'
                         AND L.Tienda = @Tienda AND L.Almacen = @Almacen
                 ),
@@ -128,7 +128,7 @@ const modelsOfertas = (() => {
                 SELECT
                     A.*, O.OfertaCaduca, O.OfertaFechaVigente, O.FechaInicial, O.FechaFinal
                 FROM ArticulosEnOfertas AS A
-                LEFT JOIN ArticulosConOfertas AS O ON O.Articulo = A.Articulo
+                LEFT JOIN ArticulosConOfertas AS O ON O.Articulo COLLATE Modern_Spanish_CI_AS = A.Articulo
                 AND @FechaInicial >= O.FechaInicial AND @FechaFinal <= O.FechaFinal
                 `,
                 QueryTypes.SELECT
