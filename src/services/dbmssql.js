@@ -8,6 +8,7 @@ const conexion = (() => {
       pool: { max: 10, min: 0, acquire: 30000, idle: 10000 },
       dialectOptions: {
         options: {
+          requestTimeout: 30000,
           useUTC: false,
           dateFirst: 1,
           enableArithAbort: true,
