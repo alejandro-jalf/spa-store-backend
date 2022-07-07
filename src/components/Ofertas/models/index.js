@@ -59,7 +59,7 @@ const modelsOfertas = (() => {
                 DECLARE @FechaFinal DATETIME = CAST('${dateEnd}' AS DATETIME);
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
 
-                SELECT TOP 10
+                SELECT
                     Suc = @Sucursal,
                     Articulo, CodigoBarras, Nombre, Descuento,
                     FechaInicial, FechaFinal, OfertaCaduca,
