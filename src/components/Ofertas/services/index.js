@@ -39,6 +39,7 @@ const {
     getValidationArticlesByUuuiMaster,
     createOffersInWincaja,
     getTimedOffersByDate,
+    getOnlyOffersByMasterOffer,
 } = require('../models');
 
 const utilsOfertas = (() => {
@@ -397,13 +398,15 @@ const ServicesOfertas = (() => {
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
 
         const sucursal = response.data[0].sucursal;
-        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
-        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
-            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
-            : getDatabaseBySuc(sucursal);
-        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
+        // const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
+        const conexionOrigin = getConnectionFrom('ZR');
+        // const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
+        //     ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
+        //     : getDatabaseBySuc(sucursal);
+        // const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
 
-        response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
+        response = await getOnlyOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster);
+        // response = await getOnlyOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
     }
