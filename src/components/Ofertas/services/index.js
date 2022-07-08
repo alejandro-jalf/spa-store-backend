@@ -322,7 +322,10 @@ const ServicesOfertas = (() => {
             conexionOrigin, sucursal, now, fechaInicio, fechaFin, uuid_maestro, hostOrigin, hostDatabase
         );
         const articlesWithFails = response.data.filter((article) => (
-            article.OfertaValida === 'NO' || article.OfertaCaduca === 'NO' || article.OfertaFechaVigente === 'SI'
+            article.OfertaValida === 'NO' ||
+            article.OfertaCaduca === 'NO' ||
+            article.OfertaMayor === 'NO' ||
+            article.OfertaFechaVigente === 'SI'
         ));
         if (articlesWithFails.length > 0) return createContentError(
                 'Hay articulos con detalles, Verifica los detalles para poder programar las ofertas',

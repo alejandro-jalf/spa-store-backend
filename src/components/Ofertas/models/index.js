@@ -101,13 +101,14 @@ const modelsOfertas = (() => {
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
 
                 WITH ArticulosEnOfertas(
-                    Articulo, Nombre, Precio1IVAUV, Oferta, UltimoCosto, UtilidadOferta, OfertaValida
+                    Articulo, Nombre, Precio1IVAUV, Oferta, UltimoCosto, UtilidadOferta, OfertaValida, OfertaMayor
                 )
                 AS (
                     SELECT
                         A.Articulo, A.Nombre, L.Precio1IVAUV, A.oferta,
                         UltimoCosto = L.UltimoCostoNeto, UtilidadOferta = 1 - (L.UltimoCostoNeto / A.oferta),
-                        OfertaValida = CASE WHEN (1 - (L.UltimoCostoNeto / A.oferta)) < 0.1 THEN 'NO' ELSE 'SI' END
+                        OfertaValida = CASE WHEN (1 - (L.UltimoCostoNeto / A.oferta)) < 0.1 THEN 'NO' ELSE 'SI' END,
+                        OfertaMayor = CASE WHEN (L.Precio1IVAUV - A.oferta) <= 0.0000001 THEN 'NO' ELSE 'SI' END
                     FROM ${hostOrigin}[CA2015].dbo.ArticulosOfertas AS A
                     LEFT JOIN ${hostDatabase}.dbo.QVListaPrecioConCosto AS L ON A.Articulo = L.Articulo COLLATE Modern_Spanish_CI_AS
                     WHERE A.uuid_maestro = '${uuid_master}'
