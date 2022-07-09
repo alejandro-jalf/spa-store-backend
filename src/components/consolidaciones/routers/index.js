@@ -1,5 +1,8 @@
 const router = require("express").Router();
-const { getConsolidacionesForDate } = require("../services");
+const {
+    getConsolidacionesForDate,
+    getArticlesOfConsolidacion,
+} = require("../services");
 
 router.route("/api/v1/consolidaciones/:sucursal").get(async (req, res) => {
     const { sucursal } = req.params;
@@ -7,6 +10,12 @@ router.route("/api/v1/consolidaciones/:sucursal").get(async (req, res) => {
     const fechaFin = req.query.fechaFin;
     const { status, ...response } = await getConsolidacionesForDate(sucursal, fechaIni, fechaFin);
     res.status(200).json(response);
+});
+
+router.route("/api/v1/consolidaciones/:sucursal/articulos/:documento").get(async (req, res) => {
+    const { sucursal, documento } = req.params;
+    const { status, response } = await getArticlesOfConsolidacion(sucursal, documento);
+    res.status(status).json(response);
 });
 
 module.exports = router;

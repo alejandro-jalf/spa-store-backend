@@ -6,9 +6,25 @@ const {
     getSucursalByAlmacen,
 } = require('../../../utils');
 const { validateSucursal, validateFechas } = require('../../cocina/validations');
-const { getEntradasToday, getTransferenciasToday } = require('../models');
+const {
+    getEntradasToday,
+    getTransferenciasToday,
+    getArticlesByTranfer,
+} = require('../models');
 
 const servicesConsolidaciones = (() => {
+
+    const getArticlesOfConsolidacion = async (sucursal = '', documento = '') => {
+        sucursal = sucursal.trim().toLocaleUpperCase();
+        const validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+
+        const response = await getArticlesByTranfer(conexion, documento);
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
 
     const getConsolidacionesForDate = async (sucursal = '', dateStart, dateEnd) => {
         let validate = validateFechas(dateStart, dateEnd);
@@ -141,6 +157,7 @@ const servicesConsolidaciones = (() => {
     }
 
     return {
+        getArticlesOfConsolidacion,
         getConsolidacionesForDate,
     }
 })();

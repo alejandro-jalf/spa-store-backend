@@ -6,6 +6,33 @@ const {
 } = require('../../../utils');
 
 const modelsConsolidaciones = (() => {
+
+    const getArticlesByTranfer = async (cadenaConexion = '', documento = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                SELECT
+                    Fecha, Documento, Articulo, Nombre, Descripcion,
+                    CantidadRegular, CantidadRegularUC,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
+                    CostoUnitarioNeto, CostoValorNeto
+                FROM QVDEMovAlmacen
+                WHERE Documento = '${documento}'
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Articulos para la transferencia', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener los artculos de la transferencia',
+                error
+            );
+        }
+    }
+
     const getTransferenciasToday = async (cadenaConexion = '', fechaIni = '', FechaFin = '', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -87,6 +114,7 @@ const modelsConsolidaciones = (() => {
     }
 
     return {
+        getArticlesByTranfer,
         getTransferenciasToday,
         getEntradasToday,
     }
