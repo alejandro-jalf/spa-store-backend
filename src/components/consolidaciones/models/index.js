@@ -31,7 +31,8 @@ const modelsConsolidaciones = (() => {
 
                 SELECT
                     T.Fecha, T.Documento, T.Referencia, T.DescripcionAlmacen, T.Hora,
-                    E.Documento AS Entrada, T.Observaciones,E.DescripcionAlmacen AS AlmacenDestinoEntrada
+                    E.Documento AS Entrada, T.Observaciones,E.DescripcionAlmacen AS AlmacenDestinoEntrada,
+                    Articulos = COUNT(*)
                 FROM QVDEMovAlmacen AS E
                 INNER JOIN tranferencias AS T
                 ON E.Referencia = T.Documento

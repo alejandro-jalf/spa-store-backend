@@ -80,6 +80,7 @@ const servicesConsolidaciones = (() => {
                 Fecha: tranferencia.Fecha,
                 Hora: tranferencia.Hora,
                 Transferencia: tranferencia.Documento,
+                Articulos: tranferencia.Articulos,
                 Entrada: tranferencia.Entrada,
                 Referencia: tranferencia.Referencia.toUpperCase(),
                 AlmacenDestino: tranferencia.AlmacenDestinoEntrada,
