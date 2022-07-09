@@ -16,7 +16,7 @@ const modelsConsolidaciones = (() => {
                     Fecha, Documento, Articulo, Nombre, Descripcion,
                     CantidadRegular, CantidadRegularUC,
                     Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
-                    CostoUnitarioNeto, CostoValorNeto
+                    CostoUnitarioNeto, CostoValorNeto, CostoUnitarioNetoUC
                 FROM QVDEMovAlmacen
                 WHERE Documento = '${documento}'
                 `,
