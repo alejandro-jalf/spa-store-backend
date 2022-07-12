@@ -249,6 +249,9 @@ const ServicesOfertas = (() => {
                 let querysInserts = '';
                 const tienda = getTiendaBySucursal(sucursal.toUpperCase());
                 articlesOffers.data.forEach((article, indexArticle) => {
+                    const dataArticle = dataForValidate.data.find((dataArt) => dataArt.Articulo === article.articulo)
+                    if (!dataArticle) article.Descuento = undefined;
+                    else article.Descuento = dataArticle.Precio1IVAUV - article.oferta;
                     if (indexArticle > 0) querysInserts += ',';
                     querysInserts += `
                     (
@@ -289,7 +292,6 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal.toUpperCase() !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
-        console.log(response.data)
         const dateInitObject = response.data[0].fechaInicio;
         const dateEndObject = response.data[0].fechaFin;
         const fechaInicio = `${dateInitObject.getFullYear()}-${completeDateHour(dateInitObject.getMonth() + 1)}-${completeDateHour(dateInitObject.getDate())}`;
@@ -308,6 +310,7 @@ const ServicesOfertas = (() => {
         return createResponse(200, response);
     }
 
+    let dataForValidate;
     const validaArticlesOffer = async (
         sucursal = '', fechaInicio = '2000-01-01', fechaFin = '2000-01-01', articles, dataOffers
     ) => {
@@ -316,10 +319,9 @@ const ServicesOfertas = (() => {
         const dateStartNew = toMoment(fechaInicio);
         const dateEndNew = toMoment(fechaFin);
 
-        const dataForValidate = await getDataArticlesWithOffers(conexion, sucursal, now, articles);
+        dataForValidate = await getDataArticlesWithOffers(conexion, sucursal, now, articles);
         if (!dataForValidate.success) return createResponse(400, dataForValidate);
 
-        console.log(dataForValidate);
         const articleValidated = dataOffers.map((articleOfOffers) => {
             const articleData = dataForValidate.data.find((art) => art.Articulo === articleOfOffers.articulo);
             if (articleData) {
