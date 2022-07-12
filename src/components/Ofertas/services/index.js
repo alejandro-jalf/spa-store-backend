@@ -289,6 +289,7 @@ const ServicesOfertas = (() => {
         if (response.data[0].sucursal.toUpperCase() !== sucursal.toUpperCase())
             return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
 
+        console.log(response.data)
         const dateInitObject = response.data[0].fechaInicio;
         const dateEndObject = response.data[0].fechaFin;
         const fechaInicio = `${dateInitObject.getFullYear()}-${completeDateHour(dateInitObject.getMonth() + 1)}-${completeDateHour(dateInitObject.getDate())}`;
@@ -318,22 +319,25 @@ const ServicesOfertas = (() => {
         const dataForValidate = await getDataArticlesWithOffers(conexion, sucursal, now, articles);
         if (!dataForValidate.success) return createResponse(400, dataForValidate);
 
+        console.log(dataForValidate);
         const articleValidated = dataOffers.map((articleOfOffers) => {
             const articleData = dataForValidate.data.find((art) => art.Articulo === articleOfOffers.articulo);
             if (articleData) {
                 const UtilidadOferta = 1 - (articleData.UltimoCostoNeto / articleOfOffers.oferta);
-                const dateStarObject = articleData.FechaInicial;
-                const dateStartOld = `${dateStarObject.getFullYear()}-${completeDateHour(dateStarObject.getMonth() + 1)}-${completeDateHour(dateStarObject.getDate())}`;
-                const dateEndObject = articleData.FechaFinal;
-                const dateEndOld = `${dateEndObject.getFullYear()}-${completeDateHour(dateEndObject.getMonth() + 1)}-${completeDateHour(dateEndObject.getDate())}`;
-
-                if (
-                    dateStartNew.isBetween(dateStartOld, dateEndOld, 'days', '[]') ||
-                    dateEndNew.isBetween(dateStartOld, dateEndOld, 'days', '[]') ||
-                    toMoment(dateStartOld).isBetween(dateStartNew, dateEndNew, 'days', '[]') ||
-                    toMoment(dateEndOld).isBetween(dateStartNew, dateEndNew, 'days', '[]')
-                ) articleOfOffers.OfertaFechaVigente = 'SI';
-                else articleOfOffers.OfertaFechaVigente = 'NO';
+                if (articleData.FechaInicial !== null && articleData.FechaFinal !== null) {
+                    const dateStarObject = articleData.FechaInicial;
+                    const dateStartOld = `${dateStarObject.getFullYear()}-${completeDateHour(dateStarObject.getMonth() + 1)}-${completeDateHour(dateStarObject.getDate())}`;
+                    const dateEndObject = articleData.FechaFinal;
+                    const dateEndOld = `${dateEndObject.getFullYear()}-${completeDateHour(dateEndObject.getMonth() + 1)}-${completeDateHour(dateEndObject.getDate())}`;
+    
+                    if (
+                        dateStartNew.isBetween(dateStartOld, dateEndOld, 'days', '[]') ||
+                        dateEndNew.isBetween(dateStartOld, dateEndOld, 'days', '[]') ||
+                        toMoment(dateStartOld).isBetween(dateStartNew, dateEndNew, 'days', '[]') ||
+                        toMoment(dateEndOld).isBetween(dateStartNew, dateEndNew, 'days', '[]')
+                    ) articleOfOffers.OfertaFechaVigente = 'SI';
+                    else articleOfOffers.OfertaFechaVigente = 'NO';
+                } else articleOfOffers.OfertaFechaVigente = 'NO';
                 articleOfOffers.Articulo = articleOfOffers.articulo;
                 articleOfOffers.Nombre = articleOfOffers.nombre;
                 articleOfOffers.Precio1IVAUV = articleData.Precio1IVAUV;
