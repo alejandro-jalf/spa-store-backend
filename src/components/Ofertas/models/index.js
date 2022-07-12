@@ -559,9 +559,10 @@ const modelsOfertas = (() => {
             dbmssql.closeConexion();
             return createContentAssert('Articulo agregado a la oferta', result);
         } catch (error) {
-            if (error.parent.detail !== undefined) {
-                const expresion = /.*already exists.*/g
-                const validation = expresion.test(error.parent.detail);
+            console.log(error.parent.message);
+            if (error.parent.message !== undefined) {
+                const expresion = /.*Violation of PRIMARY KEY constraint.*/g
+                const validation = expresion.test(error.parent.message);
                 if (validation)
                     return createContentError('El articulo ya existe en esta lista de ofertas');
                 else
