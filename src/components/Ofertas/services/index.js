@@ -9,8 +9,6 @@ const {
     toMoment,
     roundTo,
     getTiendaBySucursal,
-    getHostBySuc,
-    getDatabaseBySuc,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -26,7 +24,6 @@ const {
     getAllMasterOffers,
     getAllMasterOffersOf,
     getMasterOffers,
-    getOffersByMasterOffer,
     createMasterOffers,
     createOffers,
     updateDataMasterOffer,
@@ -36,10 +33,10 @@ const {
     deleteOffer,
     getDetailsArticleByArticle,
     getDetailsArticleByName,
-    getValidationArticlesByUuuiMaster,
     createOffersInWincaja,
     getTimedOffersByDate,
     getOnlyOffersByMasterOffer,
+    getDataArticlesWithOffers,
 } = require('../models');
 
 const utilsOfertas = (() => {
@@ -104,12 +101,7 @@ const ServicesOfertas = (() => {
         const dateInitString = `${dateInitObject.getFullYear()}${completeDateHour(dateInitObject.getMonth() + 1)}${completeDateHour(dateInitObject.getDate())}`;
         const dateEndString = `${dateEndObject.getFullYear()}${completeDateHour(dateEndObject.getMonth() + 1)}${completeDateHour(dateEndObject.getDate())}`;
 
-        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
-        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
-            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
-            : getDatabaseBySuc(sucursal);
-        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
-        response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
+        response = await getOnlyOffersByMasterOffer(conexionDB, sucursal, uuidmaster);
         if (!response.success) return createResponse(400, response);
         const articles = response.data.reduce((acumArticle, article, index) => {
             if (index > 0) acumArticle += ',';
@@ -229,17 +221,11 @@ const ServicesOfertas = (() => {
                 createContentError('La fecha de inicio no puede ser menor que la fecha actual')
             )
 
-        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
-        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
-            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
-            : getDatabaseBySuc(sucursal);
-        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
-
         switch (statusNew) {
             case OFERTA_ENVIADA:
-                response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
-                if (!response.success) return createResponse(400, response);
-                if (response.data.length === 0)
+                const articlesOfOffers = await getOnlyOffersByMasterOffer(conexionDB, sucursal, uuidmaster);
+                if (!articlesOfOffers.success) return createResponse(400, articlesOfOffers);
+                if (articlesOfOffers.data.length === 0)
                     return createResponse(
                         200, 
                         createContentError('No puede enviar la oferta debido a que no contiene articulos')
@@ -247,18 +233,22 @@ const ServicesOfertas = (() => {
                 break;
 
             case OFERTA_PROGRAMADA:
-                response = await validaArticlesOffer(
-                    conexionOrigin, sucursal, dateInit.format('YYYYMMDD'), dateEnd.format('YYYYMMDD'), uuidmaster, hostOrigin, hostDatabase
-                );
+                const articlesOffers = await getOnlyOffersByMasterOffer(conexionDB, sucursal, uuidmaster);
+                if (!articlesOffers.success) return createResponse(400, articlesOffers);
+
+                const articles = articlesOffers.data.reduce((acumArticle, article, index) => {
+                    if (index > 0) acumArticle += ', ';
+                    acumArticle += `'${article.articulo}'`;
+                    return acumArticle;
+                }, '')
+
+                response = await validaArticlesOffer(sucursal, dateInitString, dateEndString, articles, articlesOffers.data);
                 if (!response.success) return createResponse(200, response);
                 const conexionSucursal = getConnectionFrom(sucursal);
 
-                response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
-                if (!response.success) return createResponse(400, response);
-
                 let querysInserts = '';
                 const tienda = getTiendaBySucursal(sucursal.toUpperCase());
-                response.data.forEach((article, indexArticle) => {
+                articlesOffers.data.forEach((article, indexArticle) => {
                     if (indexArticle > 0) querysInserts += ',';
                     querysInserts += `
                     (
@@ -301,27 +291,78 @@ const ServicesOfertas = (() => {
 
         const dateInitObject = response.data[0].fechaInicio;
         const dateEndObject = response.data[0].fechaFin;
-        const fechaInicio = `${dateInitObject.getFullYear()}${completeDateHour(dateInitObject.getMonth() + 1)}${completeDateHour(dateInitObject.getDate())}`;
-        const fechaFin = `${dateEndObject.getFullYear()}${completeDateHour(dateEndObject.getMonth() + 1)}${completeDateHour(dateEndObject.getDate())}`;
+        const fechaInicio = `${dateInitObject.getFullYear()}-${completeDateHour(dateInitObject.getMonth() + 1)}-${completeDateHour(dateInitObject.getDate())}`;
+        const fechaFin = `${dateEndObject.getFullYear()}-${completeDateHour(dateEndObject.getMonth() + 1)}-${completeDateHour(dateEndObject.getDate())}`;
 
-        console.log(dateInitObject, fechaInicio, dateEndObject, fechaFin);
-        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
-        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
-            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
-            : getDatabaseBySuc(sucursal);
-        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
-        response = await validaArticlesOffer(conexionOrigin, sucursal, fechaInicio, fechaFin, uuid_maestro, hostOrigin, hostDatabase);
+        const articlesOffers = await getOnlyOffersByMasterOffer(conexionDB, sucursal, uuid_maestro);
+        if (!articlesOffers.success) return createResponse(400, articlesOffers);
+
+        const articles = articlesOffers.data.reduce((acumArticle, article, index) => {
+            if (index > 0) acumArticle += ', ';
+            acumArticle += `'${article.articulo}'`;
+            return acumArticle;
+        }, '')
+
+        response = await validaArticlesOffer(sucursal, fechaInicio, fechaFin, articles, articlesOffers.data);
         return createResponse(200, response);
     }
 
     const validaArticlesOffer = async (
-        conexionOrigin, sucursal = '', fechaInicio, fechaFin, uuid_maestro = '', hostOrigin, hostDatabase
+        sucursal = '', fechaInicio = '2000-01-01', fechaFin = '2000-01-01', articles, dataOffers
     ) => {
         const now = getDateActual().format('YYYYMMDD');
-        let response = await getValidationArticlesByUuuiMaster(
-            conexionOrigin, sucursal, now, fechaInicio, fechaFin, uuid_maestro, hostOrigin, hostDatabase
-        );
-        const articlesWithFails = response.data.filter((article) => (
+        const conexion = getConnectionFrom(sucursal);
+        const dateStartNew = toMoment(fechaInicio);
+        const dateEndNew = toMoment(fechaFin);
+
+        const dataForValidate = await getDataArticlesWithOffers(conexion, sucursal, now, articles);
+        if (!dataForValidate.success) return createResponse(400, dataForValidate);
+
+        const articleValidated = dataOffers.map((articleOfOffers) => {
+            const articleData = dataForValidate.data.find((art) => art.Articulo === articleOfOffers.articulo);
+            if (articleData) {
+                const UtilidadOferta = 1 - (articleData.UltimoCostoNeto / articleOfOffers.oferta);
+                const dateStarObject = articleData.FechaInicial;
+                const dateStartOld = `${dateStarObject.getFullYear()}-${completeDateHour(dateStarObject.getMonth() + 1)}-${completeDateHour(dateStarObject.getDate())}`;
+                const dateEndObject = articleData.FechaFinal;
+                const dateEndOld = `${dateEndObject.getFullYear()}-${completeDateHour(dateEndObject.getMonth() + 1)}-${completeDateHour(dateEndObject.getDate())}`;
+
+                if (
+                    dateStartNew.isBetween(dateStartOld, dateEndOld, 'days', '[]') ||
+                    dateEndNew.isBetween(dateStartOld, dateEndOld, 'days', '[]') ||
+                    toMoment(dateStartOld).isBetween(dateStartNew, dateEndNew, 'days', '[]') ||
+                    toMoment(dateEndOld).isBetween(dateStartNew, dateEndNew, 'days', '[]')
+                ) articleOfOffers.OfertaFechaVigente = 'SI';
+                else articleOfOffers.OfertaFechaVigente = 'NO';
+                articleOfOffers.Articulo = articleOfOffers.articulo;
+                articleOfOffers.Nombre = articleOfOffers.nombre;
+                articleOfOffers.Precio1IVAUV = articleData.Precio1IVAUV;
+                articleOfOffers.Oferta = articleOfOffers.oferta;
+                articleOfOffers.UltimoCosto = articleData.UltimoCostoNeto;
+                articleOfOffers.UtilidadOferta = UtilidadOferta;
+                articleOfOffers.OfertaValida = UtilidadOferta >= 0.1 ? 'SI' : 'NO';
+                articleOfOffers.OfertaMayor = (articleData.Precio1IVAUV - articleOfOffers.oferta) < 0.0000001 ? 'NO' : 'SI';
+                articleOfOffers.OfertaCaduca = articleData.OfertaCaduca;
+                articleOfOffers.FechaInicial = articleData.FechaInicial;
+                articleOfOffers.FechaFinal = articleData.FechaFinal;
+            } else {
+                articleOfOffers.Articulo = '';
+                articleOfOffers.Nombre = '';
+                articleOfOffers.Precio1IVAUV = 0.0;
+                articleOfOffers.Oferta = 0.0;
+                articleOfOffers.UltimoCosto = 0.0;
+                articleOfOffers.UtilidadOferta = 0.0;
+                articleOfOffers.OfertaValida = 'SI';
+                articleOfOffers.OfertaMayor = 'SI';
+                articleOfOffers.OfertaCaduca = 'NO';
+                articleOfOffers.OfertaFechaVigente = 'NO';
+                articleOfOffers.FechaInicial = null;
+                articleOfOffers.FechaFinal = null;
+            }
+            return articleOfOffers;
+        })
+
+        const articlesWithFails = articleValidated.filter((article) => (
             article.OfertaValida === 'NO' ||
             article.OfertaCaduca === 'NO' ||
             article.OfertaMayor === 'NO' ||
@@ -401,15 +442,8 @@ const ServicesOfertas = (() => {
         if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
 
         const sucursal = response.data[0].sucursal;
-        // const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
-        const conexionOrigin = getConnectionFrom('ZR');
-        // const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
-        //     ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
-        //     : getDatabaseBySuc(sucursal);
-        // const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
 
-        response = await getOnlyOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster);
-        // response = await getOnlyOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
+        response = await getOnlyOffersByMasterOffer(conexionDB, sucursal, uuidmaster);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
     }
@@ -438,8 +472,8 @@ const ServicesOfertas = (() => {
         const utilidad = 1 - (response.data[0].UltimoCosto / bodyArticle.oferta);
         const rounded = parseFloat(roundTo(utilidad));
 
-        if (rounded < 0.08)
-            return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'));
+        if (rounded < 0.1)
+            return createResponse(200, createContentError('La oferta no puede ser menor del 10% de la utilidad'));
 
         response = await createOffers(conexionDB, bodyArticle);
         if (!response.success) return createResponse(400, response);
@@ -470,13 +504,7 @@ const ServicesOfertas = (() => {
 
         bodyArticle.fechaModificado = getDateActual().format('YYYY-MM-DD');
 
-        const conexionOrigin = sucursal.toUpperCase() !== 'ZR' ? getConnectionFrom('VC') : getConnectionFrom('ZR');
-        const hostDatabase = (sucursal.toUpperCase() !== 'VC' && sucursal.toUpperCase() !== 'ZR')
-            ? `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`
-            : getDatabaseBySuc(sucursal);
-        const hostOrigin = sucursal.toUpperCase() === 'ZR' ? '' : `[${getHostBySuc('ZR')}].`;
-
-        response = await getOffersByMasterOffer(conexionOrigin, sucursal, uuidmaster, hostOrigin, hostDatabase);
+        response = await getOnlyOffersByMasterOffer(conexionDB, sucursal, uuidmaster);
         if (!response.success) return createResponse(400, response);
         const existArticle = response.data.find((article) => article.articulo === articulo)
 
@@ -489,9 +517,8 @@ const ServicesOfertas = (() => {
         const utilidad = 1 - (response.data[0].UltimoCosto / bodyArticle.oferta);
         const rounded = parseFloat(roundTo(utilidad));
 
-        if (rounded < 0.08)
-            return createResponse(200, createContentError('La oferta no puede ser menor del 8% de la utilidad'));
-
+        if (rounded < 0.1)
+            return createResponse(200, createContentError('La oferta no puede ser menor del 10% de la utilidad'));
 
         response = await updateOffer(conexionDB, articulo, uuidmaster, bodyArticle);
         if (!response.success) return createResponse(400, response);

@@ -85,6 +85,56 @@ const modelsOfertas = (() => {
         }
     }
 
+    const getDataArticlesWithOffers = async (cadenaConexion = '', sucursal = 'ZR', date = '', articles = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                DECLARE @FechaActual DATETIME = CAST('${date}' AS datetime);
+
+                WITH DataArticles(
+                    Articulo, Precio1IVAUV, UltimoCostoNeto
+                )
+                AS (
+                    SELECT
+                        Articulo, Precio1IVAUV, UltimoCostoNeto
+                    FROM QVListaPrecioConCosto
+                    WHERE Tienda = @Tienda AND Almacen = @Almacen
+                        AND Articulo IN (
+                            ${articles}
+                        )
+                ),
+                ArticulosConOfertas(
+                    Articulo, OfertaCaduca, FechaInicial, FechaFinal
+                ) AS (
+                    SELECT
+                        Articulo, OfertaCaduca, FechaInicial, FechaFinal
+                    FROM QVOfertas
+                    WHERE (OfertaCaduca = 'NO' OR FechaFinal >= @FechaActual) AND Tienda = @Tienda
+                )
+
+                SELECT
+                    D.Articulo, D.Precio1IVAUV, D.UltimoCostoNeto, O.FechaInicial, O.FechaFinal, O.OfertaCaduca
+                FROM DataArticles AS D
+                LEFT JOIN ArticulosConOfertas AS O ON D.Articulo = O.Articulo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de articulos encontrados', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                `Fallo la conexion con base de datos en "${sucursal}" al obtener datos de articulos`,
+                error
+            );
+        }
+    }
+
+    // @Deprecated
     const getValidationArticlesByUuuiMaster = async (
         cadenaConexion = '', sucursal = 'ZR', now = '', fechaInicio = '',
         fechaFin = '', uuid_master = '', hostOrigin = '', hostDatabase = ''
@@ -428,6 +478,7 @@ const modelsOfertas = (() => {
         }
     }
 
+    // @Deprecated
     const getOffersByMasterOffer = async (cadenaConexion = '', sucursal, uuid = '', hostOrigin = '', hostDatabase = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -485,7 +536,7 @@ const modelsOfertas = (() => {
         } catch (error) {
             console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener los articulos de una oferta',
+                'Fallo la conexion con base de datos en "ZR" al intentar obtener los articulos de una oferta',
                 error
             );
         }
@@ -592,6 +643,7 @@ const modelsOfertas = (() => {
         getDetailsArticleByArticle,
         getDetailsArticleByName,
         getTimedOffersByDate,
+        getDataArticlesWithOffers,
         getValidOffers,
         getAllMasterOffers,
         getAllMasterOffersOf,
