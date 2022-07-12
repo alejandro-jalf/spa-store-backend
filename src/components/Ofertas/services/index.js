@@ -38,6 +38,7 @@ const {
     getOnlyOffersByMasterOffer,
     getDataArticlesWithOffers,
 } = require('../models');
+const { response } = require('express');
 
 const utilsOfertas = (() => {
     const parseStatusOferta = (status) => {
@@ -152,15 +153,28 @@ const ServicesOfertas = (() => {
         let validate = validateSucursal(sucursal.toUpperCase());
         if (!validate.success) return createResponse(400, validate);
 
+        let response;
         if (sucursal.toUpperCase() === 'ALL') {
-            const response = await getAllMasterOffers(conexionDB);
+            response = await getAllMasterOffers(conexionDB);
             if (!response.success) return createResponse(400, response);
-            return createResponse(200, response);
         } else {
-            const response = await getAllMasterOffersOf(conexionDB, sucursal.toUpperCase());
+            response = await getAllMasterOffersOf(conexionDB, sucursal.toUpperCase());
             if (!response.success) return createResponse(400, response);
-            return createResponse(200, response);
         }
+
+        const mastersOffers = [];
+        response.data.forEach((master, index) => {
+            if (index === 0) mastersOffers.push(master)
+            else {
+                const indexMaster = mastersOffers.findIndex((mOffer) => mOffer.uuid === master.uuid)
+                if (indexMaster !== -1)
+                    mastersOffers[indexMaster].Articulos = mastersOffers[indexMaster].Articulos + master.Articulos;
+                else mastersOffers.push(master)
+            }
+        });
+        response.data = mastersOffers;
+
+        return createResponse(200, response);
     }
 
     const addMasterOffer = async (bodyMaster) => {

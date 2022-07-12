@@ -275,20 +275,20 @@ const modelsOfertas = (() => {
                 USE CA2015;
                 SELECT
                     M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor, Articulos = COUNT(*)
+                    M.creadoPor, M.fechaModificado, M.modificadoPor, Articulos = CASE WHEN (A.articulo IS NULL) THEN 0 ELSE 1 END
                 FROM maestroofertas AS M
-                INNER JOIN ArticulosOfertas AS A ON M.uuid = A.uuid_maestro
+                LEFT JOIN ArticulosOfertas AS A ON M.uuid = A.uuid_maestro
                 GROUP BY M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor
+                    M.creadoPor, M.fechaModificado, M.modificadoPor, A.articulo
+                ORDER BY M.fechaAlta DESC
                 `,
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
             return createContentAssert('Datos encontrados en la base de datos', result[0]);
         } catch (error) {
-            console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener las ofertas maestro',
+                'Fallo la conexion con base de datos en Zaragoza al intentar obtener las ofertas maestro',
                 error
             );
         }
@@ -302,21 +302,21 @@ const modelsOfertas = (() => {
                 USE CA2015;
                 SELECT
                     M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor, Articulos = COUNT(*)
+                    M.creadoPor, M.fechaModificado, M.modificadoPor, Articulos = CASE WHEN (A.articulo IS NULL) THEN 0 ELSE 1 END
                 FROM maestroofertas AS M
-                INNER JOIN ArticulosOfertas AS A ON M.uuid = A.uuid_maestro
+                LEFT JOIN ArticulosOfertas AS A ON M.uuid = A.uuid_maestro
                 WHERE M.sucursal = '${sucursal.toUpperCase()}'
                 GROUP BY M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor
+                    M.creadoPor, M.fechaModificado, M.modificadoPor, A.articulo
+                ORDER BY M.fechaAlta DESC
                 `,
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
             return createContentAssert('Datos encontrados en la base de datos', result[0]);
         } catch (error) {
-            console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener las ofertas maestro de una sucursal determinada',
+                'Fallo la conexion con base de datos en Zaragoza al intentar obtener las ofertas maestro de una sucursal determinada',
                 error
             );
         }
