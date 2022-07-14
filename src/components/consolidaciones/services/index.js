@@ -99,6 +99,7 @@ const servicesConsolidaciones = (() => {
                 Articulos: tranferencia.Articulos,
                 Entrada: tranferencia.Entrada,
                 Referencia: tranferencia.Referencia.toUpperCase(),
+                AlmacenOrigen: tranferencia.DescripcionAlmacen,
                 AlmacenDestino: tranferencia.AlmacenDestinoEntrada,
                 Observaciones: tranferencia.Observaciones,
                 Estatus: getVerificacion(entradas, tranferencia),

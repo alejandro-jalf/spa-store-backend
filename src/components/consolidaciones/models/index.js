@@ -18,8 +18,7 @@ const modelsConsolidaciones = (() => {
                     Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
                     CostoUnitarioNeto, CostoValorNeto, CostoUnitarioNetoUC,
                     CostoConIva = CASE WHEN Categoria = '02' THEN CostoValorNeto * 1.16 ELSE CostoValorNeto END,
-                    Tasa = CASE WHEN Categoria = '02' THEN '16.00' ELSE '0.00' END,
-                    NombreCajero, Observaciones, DescripcionAlmacen
+                    Tasa = CASE WHEN Categoria = '02' THEN '16.00' ELSE '0.00' END
                 FROM QVDEMovAlmacen
                 WHERE Documento = '${documento}'
                 `,
@@ -48,28 +47,28 @@ const modelsConsolidaciones = (() => {
                 SET LANGUAGE Español;
 
                 WITH tranferencias (
-                    Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones
+                    Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones, NombreCajero
                 ) AS (
                     SELECT 
-                        Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones
+                        Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones, NombreCajero
                     FROM QVDEMovAlmacen
                     WHERE TipoDocumento = 'T'
                         AND Estatus = 'E'
                         AND Fecha BETWEEN @FechaInicio AND @FechaFinal
-                    GROUP BY Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones
+                    GROUP BY Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones, NombreCajero
                 )
 
                 SELECT
                     T.Fecha, T.Documento, T.Referencia, T.DescripcionAlmacen, T.Hora,
                     E.Documento AS Entrada, T.Observaciones,E.DescripcionAlmacen AS AlmacenDestinoEntrada,
-                    Articulos = COUNT(*)
+                    T.NombreCajero, Articulos = COUNT(*)
                 FROM QVDEMovAlmacen AS E
                 INNER JOIN tranferencias AS T
                 ON E.Referencia = T.Documento
                 WHERE TipoDocumento = 'A' AND Estatus = 'E' 
                     AND ( T.Fecha BETWEEN @FechaInicio AND @FechaFinal )
                 GROUP BY T.Fecha, T.Documento, T.Referencia, T.DescripcionAlmacen,
-                    T.Hora, E.Documento, T.Observaciones, E.DescripcionAlmacen
+                    T.Hora, E.Documento, T.Observaciones, E.DescripcionAlmacen, T.NombreCajero
                 ORDER BY T.Fecha DESC, T.Hora DESC
                 `,
                 QueryTypes.SELECT
