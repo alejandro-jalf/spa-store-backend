@@ -22,6 +22,7 @@ const modelsConsolidaciones = (() => {
                     CostoUnitarioNetoUC,
                     CostoUnitarioNetoUCIva = CASE WHEN Categoria = '02' THEN CostoUnitarioNetoUC * 1.16 ELSE CostoUnitarioNetoUC END,
                     CostoConIva = CASE WHEN Categoria = '02' THEN CostoValorNeto * 1.16 ELSE CostoValorNeto END,
+                    Iva = CASE WHEN Categoria = '02' THEN CostoValorNeto * 0.16 ELSE 0 END,
                     Tasa = CASE WHEN Categoria = '02' THEN '16.00' ELSE '0.00' END
                 FROM QVDEMovAlmacen
                 WHERE Documento = '${documento}'
