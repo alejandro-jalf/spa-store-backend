@@ -18,7 +18,8 @@ const modelsConsolidaciones = (() => {
                     Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
                     CostoUnitarioNeto, CostoValorNeto, CostoUnitarioNetoUC,
                     CostoConIva = CASE WHEN Categoria = '02' THEN CostoValorNeto * 1.16 ELSE CostoValorNeto END,
-                    Tasa = CASE WHEN Categoria = '02' THEN '16.00' ELSE '0.00' END
+                    Tasa = CASE WHEN Categoria = '02' THEN '16.00' ELSE '0.00' END,
+                    NombreCajero, Observaciones, DescripcionAlmacen
                 FROM QVDEMovAlmacen
                 WHERE Documento = '${documento}'
                 `,
