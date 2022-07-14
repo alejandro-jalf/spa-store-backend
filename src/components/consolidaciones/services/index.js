@@ -102,6 +102,7 @@ const servicesConsolidaciones = (() => {
                 AlmacenOrigen: tranferencia.DescripcionAlmacen,
                 AlmacenDestino: tranferencia.AlmacenDestinoEntrada,
                 Observaciones: tranferencia.Observaciones,
+                NombreCajero: tranferencia.NombreCajero,
                 Estatus: getVerificacion(entradas, tranferencia),
             }
         })
