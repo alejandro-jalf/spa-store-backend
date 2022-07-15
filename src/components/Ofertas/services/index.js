@@ -149,16 +149,17 @@ const ServicesOfertas = (() => {
         return createResponse(200, response);
     }
 
-    const getMasterOffersBySuc = async (sucursal = 'ALL') => {
+    const getMasterOffersBySuc = async (sucursal = 'ALL', limit = 300) => {
+        limit = parseInt(limit)
         let validate = validateSucursal(sucursal.toUpperCase());
         if (!validate.success) return createResponse(400, validate);
 
         let response;
         if (sucursal.toUpperCase() === 'ALL') {
-            response = await getAllMasterOffers(conexionDB);
+            response = await getAllMasterOffers(conexionDB, limit);
             if (!response.success) return createResponse(400, response);
         } else {
-            response = await getAllMasterOffersOf(conexionDB, sucursal.toUpperCase());
+            response = await getAllMasterOffersOf(conexionDB, sucursal.toUpperCase(), limit);
             if (!response.success) return createResponse(400, response);
         }
 
@@ -172,7 +173,8 @@ const ServicesOfertas = (() => {
                 else mastersOffers.push(master)
             }
         });
-        response.data = mastersOffers;
+        const offersToped = mastersOffers.filter((offer, position) => limit === 0 ? true : position < limit)
+        response.data = offersToped;
 
         return createResponse(200, response);
     }
