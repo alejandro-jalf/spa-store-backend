@@ -26,7 +26,8 @@ const modelsOfertas = (() => {
                     Precio1Valido = CASE WHEN (1 - (C.UltimoCostoNeto/Precio1IVAUV)) < 0.1 THEN 'NO' ELSE 'SI' END,
                     PrecioOferta = Precio1IVAUV - Descuento,
                     FechaInicial, FechaFinal,OfertaCaduca,
-                    O.Disponible, O.Limite, O.Tienda, O.NivelPrecio
+                    O.Disponible, O.Limite, O.Tienda, O.NivelPrecio,
+                    O.FechaAlta, O.FechaUltimaModificacion
                 FROM QvOfertas AS O
                 LEFT JOIN QVListaprecioConCosto AS C ON O.Articulo = C.Articulo
                 WHERE (
