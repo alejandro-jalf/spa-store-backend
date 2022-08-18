@@ -34,7 +34,7 @@ const modelsGeneral = (() => {
                     INCREMENTODEFOLIO = ${promMensual} - (FolioFinal - FolioActual),
                     FOLIOFINC = (${promMensual} - (FolioFinal - FolioActual)) + FOLIOFINAL
                 FROM SeriesFolios
-                WHERE Serie = '${sucursal}'`,
+                WHERE Serie IN('${sucursal}', '${sucursal}E')`,
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
