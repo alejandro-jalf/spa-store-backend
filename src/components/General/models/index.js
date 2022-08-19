@@ -44,14 +44,14 @@ const modelsGeneral = (() => {
         }
     }
 
-    const updateFoliosSucursal = async (cadenaConexion = '', sucursal = 'ZR', newFolio) => {
+    const updateFoliosSucursal = async (cadenaConexion = '', serie = '', newFolio) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `UPDATE SeriesFolios
                 SET
                     FolioFinal = ${newFolio}
-                WHERE Serie = '${sucursal}'
+                WHERE Serie = '${serie}'
                     AND FolioFinal < ${newFolio}`,
                 QueryTypes.UPDATE
             );

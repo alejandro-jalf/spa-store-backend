@@ -18,10 +18,10 @@ router.route("/api/v1/general/folios/:sucursal").get(async (req, res) => {
     res.status(status).json(response);
 });
 
-router.route("/api/v1/general/folios/:sucursal").put(async (req, res) => {
-    const { sucursal } = req.params;
+router.route("/api/v1/general/folios/:sucursal/:serie").put(async (req, res) => {
+    const { sucursal, serie } = req.params;
     const { newFolio } = req.query;
-    const { status, response } = await updateFoliosAvailable(sucursal, newFolio);
+    const { status, response } = await updateFoliosAvailable(sucursal, serie, newFolio);
     res.status(status).json(response);
 });
 

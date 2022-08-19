@@ -54,7 +54,7 @@ const ServicesGeneral = (() => {
         return createResponse(200, response);
     }
 
-    const updateFoliosAvailable = async (sucursal, newFolio) => {
+    const updateFoliosAvailable = async (sucursal, serie = '', newFolio) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
@@ -63,7 +63,7 @@ const ServicesGeneral = (() => {
 
         const conexion = getConnectionFrom(sucursal);
 
-        const response = await updateFoliosSucursal(conexion, sucursal, newFolio);
+        const response = await updateFoliosSucursal(conexion, serie, newFolio);
         if (!response.success) return createResponse(400, response);
 
         if (response.data[1] === 0) return createResponse(
