@@ -4,6 +4,8 @@ const {
     createContentError,
     getDateActual,
     createContentAssert,
+    getListConnectionByCompany,
+    getSucursalByCategory,
 } = require('../../../utils');
 const { dataBase } = require('../../../configs');
 const {
@@ -19,7 +21,9 @@ const {
     updateStockByScripts,
     getArticulosConUtilidadBaja,
     getDetailsArticleForCodificador,
+    getArticlesByNameOnline,
 } = require('../models');
+const { getStatusConections } = require('../../General/services');
 
 const ServicesArticulos = (() => {
 
@@ -140,12 +144,44 @@ const ServicesArticulos = (() => {
         return createResponse(200, response)
     }
 
+    const getExistenciasByNombre = async (nombre = '') => {
+        const statusConections = await getStatusConections('SPA', false);
+        const dataTest = statusConections.response.data;
+        const server = dataTest
+            .map((test) => {
+                if (test.conexion === 'BODEGA') test.priority = 0;
+                else if (test.conexion === 'VICTORIA') test.priority = 1;
+                else if (test.conexion === 'ZARAGOZA') test.priority = 2;
+                else if (test.conexion === 'OLUTA') test.priority = 3;
+                else if (test.conexion === 'JALTIPAN') test.priority = 4;
+                else if (test.conexion === 'ENRIQUEZ') test.priority = 5;
+                else if (test.conexion === 'SAYULA') test.priority = 6;
+                return test
+            })
+            .sort((a,b) => a.priority < b.priority ? -1 : 1)
+            .reduce((acumServer, test) => {
+                if (!acumServer && test.success) acumServer = test
+                return acumServer;
+            }, undefined)
+
+        if (!server) return createResponse(200, createContentError('No hay conexion con los servidores'))
+        const listConexions = getListConnectionByCompany('SPA')
+        const conexion = listConexions.filter((sucursal) => sucursal.name === server.conexion);
+        const articulos = await getArticlesByNameOnline(conexion[0].connection, getSucursalByCategory('SPA' + conexion[0].name), '*aceite*');
+
+        articulos.count = articulos.data.length;
+        articulos.status = 'Online';
+        articulos.sucursal = server.conexion;
+        return createResponse(200, articulos)
+    }
+
     return {
         getPriceArticle,
         getDataForStocks,
         updateStocksBySucursal,
         getArticlesWithLowUtilities,
         getDetallesArticulosByCodificador,
+        getExistenciasByNombre,
     }
 })();
 

@@ -18,11 +18,14 @@ const {
 
 const ServicesGeneral = (() => {
     
-    const getStatusConections = async (empresa) => {
+    const getStatusConections = async (empresa, tortillerias = true) => {
         let validate = validateEmpresa(empresa);
         if (!validate.success) return createResponse(400, validate);
 
-        const listConnection = getListConnectionByCompany(empresa);
+        let listConnection = getListConnectionByCompany(empresa);
+        if (!tortillerias) listConnection = listConnection.filter(
+            (conecction) => conecction.name !== 'SAYULA T.' && conecction.name !== 'TORTILLERIA F.'
+        )
 
         const arrayResponse = listConnection.map(async (connection) => {
             const response = await testConnection(connection.connection);

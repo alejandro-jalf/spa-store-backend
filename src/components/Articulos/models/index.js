@@ -208,12 +208,206 @@ const modelsArticulos = (() => {
         }
     }
 
+    const getArticlesBySkuOnline = async (cadenaConexion = '', sucursal = '', article = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    Almacen, Tienda,
+                    Articulo,CodigoBarras,Nombre,
+                    Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta,
+                    ExistUV = ExistenciaActualRegular, ExistUC = ExistenciaActualUC,
+                    CostoNet = UltimoCostoNeto, CostoNetUC = UltimoCostoNetoUC,
+                    CostoExist = CostoExistenciaNeto,
+                    PrecioUNO = ISNULL(Precio1IVAUV,0.00),
+                    UtilUNO = CASE WHEN Precio1IVAUV = 0 THEN 0.00 ELSE ISNULL(1 - (UltimoCostoNeto/Precio1IVAUV),0.00) END,
+                    PrecioDOS = ISNULL(Precio2IVAUV,0.00),
+                    UtilDOS = CASE WHEN Precio2IVAUV = 0 THEN 0.00 ELSE ISNULL(1 - (UltimoCostoNeto/Precio2IVAUV),0.00) END,
+                    Estatus = CASE WHEN ExistenciaActualRegular >= StockMinimo AND ExistenciaActualRegular <= StockMaximo THEN 'OK' WHEN ExistenciaActualRegular < StockMinimo THEN 'BAJO' WHEN ExistenciaActualRegular > StockMaximo THEN 'SOBRE' ELSE '' END,
+                    Stock30 = CAST( StockMinimo AS DECIMAL (9,2) ), Stock30UC = CAST( (StockMinimo / FactorVenta) AS DECIMAL(9,2)),
+                    Subfamilia = Subfamilia,
+                    DescSubfamila = DescripcionSubfamilia,
+                    Updated = GETDATE()
+                FROM QVListaprecioConCosto
+                WHERE Almacen = @Almacen AND Tienda = @Tienda
+                    AND Articulo = '${article}';
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Existencias de articulo Online', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las Existencias de articulo Online',
+                error
+            );
+        }
+    }
+
+    const getArticlesBySkuOffline = async (cadenaConexion = '', sucursal = '', article = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    Almacen, Tienda,
+                    Articulo, CodigoBarras, Nombre, Relacion,ExistUV,ExistUC,
+                    CostoNet, CostoNetUC, CostoExist, PrecioUNO, UtilUNO,
+                    PrecioDOS, UtilDOS, Estatus, Stock30, Stock30UC, Subfamilia, DescSubfamila,Updated
+                FROM microservicioExistencias
+                WHERE Almacen = @Almacen AND Tienda = @Tienda
+                    AND Articulo = '${article}';
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Existencias de articulo Offline', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las Existencias de articulo Offline',
+                error
+            );
+        }
+    }
+
+    const getArticlesByNameOnline = async (cadenaConexion = '', sucursal = '', name = '') => {
+        try {
+            console.log(cadenaConexion, sucursal, name);
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    Articulo,CodigoBarras,Nombre,
+                    Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta,
+                    Subfamilia = Subfamilia, DescSubfamila = DescripcionSubfamilia
+                FROM QVListaprecioConCosto
+                WHERE Almacen = @Almacen AND Tienda = @Tienda
+                    AND Nombre LIKE REPLACE('${name}','*','%')
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Articulos por nombre Online', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener los Articulos por nombre Online',
+                error
+            );
+        }
+    }
+
+    const getArticlesByNameOffline = async (cadenaConexion = '', sucursal = '', name = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    Articulo, CodigoBarras, Nombre, Relacion,
+                    Subfamilia, DescSubfamila
+                FROM microservicioExistencias
+                WHERE Almacen = @Almacen AND Tienda = @Tienda
+                    AND Nombre LIKE REPLACE('${name}','*','%')
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Articulos por nombre Offline', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener los Articulos por nombre Offline',
+                error
+            );
+        }
+    }
+
+    const getComprasBySkuOnline = async (cadenaConexion = '', article = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                SELECT TOP 5
+                    Fecha,NombreTercero, CantidadRegularUC,CostoUnitarioNetoUC,Updated
+                FROM ultimasCincoCompras('${article}') 
+                ORDER BY Fecha DESC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Ultimas compras Online', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las Ultimas compras Online',
+                error
+            );
+        }
+    }
+
+    const getComprasBySkuOffline = async (cadenaConexion = '', sucursal = '', article = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    Fecha,
+                    NombreTercero,
+                    CantidadRegularUC,CostoUnitarioNetoUC,
+                    Updated
+                FROM microservicioCompras
+                WHERE Almacen = @Almacen AND Tienda = @Tienda
+                    AND Articulo = '${article}'
+                ORDER BY Fecha DESC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Ultimas compras Offline', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las Ultimas compras Offline',
+                error
+            );
+        }
+    }
+
     return {
         getDetailsArticleForCodificador,
         getArticulosConUtilidadBaja,
         updateStockByScripts,
         calculateStocks,
         getPrecio,
+        getArticlesBySkuOnline,
+        getArticlesBySkuOffline,
+        getArticlesByNameOnline,
+        getArticlesByNameOffline,
+        getComprasBySkuOnline,
+        getComprasBySkuOffline,
     }
 })();
 
