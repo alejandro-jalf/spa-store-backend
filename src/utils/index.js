@@ -172,21 +172,13 @@ const utils = (() => {
         
         const DB = dataBase[`${sucursal.toUpperCase()}`];
         let startDatabase = toMoment((yearActual - 1) + '0901');
-        // let startDatabase = new Date(dateActual.getFullYear() - 1, 8, 1);
         let endDatabase = toMoment(yearActual + '0831');
-        // let endDatabase = new Date(dateActual.getFullYear(), 7, 31);
 
         if (
             parseInt(date.format('YYYY')) === yearActual &&
             parseInt(date.format('MM')) > monthActual
         ) return undefined;
 
-        console.log(
-            monthActual,
-            date.format('YYYY-MM-DD'),
-            startDatabase.format('YYYY-MM-DD'),
-            endDatabase.format('YYYY-MM-DD'),
-        )
         if (
             (
                 monthActual <= 8 &&
@@ -196,29 +188,15 @@ const utils = (() => {
                 monthActual > 8 &&
                 date.isAfter(endDatabase)
             )
-            // date >= startDatabase &&
-            // date <= endDatabase
         ) return DB;
 
         if (date.isAfter(toMoment(yearActual + '0901'))) return DB;
-        // if (date >= new Date(dateActual.getFullYear(), 8, 1)) return DB;
 
         let yearDB = 2017;
-        console.log(yearDB, yearActual)
-        // for (let year = 2017; year <= dateActual.getFullYear(); year++) {
         for (let year = 2017; year <= yearActual; year++) {
-            // startDatabase = new Date(year - 1, 8, 1);
             startDatabase = toMoment((year - 1) + '0901');
-            // endDatabase = new Date(year, 7, 31);
             endDatabase = toMoment(year + '0831');
 
-            // if (date >= startDatabase && date <= endDatabase) {
-            console.log(
-                date.format('YYYY-MM-DD'),
-                startDatabase.format('YYYY-MM-DD'),
-                endDatabase.format('YYYY-MM-DD'),
-                date.isBetween(startDatabase, endDatabase, undefined, '[]')
-            )
             if (date.isBetween(startDatabase, endDatabase, undefined, '[]')) {
                 yearDB = year;
                 break;

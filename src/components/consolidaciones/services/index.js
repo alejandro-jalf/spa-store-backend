@@ -34,24 +34,6 @@ const servicesConsolidaciones = (() => {
         validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
         
-        // const dateStartString =
-        //     dateStart.slice(0, 4) +
-        //     '-' +
-        //     dateStart.slice(4, 6) +
-        //     '-' +
-        //     dateStart.slice(6, 8) +
-        //     'T05:00:00.000Z';
-
-        // const dateEndString =
-        //     dateEnd.slice(0, 4) +
-        //     '-' +
-        //     dateEnd.slice(4, 6) +
-        //     '-' +
-        //     dateEnd.slice(6, 8) +
-        //     'T05:00:00.000Z';
-
-        // const dateIni = new Date(dateStartString);
-        // const dateFin = new Date(dateEndString);
         const dateIni = toMoment(dateStart);
         const dateFin = toMoment(dateEnd);
 
@@ -147,7 +129,7 @@ const servicesConsolidaciones = (() => {
 
     const getEntradasForDate = async (transferencias, dateStart, dateEnd, dateIni) => {
         const resultEntradas = await transferencias.map(async (suc) => {
-            
+
             const dat = await getEntradasToday(
                 getConnectionFrom(suc.suc),
                 suc.listEntradas,
