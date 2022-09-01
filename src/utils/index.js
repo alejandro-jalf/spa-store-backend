@@ -17,7 +17,6 @@ const {
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
 const moment = require('moment');
-const { database } = require('pg/lib/defaults');
 
 const utils = (() => {
     const createContentAssert = (message, data = null) => (data === null) ?
@@ -166,32 +165,61 @@ const utils = (() => {
         return dataBase.ZR;
     }
 
-    const getDatabase = (date = new Date(), sucursal = 'ZR') => {
-        let dateActual = new Date();
+    const getDatabase = (date = getDateActual(), sucursal = 'ZR') => {
+        let dateActual = getDateActual();
+        const yearActual = parseInt(dateActual.format('YYYY'));
+        const monthActual = parseInt(dateActual.format('MM'));
         
         const DB = dataBase[`${sucursal.toUpperCase()}`];
-        let startDatabase = new Date(dateActual.getFullYear() - 1, 8, 1);
-        let endDatabase = new Date(dateActual.getFullYear(), 7, 31);
+        let startDatabase = toMoment((yearActual - 1) + '0901');
+        // let startDatabase = new Date(dateActual.getFullYear() - 1, 8, 1);
+        let endDatabase = toMoment(yearActual + '0831');
+        // let endDatabase = new Date(dateActual.getFullYear(), 7, 31);
 
         if (
-            date.getFullYear() === dateActual.getFullYear() &&
-            date.getMonth() > dateActual.getMonth()
+            parseInt(date.format('YYYY')) === yearActual &&
+            parseInt(date.format('MM')) > monthActual
         ) return undefined;
 
+        console.log(
+            monthActual,
+            date.format('YYYY-MM-DD'),
+            startDatabase.format('YYYY-MM-DD'),
+            endDatabase.format('YYYY-MM-DD'),
+        )
         if (
-            dateActual.getMonth() <= 7 &&
-            date >= startDatabase &&
-            date <= endDatabase
+            (
+                monthActual <= 8 &&
+                date.isBetween(startDatabase, endDatabase, undefined, '[]')
+            ) ||
+            (
+                monthActual > 8 &&
+                date.isAfter(endDatabase)
+            )
+            // date >= startDatabase &&
+            // date <= endDatabase
         ) return DB;
 
-        if (date >= new Date(dateActual.getFullYear(), 8, 1)) return DB;
+        if (date.isAfter(toMoment(yearActual + '0901'))) return DB;
+        // if (date >= new Date(dateActual.getFullYear(), 8, 1)) return DB;
 
         let yearDB = 2017;
-        for (let year = 2017; year <= dateActual.getFullYear(); year++) {
-            startDatabase = new Date(year - 1, 8, 1);
-            endDatabase = new Date(year, 7, 31);
+        console.log(yearDB, yearActual)
+        // for (let year = 2017; year <= dateActual.getFullYear(); year++) {
+        for (let year = 2017; year <= yearActual; year++) {
+            // startDatabase = new Date(year - 1, 8, 1);
+            startDatabase = toMoment((year - 1) + '0901');
+            // endDatabase = new Date(year, 7, 31);
+            endDatabase = toMoment(year + '0831');
 
-            if (date >= startDatabase && date <= endDatabase) {
+            // if (date >= startDatabase && date <= endDatabase) {
+            console.log(
+                date.format('YYYY-MM-DD'),
+                startDatabase.format('YYYY-MM-DD'),
+                endDatabase.format('YYYY-MM-DD'),
+                date.isBetween(startDatabase, endDatabase, undefined, '[]')
+            )
+            if (date.isBetween(startDatabase, endDatabase, undefined, '[]')) {
                 yearDB = year;
                 break;
             }
