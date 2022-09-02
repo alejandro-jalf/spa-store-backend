@@ -44,8 +44,7 @@ router.route("/api/v1/articulos/:nombre/existencias").get(async (req, res) => {
 
 router.route("/api/v1/articulos/:sku/existencias/detalles").get(async (req, res) => {
     const { sku } = req.params;
-    const { sucursal } = req.query;
-    const { status, response } = await getDetallesExistenciasBySku(sucursal, sku);
+    const { status, response } = await getDetallesExistenciasBySku(sku);
     res.status(status).json(response);
 });
 
