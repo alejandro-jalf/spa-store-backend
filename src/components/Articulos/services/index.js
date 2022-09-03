@@ -180,7 +180,7 @@ const ServicesArticulos = (() => {
 
     const getDetallesExistenciasBySku = async (sku) => {
         if (!sku) return createResponse(400, createContentError('Debe enviar un sku'));
-        const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.')
+        const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
         const yearActual = getDateActual().format('YYYY');
 
         const resultOnline = listConexions.map(async (sucursal) => {
@@ -188,9 +188,7 @@ const ServicesArticulos = (() => {
             const response = await getArticlesWithShoppsBySkuOnline(sucursal.connection, suc, sku);
             response.status = response.success ? 'Online' : 'Offline';
             response.sucursal = sucursal.name;
-            // console.log('Servicios***********************************************', response.data[0].compras);
             response.compras = response.success ? getComprasByDate('20200101', yearActual + '1231', response.data[0].compras) : [];
-            // console.log('Servicios 2***********************************************', response.compras);
             return response;
         });
 
@@ -202,22 +200,27 @@ const ServicesArticulos = (() => {
         const bodegaFail = responsesFails.find((suc) => suc.sucursal === 'BODEGA');
         if (bodegaFail) return sumExistenciasTotales(responsesOnline);
 
+        let connectionBodega = null;
         const listConnectionFails = listConexions.filter((sucursal) => {
             const sucFinded = responsesFails.find((suc) => suc.sucursal === sucursal.name);
+            if (sucursal.name === 'BODEGA') connectionBodega = sucursal.connection;
             return !!sucFinded;
         });
-        const responsesSuccess = responsesOnline.filter((response) => response.success);
         const resultOffline = listConnectionFails.map(async (sucursal) => {
             const suc = getSucursalByCategory('SPA' + sucursal.name);
-            const response = await getArticlesWithShoppsBySkuOffline(sucursal.connection, suc, sku);
-            response.status = response.success ? 'Online' : 'Offline';
+            const response = await getArticlesWithShoppsBySkuOffline(connectionBodega, suc, sku);
+            response.status = 'Offline';
             response.sucursal = sucursal.name;
-            response.compras = response.success ? getComprasByDate('20200101', yearActual + '1231', response.compras) : [];
+            response.compras = response.success ? getComprasByDate('20200101', yearActual + '1231', response.data[0].compras) : [];
             return response;
         });
-
         const responsesOffline = await Promise.all(resultOffline);
-        const allResponses = [...responsesSuccess, ...responsesOffline];
+
+        const allResponses = responsesOnline.map((sucursal) => {
+            const sucFinded = responsesOffline.find((sucOffline) => sucOffline.sucursal === sucursal.sucursal)
+            return sucFinded || sucursal;
+        });
+
         return sumExistenciasTotales(allResponses);
     }
 
@@ -258,22 +261,22 @@ const ServicesArticulos = (() => {
         data.CostoPromedioUC = data.ExistActualUC === 0 ?  0 : data.CostoExistActual / data.ExistActualUC;
 
         const yearActual = getDateActual().format('YYYY');
-        const filtro = responses.find((response) => {
+        const sucBodega = responses.find((response) => {
             const dataResponses = (response.success && response.data.length === 1) ? response.data[0] : {};
             return dataResponses.Almacen === 21
         });
     
-        const arrayCompras = filtro ? filtro.compras.data : [];
-        let compras = getComprasByDate('20200101', yearActual + '1231', arrayCompras);
-        compras = !compras.success ? [] : compras.data;
+        if (sucBodega) {
+            const arrayCompras = sucBodega.compras.data;
+            let compras = getComprasByDate('20200101', yearActual + '1231', arrayCompras);
+            compras = compras.success ? compras.data : [];
 
-        // console.log('Compras***************************************', compras);
-        const bestPrice = mejorPrecio(compras);
-        data.proveedores.mejorPrecio = bestPrice.success ? bestPrice.data : {};
-        const countShopps = cantidadCompras(compras);
-        data.proveedores.cantidadCompras = countShopps.success ? countShopps.data : [];
-        const averagePrice = precioPromedio(compras);
-        data.proveedores.precioPromedio = averagePrice.success ? averagePrice.data : 0.0;
+            if (compras.length !== 0 && typeof arrayCompras === "object") {
+                data.proveedores.mejorPrecio = mejorPrecio(compras);
+                data.proveedores.cantidadCompras = cantidadCompras(compras);
+                data.proveedores.precioPromedio = precioPromedio(compras);
+            }
+        }
 
         return createResponse(200, createContentAssert('Existencias en sucursales', data))
     }
