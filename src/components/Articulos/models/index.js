@@ -371,7 +371,6 @@ const modelsArticulos = (() => {
                 `,
                 QueryTypes.SELECT
             );
-            dbmssql.closeConexion();
             return createContentAssert('Articulos por nombre Online', result[0]);
         } catch (error) {
             console.log(error);

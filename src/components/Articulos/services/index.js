@@ -25,8 +25,12 @@ const {
     getArticlesWithShoppsBySkuOnline,
     getArticlesWithShoppsBySkuOffline,
 } = require('../models');
-const { getStatusConections } = require('../../General/services');
-const { getComprasByDate, mejorPrecio, cantidadCompras, precioPromedio } = require('../utils');
+const {
+    getComprasByDate,
+    mejorPrecio,
+    cantidadCompras,
+    precioPromedio
+} = require('../utils');
 
 const ServicesArticulos = (() => {
 
@@ -148,33 +152,33 @@ const ServicesArticulos = (() => {
     }
 
     const getExistenciasByNombre = async (nombre = '') => {
-        const statusConections = await getStatusConections('SPA', false);
-        const dataTest = statusConections.response.data;
-        const server = dataTest
-            .map((test) => {
-                if (test.conexion === 'BODEGA') test.priority = 0;
-                else if (test.conexion === 'VICTORIA') test.priority = 1;
-                else if (test.conexion === 'ZARAGOZA') test.priority = 2;
-                else if (test.conexion === 'OLUTA') test.priority = 3;
-                else if (test.conexion === 'JALTIPAN') test.priority = 4;
-                else if (test.conexion === 'ENRIQUEZ') test.priority = 5;
-                else if (test.conexion === 'SAYULA') test.priority = 6;
-                return test
-            })
-            .sort((a,b) => a.priority < b.priority ? -1 : 1)
-            .reduce((acumServer, test) => {
-                if (!acumServer && test.success) acumServer = test
-                return acumServer;
-            }, undefined)
+        const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
 
-        if (!server) return createResponse(200, createContentError('No hay conexion con los servidores'))
-        const listConexions = getListConnectionByCompany('SPA')
-        const conexion = listConexions.filter((sucursal) => sucursal.name === server.conexion);
-        const articulos = await getArticlesByNameOnline(conexion[0].connection, getSucursalByCategory('SPA' + conexion[0].name), nombre);
+        const articleOfSubsidiarys = listConexions.map(async (sucursal) => {
+            const suc = getSucursalByCategory('SPA' + sucursal.name);
+            const response = await getArticlesByNameOnline(sucursal.connection, suc, nombre);
+            return response;
+        });
 
-        articulos.count = articulos.data.length;
+        const responsesArticles = await Promise.all(articleOfSubsidiarys);
+        const serversOffline = responsesArticles.filter((server) => !server.success);
+        if (serversOffline.length === responsesArticles.length)
+            return createResponse(200, createContentError('No hay conexion con los servidores'));
+
+        const data = responsesArticles.reduce((articles, responseSuc) => {
+            if (responseSuc.success) {
+                responseSuc.data.forEach((article) => {
+                    const articleFinded = articles.find((articleInsert) => articleInsert.Articulo === article.Articulo);
+                    if (!articleFinded) articles.push(article);
+                });
+            }
+            return articles;
+        }, []).sort((a, b) => a.Articulo > b.Articulo ? 1 : -1);
+
+        const articulos = createContentAssert('Articulos por nombre ' + nombre, {});
         articulos.status = 'Online';
-        articulos.sucursal = server.conexion;
+        articulos.count = data.length;
+        articulos.data = data
         return createResponse(200, articulos)
     }
 
