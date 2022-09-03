@@ -276,9 +276,9 @@ const ServicesArticulos = (() => {
             compras = compras.success ? compras.data : [];
 
             if (compras.length !== 0 && typeof arrayCompras === "object") {
-                data.proveedores.mejorPrecio = mejorPrecio(compras);
-                data.proveedores.cantidadCompras = cantidadCompras(compras);
-                data.proveedores.precioPromedio = precioPromedio(compras);
+                data.proveedores.mejorPrecio = mejorPrecio(compras).data;
+                data.proveedores.cantidadCompras = cantidadCompras(compras).data;
+                data.proveedores.precioPromedio = precioPromedio(compras).data;
             }
         }
 
