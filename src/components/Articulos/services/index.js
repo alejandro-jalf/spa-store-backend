@@ -251,9 +251,9 @@ const ServicesArticulos = (() => {
             dataResponses.sucursal = response.sucursal;
             dataResponses.compras = response.compras.success ? response.compras.data : [];
             if (response.success) {
-                data.Articulo = dataResponses.Articulo;
-                data.Nombre = dataResponses.Nombre;
-                data.Relacion = dataResponses.Relacion;
+                if (dataResponses.Articulo) data.Articulo = dataResponses.Articulo;
+                if (dataResponses.Nombre) data.Nombre = dataResponses.Nombre;
+                if (dataResponses.Relacion) data.Relacion = dataResponses.Relacion;
             }
             data.ExistActualUC += (dataResponses.ExistUC && dataResponses.ExistUC !== null) ? dataResponses.ExistUC : 0;
             data.Stock30UC += (dataResponses.Stock30UC && dataResponses.Stock30UC !== null) ? dataResponses.Stock30UC : 0;
