@@ -12,13 +12,15 @@ const utils = (() => {
     
         let precioInit = arrayCompras[0].CostoUnitarioNetoUC;
     
-        return arrayCompras.reduce((best, compra) => {
+        const mejorPrecio = arrayCompras.reduce((best, compra) => {
             if (compra.CostoUnitarioNetoUC < precioInit) {
                 best = compra;
                 precioInit = compra.CostoUnitarioNetoUC;
             }
-            return createContentAssert('Mejor precio', best);
+            return best;
         }, {});
+
+        return createContentAssert('Mejor precio', mejorPrecio);
     };
     
     const cantidadCompras = (arrayCompras) => {

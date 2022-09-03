@@ -79,13 +79,13 @@ const utils = (() => {
             { name: 'SUPER', connection: connectionCaasaSuper },
         ]
         if (company.trim().toUpperCase() === 'SPA') return [
-            { name: 'ENRIQUEZ', connection: connectionEnriquez },
-            { name: 'SAYULA', connection: connectionSayula },
-            { name: 'SAYULA T.', connection: connectionSayulaT },
-            { name: 'TORTILLERIA F.', connection: connectionTortilleriaAcayucan },
             { name: 'ZARAGOZA', connection: connectionZaragoza },
             { name: 'VICTORIA', connection: connectionVictoria },
+            { name: 'ENRIQUEZ', connection: connectionEnriquez },
+            { name: 'TORTILLERIA F.', connection: connectionTortilleriaAcayucan },
             { name: 'OLUTA', connection: connectionOluta },
+            { name: 'SAYULA', connection: connectionSayula },
+            { name: 'SAYULA T.', connection: connectionSayulaT },
             { name: 'JALTIPAN', connection: connectionJaltipan },
             { name: 'BODEGA', connection: connectionBodega },
         ]

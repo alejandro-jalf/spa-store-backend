@@ -255,6 +255,7 @@ const modelsArticulos = (() => {
     const getArticlesWithShoppsBySkuOnline = async (cadenaConexion = '', sucursal = '', article = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            // console.log(sucursal, 'Before Existencias***************************************************');
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
@@ -287,22 +288,45 @@ const modelsArticulos = (() => {
             );
 
             const data = result[0]
+            // console.log(sucursal, 'Before Compras***************************************************');
 
-            const resultCompras = await accessToDataBase.query(
-                `
-                SELECT TOP 5
-                    Fecha,NombreTercero, CantidadRegularUC, CostoUnitarioNetoUC, Updated
-                FROM ultimasCincoCompras('${article}')
-                ORDER BY Fecha DESC
-                `,
-                QueryTypes.SELECT
-            );
-            data[0].compras = resultCompras[0]
+            let resultCompras = [];
+            const consultCompras = async () => {
+                try {
+                    const connection = dbmssql.getConexion(cadenaConexion);
+                    const resultCompras = await connection.query(
+                        `
+                        SELECT TOP 5
+                            Suc = '${sucursal}',
+                            Fecha,NombreTercero, CantidadRegularUC, CostoUnitarioNetoUC, Updated
+                        FROM ultimasCincoCompras('${article}')
+                        ORDER BY Fecha DESC
+                        `,
+                        QueryTypes.SELECT
+                    );
+                    // dbmssql.closeConexion();
+                    return createContentAssert('Compras', resultCompras[0]);
+                } catch (error) {
+                    console.log(sucursal + '-Function', error);
+                    return createContentError('Compras fallidas');
+                }
+            }
 
-            dbmssql.closeConexion();
+            // console.log(sucursal, 'Before Function***************************************************');
+            resultCompras = await consultCompras();
+            // console.log(sucursal, resultCompras, 'After 1 Function***************************************************');
+            if (!resultCompras.success) resultCompras = await consultCompras();
+            // console.log(sucursal, resultCompras, 'After 2 Function***************************************************');
+            if (!resultCompras.success) resultCompras = await consultCompras();
+
+            if (data.length === 0) data.push({});
+            data[0].compras = resultCompras.data || [];
+            // console.log('Inserted', data[0].compras);
+
+            // dbmssql.closeConexion();
             return createContentAssert('Existencias de articulo con compras Online', data);
         } catch (error) {
-            console.log(error);
+            // console.log(sucursal + '-error**********************************', error);
             return createContentError(
                 'Fallo la conexion con base de datos al intentar obtener las Existencias con compras de articulo Online',
                 error
