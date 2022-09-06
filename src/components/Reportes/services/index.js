@@ -3,6 +3,8 @@ const {
     getConnectionFrom,
     createContentError,
     getNameBySiglas,
+    getDatabase,
+    toMoment,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -54,8 +56,27 @@ const ServicesReportes = (() => {
         if (!validate.success)
             return createResponse(400, validate);
 
+        const dataBaseStart = getDatabase(toMoment(FechaIni), sucursal);
+        const dataBaseEnd = getDatabase(toMoment(FechaFin), sucursal);
+
+        let union = '';
+        if (dataBaseStart !== dataBaseEnd)
+            union = `
+                    UNION ALL
+                    SELECT
+                        Fecha,
+                        VentaTotal = SUM(VentaValorNeta),
+                        CostoTotal = SUM(CostoValorNeto),
+                        UnidadesTotales = COUNT(*)
+                    FROM ${dataBaseEnd}.dbo.QVDEMovAlmacen
+                    WHERE (Fecha BETWEEN @FechaInicial AND @FechaFinal)
+                        AND TipoDocumento = 'V'
+                        AND Estatus = 'E'
+                    GROUP BY Fecha, Documento
+            `;
+
         const conexion = getConnectionFrom(sucursal);
-        const response  = await GetSalesForDate(conexion, getNameBySiglas(sucursal), FechaIni, FechaFin);
+        const response  = await GetSalesForDate(conexion, getNameBySiglas(sucursal), FechaIni, FechaFin, dataBaseStart, union);
 
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)

@@ -46,7 +46,7 @@ const modelsReportes = (() => {
         }
     }
 
-    const GetSalesForDate = async (cadenaConexion = '', sucursal = '', fechaIni = '', fechaFin = '') => {
+    const GetSalesForDate = async (cadenaConexion = '', sucursal = '', fechaIni = '', fechaFin = '', dataBaseStart, union = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -61,11 +61,13 @@ const modelsReportes = (() => {
                         VentaTotal = SUM(VentaValorNeta),
                         CostoTotal = SUM(CostoValorNeto),
                         UnidadesTotales = COUNT(*)
-                    FROM QVDEMovAlmacen
+                    FROM ${dataBaseStart}.dbo.QVDEMovAlmacen
                     WHERE (Fecha BETWEEN @FechaInicial AND @FechaFinal)
                         AND TipoDocumento = 'V'
                         AND Estatus = 'E'
                     GROUP BY Fecha, Documento
+
+                    ${union}
                 )
 
                 SELECT
