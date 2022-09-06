@@ -7,11 +7,12 @@ const {
 
 const modelsConsolidaciones = (() => {
 
-    const getArticlesByTranfer = async (cadenaConexion = '', documento = '') => {
+    const getArticlesByTranfer = async (cadenaConexion = '', documento = '', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 SELECT
                     Fecha, Documento, Articulo, Nombre, Descripcion,
                     CantidadRegular, CantidadRegularUC,

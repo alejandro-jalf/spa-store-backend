@@ -13,8 +13,9 @@ router.route("/api/v1/consolidaciones/:sucursal").get(async (req, res) => {
 });
 
 router.route("/api/v1/consolidaciones/:sucursal/articulos/:documento").get(async (req, res) => {
+    const { dateDocument } = req.query;
     const { sucursal, documento } = req.params;
-    const { status, response } = await getArticlesOfConsolidacion(sucursal, documento);
+    const { status, response } = await getArticlesOfConsolidacion(sucursal, documento, dateDocument);
     res.status(status).json(response);
 });
 

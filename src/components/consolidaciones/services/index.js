@@ -12,17 +12,25 @@ const {
     getTransferenciasToday,
     getArticlesByTranfer,
 } = require('../models');
+const {
+    validateDate
+} = require('../validations');
 
 const servicesConsolidaciones = (() => {
 
-    const getArticlesOfConsolidacion = async (sucursal = '', documento = '') => {
+    const getArticlesOfConsolidacion = async (sucursal = '', documento = '', dateDocument = '') => {
         sucursal = sucursal.trim().toLocaleUpperCase();
-        const validate = validateSucursal(sucursal);
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+        
+        validate = validateDate(dateDocument);
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
 
-        const response = await getArticlesByTranfer(conexion, documento);
+        const dataBase = getDatabase(toMoment(dateDocument), sucursal);
+
+        const response = await getArticlesByTranfer(conexion, documento, dataBase);
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
     }
