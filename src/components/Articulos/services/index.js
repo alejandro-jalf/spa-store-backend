@@ -24,6 +24,7 @@ const {
     getArticlesByNameOnline,
     getArticlesWithShoppsBySkuOnline,
     getArticlesWithShoppsBySkuOffline,
+    getExistenceByProvider,
 } = require('../models');
 const {
     getComprasByDate,
@@ -285,6 +286,70 @@ const ServicesArticulos = (() => {
         return createResponse(200, createContentAssert('Existencias en sucursales', data))
     }
 
+    const getExistenciasByProveedor = async (proveedor, sucursal = 'ALL') => {
+        if (!proveedor) return createResponse(400, createContentError('Debe enviar un proveedor'));
+
+        if (sucursal != 'ALL') {
+            const conexion = getConnectionFrom(sucursal);
+            const response = await getExistenceByProvider(conexion, sucursal, proveedor);
+            response.resumen = [];
+            return createResponse(200, response);
+        } else {
+            const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+
+            const resultExistencias = listConexions.map(async (sucursal) => {
+                const suc = getSucursalByCategory('SPA' + sucursal.name);
+                const response = await getExistenceByProvider(sucursal.connection, suc, proveedor);
+                response.status = response.success ? 'Online' : 'Offline';
+                response.sucursal = sucursal.name;
+                return response;
+            });
+    
+            const responsesExistencias = await Promise.all(resultExistencias);
+            const dataExistencias = responsesExistencias.reduce((existencias,  response) => {
+                if (!response.success) existencias.push({
+                        Suc: response.sucursal, 
+                        Articulo: 'Offline',
+                        Nombre: 'Offline',
+                        Relacion: 'Offline',
+                        ExistenciaActualRegular: 'Offline',
+                        ExistenciaActualUC: 'Offline',
+                    });
+                else existencias.push(...response.data);
+                return existencias;
+            }, []);
+
+            const resumen = responsesExistencias.reduce((existencias,  response) => {
+                if (existencias.length === 0)
+                    response.data.forEach((existArt) => { existencias.push({...existArt}); });
+                else {
+                    if (response.success) {
+                        response.data.forEach((existArt) => {
+                            const indexFinded = existencias.findIndex((article) => article.Articulo === existArt.Articulo)
+                            if (indexFinded === -1) existencias.push({...existArt});
+                            else {
+                                const ExistenciaUVAcum =
+                                    existencias[indexFinded].ExistenciaActualRegular !== null ? existencias[indexFinded].ExistenciaActualRegular : 0;
+                                const ExistenciaUCAcum =
+                                    existencias[indexFinded].ExistenciaActualUC !== null ? existencias[indexFinded].ExistenciaActualUC : 0;
+                                const ExistenciaUVNew = existArt.ExistenciaActualRegular !== null ? existArt.ExistenciaActualRegular : 0;
+                                const ExistenciaUCNew = existArt.ExistenciaActualUC !== null ? existArt.ExistenciaActualUC : 0;
+                                existencias[indexFinded].ExistenciaActualRegular = ExistenciaUVAcum + ExistenciaUVNew;
+                                existencias[indexFinded].ExistenciaActualUC = ExistenciaUCAcum + ExistenciaUCNew;
+                            }
+                        });
+                    }
+                }
+                return existencias
+            }, [])
+
+            const response = createContentAssert('Existencias por sucursal', dataExistencias);
+            response.resumen = resumen;
+    
+            return createResponse(200, response)
+        }
+    }
+
     return {
         getPriceArticle,
         getDataForStocks,
@@ -293,6 +358,7 @@ const ServicesArticulos = (() => {
         getDetallesArticulosByCodificador,
         getExistenciasByNombre,
         getDetallesExistenciasBySku,
+        getExistenciasByProveedor,
     }
 })();
 

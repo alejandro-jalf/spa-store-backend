@@ -386,6 +386,45 @@ const modelsArticulos = (() => {
         }
     }
 
+    const getExistenceByProvider = async (cadenaConexion = '', sucursal = '', proveedor = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Proveedor NVARCHAR(100) = '${proveedor}';
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                WITH ArticlesByProvider (Articulo, Proveedor) AS (
+                    SELECT
+                        Articulo, Proveedor
+                    FROM productos
+                    WHERE Proveedor = @Proveedor
+                )
+
+                SELECT
+                    Suc = @Sucursal,
+                    E.Articulo, E.Nombre,
+                    Relacion = CAST(CAST(E.FactorCompra AS INT) AS NVARCHAR) +' '+ E.UnidadCompra +'/'+ CAST(CAST(E.FactorVenta AS INT) AS NVARCHAR)+ ' ' + E.UnidadVenta,
+                    ExistenciaActualRegular, ExistenciaActualUC
+                FROM QVExistencias AS E
+                RIGHT JOIN ArticlesByProvider AS A ON A.articulo = E.Articulo
+                WHERE Tienda = @Tienda AND Almacen = @Almacen --AND ExistenciaActualUC > 0
+                ORDER BY E.Nombre ASC
+                `,
+                QueryTypes.SELECT
+            );
+            return createContentAssert('Existencias por proveedor', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la existencia por proveedor de ' + sucursal,
+                error
+            );
+        }
+    }
+
     return {
         getDetailsArticleForCodificador,
         getArticulosConUtilidadBaja,
@@ -395,6 +434,7 @@ const modelsArticulos = (() => {
         getArticlesByNameOnline,
         getArticlesWithShoppsBySkuOnline,
         getArticlesWithShoppsBySkuOffline,
+        getExistenceByProvider,
     }
 })();
 

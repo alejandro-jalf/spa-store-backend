@@ -4,6 +4,7 @@ const {
     getDataForStocks,
     getExistenciasByNombre,
     getDetallesExistenciasBySku,
+    getExistenciasByProveedor,
     getDetallesArticulosByCodificador,
     getArticlesWithLowUtilities,
     updateStocksBySucursal,
@@ -45,6 +46,12 @@ router.route("/api/v1/articulos/:nombre/existencias").get(async (req, res) => {
 router.route("/api/v1/articulos/:sku/existencias/detalles").get(async (req, res) => {
     const { sku } = req.params;
     const { status, response } = await getDetallesExistenciasBySku(sku);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/articulos/existencias/:sucursal/proveedor/:proveedor").get(async (req, res) => {
+    const { sucursal, proveedor } = req.params;
+    const { status, response } = await getExistenciasByProveedor(proveedor, sucursal);
     res.status(status).json(response);
 });
 
