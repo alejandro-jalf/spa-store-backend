@@ -321,7 +321,7 @@ const ServicesArticulos = (() => {
 
             const resumen = responsesExistencias.reduce((existencias,  response) => {
                 if (existencias.length === 0)
-                    response.data.forEach((existArt) => { existencias.push({...existArt}); });
+                    if (response.success) response.data.forEach((existArt) => { existencias.push({...existArt}); });
                 else {
                     if (response.success) {
                         response.data.forEach((existArt) => {
