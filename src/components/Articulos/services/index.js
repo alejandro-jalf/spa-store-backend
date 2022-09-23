@@ -306,48 +306,84 @@ const ServicesArticulos = (() => {
             });
     
             const responsesExistencias = await Promise.all(resultExistencias);
-            const dataExistencias = responsesExistencias.reduce((existencias,  response) => {
-                if (!response.success) existencias.push({
-                        Suc: response.sucursal, 
-                        Articulo: 'Offline',
-                        Nombre: 'Offline',
-                        Relacion: 'Offline',
-                        ExistenciaActualRegular: 'Offline',
-                        ExistenciaActualUC: 'Offline',
-                    });
-                else existencias.push(...response.data);
-                return existencias;
-            }, []);
+            // const dataExistencias = responsesExistencias.reduce((existencias,  response) => {
+            //     if (!response.success) insertFailedConnection(existencias, response);
+            //     else existencias.push(...response.data);
+            //     return existencias;
+            // }, []);
 
-            const resumen = responsesExistencias.reduce((existencias,  response) => {
-                if (existencias.length === 0)
-                    if (response.success) response.data.forEach((existArt) => { existencias.push({...existArt}); });
-                else {
-                    if (response.success) {
+            const { dataExistencias, resumen } = responsesExistencias.reduce((existences,  response) => {
+                if (response.success) {
+                    existences.dataExistencias.push(...response.data); // existences
+                    if (existences.resumen.length === 0)
+                        response.data.forEach((existArt) => { existences.resumen.push({...existArt}); });
+                    else {
                         response.data.forEach((existArt) => {
-                            const indexFinded = existencias.findIndex((article) => article.Articulo === existArt.Articulo)
-                            if (indexFinded === -1) existencias.push({...existArt});
+                            const indexFinded = existences.resumen.findIndex((article) => article.Articulo === existArt.Articulo)
+                            if (indexFinded === -1) existences.resumen.push({...existArt});
                             else {
-                                const ExistenciaUVAcum =
-                                    existencias[indexFinded].ExistenciaActualRegular !== null ? existencias[indexFinded].ExistenciaActualRegular : 0;
-                                const ExistenciaUCAcum =
-                                    existencias[indexFinded].ExistenciaActualUC !== null ? existencias[indexFinded].ExistenciaActualUC : 0;
+                                const ExistenciaUV = existences.resumen[indexFinded].ExistenciaActualRegular;
+                                const ExistenciaUC = existences.resumen[indexFinded].ExistenciaActualUC;
+
+                                const ExistenciaUVAcum = ExistenciaUV !== null ? ExistenciaUV : 0;
+                                const ExistenciaUCAcum = ExistenciaUC !== null ? ExistenciaUC : 0;
+
                                 const ExistenciaUVNew = existArt.ExistenciaActualRegular !== null ? existArt.ExistenciaActualRegular : 0;
                                 const ExistenciaUCNew = existArt.ExistenciaActualUC !== null ? existArt.ExistenciaActualUC : 0;
-                                existencias[indexFinded].ExistenciaActualRegular = ExistenciaUVAcum + ExistenciaUVNew;
-                                existencias[indexFinded].ExistenciaActualUC = ExistenciaUCAcum + ExistenciaUCNew;
+
+                                existences.resumen[indexFinded].ExistenciaActualRegular = ExistenciaUVAcum + ExistenciaUVNew;
+                                existences.resumen[indexFinded].ExistenciaActualUC = ExistenciaUCAcum + ExistenciaUCNew;
                             }
                         });
                     }
+                } else {
+                    insertFailedConnection(existences.dataExistencias, response); // existences
+                    insertFailedConnection(existences.resumen, response);
                 }
-                return existencias
-            }, [])
+                return existences;
+            }, { dataExistencias: [], resumen: []});
+
+            // const resumen = responsesExistencias.reduce((existencias,  response) => {
+            //     if (existencias.length === 0)
+            //         if (response.success) response.data.forEach((existArt) => { existencias.push({...existArt}); });
+            //         else insertFailedConnection(existencias, response);
+            //     else {
+            //         if (response.success) {
+            //             response.data.forEach((existArt) => {
+            //                 const indexFinded = existencias.findIndex((article) => article.Articulo === existArt.Articulo)
+            //                 if (indexFinded === -1) existencias.push({...existArt});
+            //                 else {
+            //                     const ExistenciaUVAcum =
+            //                         existencias[indexFinded].ExistenciaActualRegular !== null ? existencias[indexFinded].ExistenciaActualRegular : 0;
+            //                     const ExistenciaUCAcum =
+            //                         existencias[indexFinded].ExistenciaActualUC !== null ? existencias[indexFinded].ExistenciaActualUC : 0;
+            //                     const ExistenciaUVNew = existArt.ExistenciaActualRegular !== null ? existArt.ExistenciaActualRegular : 0;
+            //                     const ExistenciaUCNew = existArt.ExistenciaActualUC !== null ? existArt.ExistenciaActualUC : 0;
+            //                     existencias[indexFinded].ExistenciaActualRegular = ExistenciaUVAcum + ExistenciaUVNew;
+            //                     existencias[indexFinded].ExistenciaActualUC = ExistenciaUCAcum + ExistenciaUCNew;
+            //                 }
+            //             });
+            //         } else insertFailedConnection(existencias, response);
+            //     }
+            //     return existencias
+            // }, [])
 
             const response = createContentAssert('Existencias por sucursal', dataExistencias);
             response.resumen = resumen;
     
             return createResponse(200, response)
         }
+    }
+
+    const insertFailedConnection = (arrayExistencia = [], response = {}) => {
+        arrayExistencia.push({
+            Suc: response.sucursal, 
+            Articulo: 'Offline',
+            Nombre: 'Offline',
+            Relacion: 'Offline',
+            ExistenciaActualRegular: 'Offline',
+            ExistenciaActualUC: 'Offline',
+        });
     }
 
     return {
