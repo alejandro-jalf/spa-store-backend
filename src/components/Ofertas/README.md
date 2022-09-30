@@ -78,9 +78,13 @@ CREATE TABLE ArticulosOferta(
 
 | **Metodo** | **Ruta** | **Request** | **Descripcion** |
 |------------|----------|-------------|-----------------|
-| **GET** | _/api/v1/ofertas/:sucursal/validas_ |  | Obtiene las ofertas actuales, ademnas que trae datos de validacion de ofertas en cuanto a sus utilidades |
-| **GET** | _/api/v1/ofertas/:sucursal/maestros_ |  | Obtiene todas las listas de ofertas |
+| **GET** | _/api/v1/ofertas/:sucursal/validas_ |  | Obtiene las ofertas actuales, ademas que trae datos de validacion de ofertas en cuanto a sus utilidades |
+| **GET** | _/api/v1/ofertas/:sucursal/maestros_ |  | Obtiene todas las listas de ofertas maestros |
+| **GET** | _/api/v1/ofertas/:sucursal/articulos/:articulo_ |  | Obtiene detalles de un articulo por codigo de articulo o de barras |
+| **GET** | _/api/v1/ofertas/:sucursal/articulos/:name/details_ |  | Obtiene detalles de varios articulos buscandolo por nombre |
+| **GET** | _/api/v1/ofertas/:sucursal/articulos/validos/:uuidmaster_ |  | Realiza una validacion de los articulos en una determinada lista de ofertas, para saber si se pueden programar en wincaja |
 | **GET** | _/api/v1/ofertas/:sucursal/articulos/:uuidmaster_ |  | Obtiene las lista de los articulos por el uuid de las ofertas maestro |
+| **GET** | _/api/v1/ofertas/:sucursal/articulos/:uuidmaster/check_ |  | Obtiene una validacion para corroborar que las ofertas estan programadas |
 | **POST** | _/api/v1/ofertas/:sucursal/maestros_ |  | Crea una lista de ofertas |
 | **POST** | _/api/v1/ofertas/:sucursal/articulos_ |  | Agrega un articulo a las ofertas |
 | **PUT** | _/api/v1/ofertas/:sucursal/maestros/:uuidmaster/status_ |  | Modifica el status de una lista de las ofertas |
