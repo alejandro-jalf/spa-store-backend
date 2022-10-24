@@ -310,12 +310,33 @@ const ServicesArticulos = (() => {
                 if (response.success) {
                     existences.dataExistencias.push(...response.data);
                     if (existences.resumen.length === 0)
-                        response.data.forEach((existArt) => { existences.resumen.push({...existArt}); });
+                        response.data.forEach((existArt) => {
+                            let data = {...existArt};
+                            data.ZR = 0;
+                            data.VC = 0;
+                            data.ER = 0;
+                            data.OU = 0;
+                            data.SY = 0;
+                            data.JL = 0;
+                            data.BO = 0;
+                            data = putDataBySuc(data);
+                            existences.resumen.push(data);
+                        });
                     else {
                         response.data.forEach((existArt) => {
                             const indexFinded = existences.resumen.findIndex((article) => article.Articulo === existArt.Articulo)
-                            if (indexFinded === -1) existences.resumen.push({...existArt});
-                            else {
+                            if (indexFinded === -1) {
+                                let data = {...existArt};
+                                data.ZR = 0;
+                                data.VC = 0;
+                                data.ER = 0;
+                                data.OU = 0;
+                                data.SY = 0;
+                                data.JL = 0;
+                                data.BO = 0;
+                                data = putDataBySuc(data);
+                                existences.resumen.push(data);
+                            } else {
                                 const ExistenciaUV = existences.resumen[indexFinded].ExistenciaActualRegular;
                                 const ExistenciaUC = existences.resumen[indexFinded].ExistenciaActualUC;
 
@@ -327,6 +348,15 @@ const ServicesArticulos = (() => {
 
                                 existences.resumen[indexFinded].ExistenciaActualRegular = ExistenciaUVAcum + ExistenciaUVNew;
                                 existences.resumen[indexFinded].ExistenciaActualUC = ExistenciaUCAcum + ExistenciaUCNew;
+                                
+                                const objOld = {...existArt};
+                                if (objOld.Suc === 'ZR') existences.resumen[indexFinded].ZR = objOld.ExistenciaActualRegular;
+                                else if (objOld.Suc === 'VC') existences.resumen[indexFinded].VC = objOld.ExistenciaActualRegular;
+                                else if (objOld.Suc === 'ER') existences.resumen[indexFinded].ER = objOld.ExistenciaActualRegular;
+                                else if (objOld.Suc === 'OU') existences.resumen[indexFinded].OU = objOld.ExistenciaActualRegular;
+                                else if (objOld.Suc === 'SY') existences.resumen[indexFinded].SY = objOld.ExistenciaActualRegular;
+                                else if (objOld.Suc === 'JL') existences.resumen[indexFinded].JL = objOld.ExistenciaActualRegular;
+                                else if (objOld.Suc === 'BO') existences.resumen[indexFinded].BO = objOld.ExistenciaActualRegular;
                             }
                         });
                     }
@@ -338,10 +368,22 @@ const ServicesArticulos = (() => {
             }, { dataExistencias: [], resumen: []});
 
             const response = createContentAssert('Existencias por sucursal', dataExistencias);
+            // delete response.data;
             response.resumen = resumen;
     
             return createResponse(200, response)
         }
+    }
+
+    const putDataBySuc = (obj = {}) => {
+        if (obj.Suc === 'ZR') obj.ZR = obj.ExistenciaActualRegular;
+        else if (obj.Suc === 'VC') obj.VC = obj.ExistenciaActualRegular;
+        else if (obj.Suc === 'ER') obj.ER = obj.ExistenciaActualRegular;
+        else if (obj.Suc === 'OU') obj.OU = obj.ExistenciaActualRegular;
+        else if (obj.Suc === 'SY') obj.SY = obj.ExistenciaActualRegular;
+        else if (obj.Suc === 'JL') obj.JL = obj.ExistenciaActualRegular;
+        else if (obj.Suc === 'BO') obj.BO = obj.ExistenciaActualRegular;
+        return obj;
     }
 
     const insertFailedConnection = (arrayExistencia = [], response = {}) => {
