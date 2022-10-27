@@ -43,8 +43,9 @@ const modelsMayoristas = (() => {
                     Articulo, Nombre,
                     IEPS = (IepsTasaCompra / 100) + 1,
                     IVA = CASE WHEN IvaTasaCompra = 0 THEN 1 ELSE 1.16 END,
-                    CantidadPedidaUC, CantidadPedida, ValorPedidoMN,
-                    Relacion = CAST(CAST(FactorCompra AS INT)AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS INT)AS nvarchar) + UnidadVenta
+                    CantidadRegularUC = CantidadPedidaUC, CantidadRegular = CantidadPedida, CostoValor = ValorPedidoMN,
+                    Relacion = CAST(CAST(FactorCompra AS INT)AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS INT)AS nvarchar) + UnidadVenta,
+                    Position = 0,
                 FROM QVOrdenCompra AS M
                 WHERE Consecutivo = '${consecutivo}'
                 `,
