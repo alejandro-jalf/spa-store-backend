@@ -40,14 +40,15 @@ const modelsMayoristas = (() => {
             const result = await accessToDataBase.query(
                 `
                 SELECT
-                    Articulo, Nombre,
+                    M.Articulo, Nombre,
                     IEPS = (IepsTasaCompra / 100) + 1,
                     IVA = CASE WHEN IvaTasaCompra = 0 THEN 1 ELSE 1.16 END,
-                    CantidadRegularUC = CantidadPedidaUC, CantidadRegular = CantidadPedida, CostoValor = ValorPedidoMN,
-                    Relacion = CAST(CAST(FactorCompra AS INT)AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS INT)AS nvarchar) + UnidadVenta,
-                    Position = 0
+                    CantidadRegularUC = CantidadPedidaUC, CantidadRegular = M.CantidadPedida, CostoValor = ValorPedidoMN,
+                    Relacion = CAST(CAST(FactorCompra AS INT)AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS INT)AS nvarchar) + M.UnidadVenta,
+                    Position = O.ConsecutivoOC
                 FROM QVOrdenCompra AS M
-                WHERE Consecutivo = '${consecutivo}'
+                LEFT JOIN OrdenesCompra AS O ON O.Consecutivo = M.Consecutivo AND O.Articulo = M.Articulo AND O.CantidadPedida = M.CantidadPedida
+                WHERE M.Consecutivo = '${consecutivo}'
                 `,
                 QueryTypes.SELECT
             );
