@@ -3,7 +3,7 @@ const {
     createContentError,
     toMoment,
 } = require('../../../utils');
-const { schemaFecha } = require('../schemas')
+const { schemaUpdateCosto } = require('../schemas')
 
 const validationMayoristas = (() => {
     const validateSucursal = (sucursal = '') => {
@@ -21,8 +21,17 @@ const validationMayoristas = (() => {
         return createContentAssert('Sucursal valida');
     }
 
+    const validateUpdateCostoOrden = (objectUpdate = {}) => {
+        const resultValidate = schemaUpdateCosto.validate(objectUpdate);
+        if (resultValidate.error)
+            return createContentError('El objeto de actualizacion no cumple con el formato', resultValidate.error)
+
+        return createContentAssert('Objeto correcto');
+    }
+
     return {
         validateSucursal,
+        validateUpdateCostoOrden,
     }
 })();
 

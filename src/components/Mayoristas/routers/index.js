@@ -2,6 +2,7 @@ const router = require("express").Router();
 const {
     getDocumentCompra,
     getDocumentOrden,
+    updateCostoOrden,
 } = require("../services");
 
 router.route("/api/v1/mayoristas/:sucursal/compra/:documento").get(async (req, res) => {
@@ -13,6 +14,13 @@ router.route("/api/v1/mayoristas/:sucursal/compra/:documento").get(async (req, r
 router.route("/api/v1/mayoristas/:sucursal/orden/:consecutivo").get(async (req, res) => {
     const { sucursal, consecutivo } = req.params;
     const { status, response } = await getDocumentOrden(sucursal, consecutivo);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/mayoristas/:sucursal/orden/:consecutivo").put(async (req, res) => {
+    const { sucursal, consecutivo } = req.params;
+    const body = req.body;
+    const { status, response } = await updateCostoOrden(sucursal, consecutivo, body);
     res.status(status).json(response);
 });
 

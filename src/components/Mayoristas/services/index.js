@@ -3,10 +3,10 @@ const {
     getConnectionFrom,
 } = require('../../../utils');
 const {
-    validateSucursal,
+    validateSucursal, validateUpdateCostoOrden,
 } = require('../validations');
 const {
-    getDetailsCompra, getDetailsOrdenCompra,
+    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra,
 } = require('../models');
 
 const ServicesMayoristas = (() => {
@@ -25,8 +25,7 @@ const ServicesMayoristas = (() => {
 
     const getDocumentOrden = async (sucursal = '', consecutivo = '') => {
         let validate = validateSucursal(sucursal);
-        if (!validate.success)
-            return createResponse(400, validate);
+        if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
         const response  = await getDetailsOrdenCompra(conexion, consecutivo);
@@ -35,9 +34,26 @@ const ServicesMayoristas = (() => {
         return createResponse(200, response)
     }
 
+    const updateCostoOrden = async (sucursal = '', consecutivo = '', bodyUpdateCostoOrden = {}) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateUpdateCostoOrden(bodyUpdateCostoOrden);
+        if (!validate.success) return createResponse(400, validate);
+
+        const newCosto = bodyUpdateCostoOrden.TotalPactado / bodyUpdateCostoOrden.CantidadRegular;
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await updateCostoOrdenCompra(conexion, newCosto, bodyUpdateCostoOrden.Position,  consecutivo);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
     return {
         getDocumentCompra,
         getDocumentOrden,
+        updateCostoOrden,
     }
 })();
 

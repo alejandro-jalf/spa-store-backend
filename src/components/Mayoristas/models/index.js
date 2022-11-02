@@ -63,9 +63,47 @@ const modelsMayoristas = (() => {
         }
     }
 
+    const updateCostoOrdenCompra = async (cadenaConexion = '', newCosto = 0, position = 0, consecutivo = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                UPDATE OrdenesCompra SET CostoPedido = ${newCosto} WHERE ConsecutivoOC = ${position} AND Consecutivo = '${consecutivo}'
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            if (result[1] === 0) return createContentError('No se pudo actualizar el costo verifique el consecutivo y el articulo', result);
+            return createContentAssert('Costo actualizado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar modificar el costo de la orden de compra: ' + error,
+                error
+            );
+        }
+    }
+
+    const updateMassiveCostosOrdenCompra = async (cadenaConexion = '', query = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(query, QueryTypes.UPDATE);
+            dbmssql.closeConexion();
+            return createContentAssert('Costos actualizados', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar modificar el costo de la orden de compra: ' + error,
+                error
+            );
+        }
+    }
+
     return {
         getDetailsCompra,
         getDetailsOrdenCompra,
+        updateCostoOrdenCompra,
+        updateMassiveCostosOrdenCompra,
     }
 })();
 
