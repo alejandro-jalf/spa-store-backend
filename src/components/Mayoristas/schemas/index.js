@@ -15,9 +15,14 @@ const schemasReportes = (() => {
         Position: joi.number().required(),
     });
 
+    const schemaUpdateMasivo = joi.object({
+        data: joi.array().required(),
+    });
+
     return {
         schemaFecha,
         schemaUpdateCosto,
+        schemaUpdateMasivo,
     }
 })() ;
 

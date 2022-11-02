@@ -1,12 +1,13 @@
 const {
     createResponse,
     getConnectionFrom,
+    createContentAssert,
 } = require('../../../utils');
 const {
-    validateSucursal, validateUpdateCostoOrden,
+    validateSucursal, validateUpdateCostoOrden, validateUpdateMasivo,
 } = require('../validations');
 const {
-    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra,
+    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra, updateMassiveCostosOrdenCompra,
 } = require('../models');
 
 const ServicesMayoristas = (() => {
@@ -50,10 +51,33 @@ const ServicesMayoristas = (() => {
         return createResponse(200, response)
     }
 
+    const updateCostoOrdenMassive = async (sucursal = '', consecutivo = '', bodyMasivo = {}) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateUpdateMasivo(bodyMasivo);
+        if (!validate.success) return createResponse(400, validate);
+
+        const query = bodyMasivo.data.reduce((queryS, article) => {
+            const newCosto = article.TotalPactado / article.CantidadRegular;
+            queryS +=
+                ` UPDATE OrdenesCompra SET CostoPedido = ${newCosto} WHERE ConsecutivoOC = ${article.Position} AND Consecutivo = '${consecutivo}'; `;
+            return queryS;
+        }, '');
+
+        console.log(query);
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await updateMassiveCostosOrdenCompra(conexion, query);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
     return {
         getDocumentCompra,
         getDocumentOrden,
         updateCostoOrden,
+        updateCostoOrdenMassive,
     }
 })();
 

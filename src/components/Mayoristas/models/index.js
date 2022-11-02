@@ -73,7 +73,8 @@ const modelsMayoristas = (() => {
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
-            if (result[1] === 0) return createContentError('No se pudo actualizar el costo verifique el consecutivo y el articulo', result);
+            if (result[1] === 0)
+                return createContentError('No se pudo actualizar el costo verifique el consecutivo y el articulo', result);
             return createContentAssert('Costo actualizado', result);
         } catch (error) {
             console.log(error);
@@ -89,11 +90,13 @@ const modelsMayoristas = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(query, QueryTypes.UPDATE);
             dbmssql.closeConexion();
-            return createContentAssert('Costos actualizados', result);
+            if (result[1] === 0)
+                return createContentError('No se pudieron actualizar los costos verifique los consecutivos y los articulos', result);
+            return createContentAssert('Se actualizo un total de: ' + result[1] + ' costos', result);
         } catch (error) {
             console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar modificar el costo de la orden de compra: ' + error,
+                'Fallo la conexion con base de datos al intentar modificar los costos de la orden de compra: ' + error,
                 error
             );
         }
