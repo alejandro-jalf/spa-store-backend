@@ -11,7 +11,7 @@ const {
 const ServicesProveedores = (() => {
 
     const getProveedores = async () => {
-        const conexion = getConnectionFrom('ZR');
+        const conexion = getConnectionFrom('BO');
         const response  = await getAllProviders(conexion);
 
         if (!response.success) return createResponse(400, response);
