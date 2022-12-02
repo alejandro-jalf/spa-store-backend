@@ -21,6 +21,8 @@ const configs = (() => {
     const connectionCaasaSayula = process.env.CAASA_SA_SEQUELIZE;
     const connectionCaasaSayulaT = process.env.CAASA_ST_SEQUELIZE;
     const connectionCaasaSuper = process.env.CAASA_SU_SEQUELIZE;
+    const user = process.env.USERSPA_USER;
+    const password = process.env.USERSPA_PASSWORD;
 
     const listOriginAccept = [origin1, origin2];
 
@@ -71,6 +73,8 @@ const configs = (() => {
         connectionCaasaSayula,
         connectionCaasaSuper,
         connectionCaasaSayulaT,
+        user,
+        password,
     }
 })();
 

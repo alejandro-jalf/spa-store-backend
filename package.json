@@ -28,9 +28,11 @@
     "mandatoryenv": "^3.0.4",
     "moment": "^2.29.1",
     "mongoose": "^5.13.6",
+    "nodemailer": "^6.8.0",
     "pg": "^8.7.1",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.6.5",
+    "sha1": "^1.1.1",
     "tedious": "^11.4.0"
   },
   "devDependencies": {

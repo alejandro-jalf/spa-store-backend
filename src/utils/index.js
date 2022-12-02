@@ -14,9 +14,13 @@ const {
     connectionSayulaT,
     dataBase,
     listHost,
+    user,
+    password,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
 const moment = require('moment');
+const sha1 = require("sha1");
+const mail = require("nodemailer");
 
 const utils = (() => {
     const createContentAssert = (message, data = null) => (data === null) ?
@@ -323,6 +327,150 @@ const utils = (() => {
         }
     }
 
+    const completeDataForDate = (value, length = 2) => {
+        if (length === 2)
+            if (value.toString().length === 1) return `0${value}`
+        if (length === 3) {
+            if (value.toString().length === 1) return `00${value}`
+            if (value.toString().length === 2) return `0${value}`
+        }
+        return value;
+    }
+    
+    const encriptData = (message) => sha1(message);
+
+    const sendEmail = async (to, code) => {
+        const transporter = mail.createTransport({
+            host: 'smtp.gmail.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user,
+                pass: password,
+            },
+        });
+
+        try {
+            const info = await transporter.sendMail({
+                from: '"Super Promociones de acayucan" <alexlofa45@gmail.com>',
+                to,
+                subject: "Codigo de seguridad",
+                html: `
+                <h3>Se esta recuperando tu cuenta</h3>
+                <p>
+                Si no has sido tu, ignora este correo y te recomendamos cambiar tu
+                contraseña
+                </p>
+                <div>Para recuperar tu cuenta sigue los siguiente pasos:</div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                1. Entra a la pagina de SPA-Store, dando click en el acceso directo de tu
+                pantalla inicio o click en el siguiente enlace
+                <a
+                    href="https://spastore.herokuapp.com/"
+                    style="
+                    display: block;
+                    cursor: pointer;
+                    width: max-content;
+                    background: rgb(0, 99, 212);
+                    color: #fff;
+                    padding: 4px 10px;
+                    border-radius: 3px;
+                    border: 2px solid #fff;
+                    "
+                    target="_blank"
+                >
+                    Abrir SPA Store
+                </a>
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                2. En la pantalla de iniciar sesion: Ingresa tu correo electronico
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                3. En esa misma pantalla en lugar de tu contraseña ingresa este Codigo de
+                Seguridad:
+                <span
+                    style="
+                    width: max-content;
+                    padding: 0px;
+                    color: blue;
+                    font-weight: bold;
+                    font-size: 20px;
+                    background: #fff;
+                    "
+                    >${code}</span
+                >
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">4. Inicia Sesion</div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                5. Listo ya estas nuevamente en la SPA-Store
+                </div>
+                <p style="color: rgb(3, 202, 36); font-size: 30px">
+                ¡Uff!, Ya casi terminamos
+                </p>
+                <hr />
+                <p>Ya solo falta cambiar tu contraseña. Sigue los siguientes pasos:</p>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                1. Ve a la pagina inicio de SPA-Store
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                2. Busca en la parte de abajo de inicio, una seccion que diga: "Cambio de
+                contraseña"
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                3. En la caja de texto de "Nueva contraseña", ingresa tu nueva contraseña.
+                <div style="font-style: italic">
+                    Nota: Recuerda tu nueva contraseña debe ser mayor de 6 caracteres y
+                    ademas debera tener por lo menos una letra y un numero.
+                </div>
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                4. Repite tu nueva contraseña en la siguiente caja de texto
+                <div style="font-style: italic">
+                    Nota: Si la nueva contraseña cumple con el formato correcto y ambas
+                    coinciden podras notar una palomita en cada caja de texto, de lo
+                    contrario habra un mensaje de advertencia en la parte de abajo
+                </div>
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                5. En la caja de texto de "Contraseña actual", escribe el mismo codigo de
+                recuperacion:
+                <span
+                    style="
+                    width: max-content;
+                    padding: 0px;
+                    color: blue;
+                    font-weight: bold;
+                    font-size: 20px;
+                    background: #fff;
+                    "
+                    >${code}</span
+                >
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">
+                6. Click en Cambiar tu contraseña
+                </div>
+                <div style="padding-left: 4%; margin: 10px 0px">7. Confirma el cambio</div>
+                <div style="color: rgb(3, 202, 36); font-size: 30px">
+                ¡En hora buena, hemos terminado!
+                </div>
+                <p>
+                ¡Listo!, ahora solo vueve a iniciar se sesion con tu nueva contraseña y
+                guarda tu nueva contraseña en un lugar seguro
+                </p>
+                `
+            });
+
+            return createContentAssert('Correo enviado', info);
+        } catch (error) {
+            console.log(error);
+            return createContentError('Error al enviar el correo', error);
+        }
+    }
+
+    const toBit = (value = false) => {
+        return value ? 1 : 0;
+    }
+
     return {
         createContentAssert,
         createContentError,
@@ -344,6 +492,10 @@ const utils = (() => {
         getDatabaseBySuc,
         roundTo,
         getListConnectionByCompany,
+        completeDataForDate,
+        encriptData,
+        sendEmail,
+        toBit,
     }
 })();
 
