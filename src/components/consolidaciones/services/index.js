@@ -169,6 +169,7 @@ const servicesConsolidaciones = (() => {
         const responsesDataArticles = await Promise.all(resultDataArticles);
         const { dataArticles, resumen } = responsesDataArticles.reduce((existences,  response) => {
             existences.dataArticles.push(response);
+            if (!response.success) response.data = [];
             response.data.forEach((existArt) => {
                 const indexFinded = existences.resumen.findIndex((article) => article.Articulo === existArt.Articulo)
                 if (indexFinded === -1) {

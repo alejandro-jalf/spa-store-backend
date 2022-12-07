@@ -14,7 +14,7 @@ router.route("/api/v1/consolidaciones/:sucursal").get(async (req, res) => {
 });
 
 router.route("/api/v1/consolidaciones/articulos/:fechaIni/:fechaFin").get(async (req, res) => {
-    const { fechaIni, fechaFin } = req.params.fechaIni;
+    const { fechaIni, fechaFin } = req.params;
     const { status, ...response } = await getConsolidacionByCreateAt(fechaIni, fechaFin);
     res.status(200).json(response);
 });
