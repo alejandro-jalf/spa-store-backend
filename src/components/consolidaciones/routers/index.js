@@ -2,6 +2,7 @@ const router = require("express").Router();
 const {
     getConsolidacionesForDate,
     getArticlesOfConsolidacion,
+    getConsolidacionByCreateAt,
 } = require("../services");
 
 router.route("/api/v1/consolidaciones/:sucursal").get(async (req, res) => {
@@ -9,6 +10,12 @@ router.route("/api/v1/consolidaciones/:sucursal").get(async (req, res) => {
     const fechaIni = req.query.fechaIni;
     const fechaFin = req.query.fechaFin;
     const { status, ...response } = await getConsolidacionesForDate(sucursal, fechaIni, fechaFin);
+    res.status(200).json(response);
+});
+
+router.route("/api/v1/consolidaciones/articulos/:fechaIni/:fechaFin").get(async (req, res) => {
+    const { fechaIni, fechaFin } = req.params.fechaIni;
+    const { status, ...response } = await getConsolidacionByCreateAt(fechaIni, fechaFin);
     res.status(200).json(response);
 });
 

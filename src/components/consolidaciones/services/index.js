@@ -5,12 +5,15 @@ const {
     getDatabase,
     getSucursalByAlmacen,
     toMoment,
+    getListConnectionByCompany,
+    getSucursalByCategory,
 } = require('../../../utils');
 const { validateSucursal, validateFechas } = require('../../cocina/validations');
 const {
     getEntradasToday,
     getTransferenciasToday,
     getArticlesByTranfer,
+    getArticleByCreateAt,
 } = require('../models');
 const {
     validateDate
@@ -151,9 +154,65 @@ const servicesConsolidaciones = (() => {
         return await Promise.all(resultEntradas);
     }
 
+    const getConsolidacionByCreateAt = async (dateInit = '20221206', dateEnd = '20221206') => {
+        const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+
+        const resultDataArticles = listConexions.map(async (sucursal) => {
+            const suc = getSucursalByCategory('SPA' + sucursal.name);
+            const response = await getArticleByCreateAt(sucursal.connection, suc, dateInit, dateEnd);
+            response.status = response.success ? 'Conexion Activa' : 'Sin Conexion';
+            response.sucursal = sucursal.name;
+            response.sucursalSiglas = suc;
+            return response;
+        });
+
+        const responsesDataArticles = await Promise.all(resultDataArticles);
+        const { dataArticles, resumen } = responsesDataArticles.reduce((existences,  response) => {
+            existences.dataArticles.push(response);
+            response.data.forEach((existArt) => {
+                const indexFinded = existences.resumen.findIndex((article) => article.Articulo === existArt.Articulo)
+                if (indexFinded === -1) {
+                    let data = {...existArt};
+                    data = createExistArticle(data);
+                    existences.resumen.push(data);
+                } else {
+                    existences.resumen[indexFinded].Sucursales[`${response.sucursalSiglas}`] = 'Encontrado';
+                }
+            });
+            return existences;
+        }, { dataArticles: [], resumen: []});
+
+        const response = createContentAssert('Articulo por sucursal', dataArticles);
+        response.resumen = resumen;
+
+        return createResponse(200, response)
+    }
+
+    const createExistArticle = (dataArticle) => {
+        const article = {
+            Articulo: '', CodigoBarras: '', Nombre: '', Relacion: '',
+            Sucursales: {
+                ZR: 'No Encontrado',
+                VC: 'No Encontrado',
+                ER: 'No Encontrado',
+                OU: 'No Encontrado',
+                SY: 'No Encontrado',
+                JL: 'No Encontrado',
+                BO: 'No Encontrado',
+            }
+        }
+        article.Articulo = dataArticle.Articulo;
+        article.CodigoBarras = dataArticle.CodigoBarras;
+        article.Nombre = dataArticle.Nombre;
+        article.Relacion = dataArticle.Relacion;
+        article.Sucursales[`${dataArticle.Suc}`] = 'Encontrado';
+        return article;
+    }
+
     return {
         getArticlesOfConsolidacion,
         getConsolidacionesForDate,
+        getConsolidacionByCreateAt,
     }
 })();
 

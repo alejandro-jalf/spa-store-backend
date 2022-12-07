@@ -122,10 +122,36 @@ const modelsConsolidaciones = (() => {
         }
     }
 
+    const getArticleByCreateAt = async (cadenaConexion = '', sucursal = '', dateInit = '20221206', dateEnd = '20221206') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                SELECT
+                    Suc = '${sucursal}',
+                    Articulo, CodigoBarras, Nombre,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
+                    IVACompra, IVAVenta, IEPSCompra, IEPSVenta, c_ClaveProdServ, CONVERT(NVARCHAR(100), FechaAlta, 103) AS FechaAlta, CONVERT(NVARCHAR(100), FechaAlta, 114) AS HoraAlta
+                FROM Articulos
+                WHERE FechaAlta BETWEEN CAST('${dateInit} 00:00:00.000' AS datetime) AND CAST('${dateEnd} 23:59:59.999' AS datetime)
+                `,
+                QueryTypes.SELECT
+            );
+            return createContentAssert('Datos por sucursal', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la existencia del articulo de ' + sucursal,
+                error
+            );
+        }
+    }
+
     return {
         getArticlesByTranfer,
         getTransferenciasToday,
         getEntradasToday,
+        getArticleByCreateAt,
     }
 })();
 
