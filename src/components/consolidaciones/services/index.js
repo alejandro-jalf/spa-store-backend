@@ -191,7 +191,7 @@ const servicesConsolidaciones = (() => {
 
     const createExistArticle = (dataArticle) => {
         const article = {
-            Articulo: '', CodigoBarras: '', Nombre: '', Relacion: '',
+            Articulo: '', CodigoBarras: '', Nombre: '', Relacion: '', Fecha: '', Hora: '',
             Sucursales: {
                 ZR: 'No Encontrado',
                 VC: 'No Encontrado',
@@ -206,6 +206,8 @@ const servicesConsolidaciones = (() => {
         article.CodigoBarras = dataArticle.CodigoBarras;
         article.Nombre = dataArticle.Nombre;
         article.Relacion = dataArticle.Relacion;
+        article.Fecha = dataArticle.FechaAlta;
+        article.Hora = dataArticle.HoraAlta;
         article.Sucursales[`${dataArticle.Suc}`] = 'Encontrado';
         return article;
     }
