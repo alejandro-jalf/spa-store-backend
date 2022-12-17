@@ -218,31 +218,39 @@ const modelsArticulos = (() => {
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
                 DECLARE @articulo NVARCHAR(15) = (SELECT DISTINCT TOP 1 Articulo FROM ArticulosRelacion WHERE CodigoBarras = '${article}' OR Articulo = '${article}');
                 DECLARE @article NVARCHAR(15) = ISNULL(@articulo, '${article}');
-
+                DECLARE @Total int = (SELECT Total = COUNT(*) FROM QVListaprecioConCosto WHERE Almacen = @Almacen AND Tienda = @Tienda AND (Articulo = @article OR CodigoBarras = @article));
+                
                 SELECT
-                    Almacen, Tienda,
-                    Articulo,CodigoBarras,Nombre,
-                    Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta,
-                    ExistUV = ExistenciaActualRegular, ExistUC = ExistenciaActualUC,
-                    CostoNet = UltimoCostoNeto, CostoNetUC = UltimoCostoNetoUC,
-                    CostoExist = CostoExistenciaNeto,
+                    AlmacenFind = @Almacen,
+                    Almacen = CASE WHEN @Total != 0 THEN L.Almacen ELSE @Almacen END,
+                    L.Tienda,
+                    A.Articulo, A.CodigoBarras, A.Nombre,
+                    Relacion = CAST(CAST(A.FactorCompra AS INT) AS NVARCHAR) + '/' + A.UnidadCompra + ' - ' + CAST(CAST(A.FactorVenta AS INT) AS NVARCHAR) + '/' + A.UnidadVenta,
+                    ExistUV = CASE WHEN @Total != 0 THEN L.ExistenciaActualRegular ELSE 0 END,
+                    ExistUC = CASE WHEN @Total != 0 THEN L.ExistenciaActualUC ELSE 0 END,
+                    CostoNet = CASE WHEN @Total != 0 THEN L.UltimoCostoNeto ELSE 0 END,
+                    CostoNetUC = CASE WHEN @Total != 0 THEN L.UltimoCostoNetoUC ELSE 0 END,
+                    CostoExist = CASE WHEN @Total != 0 THEN L.CostoExistenciaNeto ELSE 0 END,
                     PrecioUNO = ISNULL(Precio1IVAUV,0.00),
                     UtilUNO = CASE WHEN Precio1IVAUV = 0 THEN 0.00 ELSE ISNULL(1 - (UltimoCostoNeto/Precio1IVAUV),0.00) END,
                     PrecioDOS = ISNULL(Precio2IVAUV,0.00),
                     UtilDOS = CASE WHEN Precio2IVAUV = 0 THEN 0.00 ELSE ISNULL(1 - (UltimoCostoNeto/Precio2IVAUV),0.00) END,
-                    Estatus = CASE WHEN ExistenciaActualRegular >= StockMinimo AND ExistenciaActualRegular <= StockMaximo THEN 'OK' WHEN ExistenciaActualRegular < StockMinimo THEN 'BAJO' WHEN ExistenciaActualRegular > StockMaximo THEN 'SOBRE' ELSE '' END,
-                    Stock30 = CAST( StockMinimo AS DECIMAL (9,2) ), Stock30UC = CAST( (StockMinimo / FactorVenta) AS DECIMAL(9,2)),
-                    Subfamilia = Subfamilia,
-                    DescSubfamila = DescripcionSubfamilia,
+                    Estatus = CASE WHEN @Total = 0 THEN 'No se maneja en la sucursal' WHEN ExistenciaActualRegular >= StockMinimo AND ExistenciaActualRegular <= StockMaximo THEN 'OK' WHEN ExistenciaActualRegular < StockMinimo THEN 'BAJO' WHEN ExistenciaActualRegular > StockMaximo THEN 'SOBRE' ELSE '' END,
+                    Stock30 = CAST( StockMinimo AS DECIMAL (9,2) ), Stock30UC = CAST( (StockMinimo / A.FactorVenta) AS DECIMAL(9,2)),
+                    Subfamilia = A.Subfamilia,
+                    DescSubfamila = CASE WHEN @Total != 0 THEN L.DescripcionSubfamilia ELSE '' END,
                     Updated = GETDATE()
-                FROM QVListaprecioConCosto
-                WHERE Almacen = @Almacen AND Tienda = @Tienda
-                    AND (Articulo = @article OR CodigoBarras = @article);
+                FROM Articulos AS A
+                LEFT JOIN QVListaprecioConCosto AS L ON L.Articulo = A.Articulo
+                WHERE
+                    -- Almacen = @Almacen AND
+                    Tienda = @Tienda AND
+                    (A.Articulo = @article OR A.CodigoBarras = @article);
                 `,
                 QueryTypes.SELECT
             );
 
-            const data = result[0]
+            const data = selectDataByAlmacen(result[0])
 
             let resultCompras = [];
             const consultCompras = async () => {
@@ -282,6 +290,14 @@ const modelsArticulos = (() => {
                 error
             );
         }
+    }
+
+    const selectDataByAlmacen = (data = []) => {
+        if (data.length === 0) return data;
+        return data.reduce((dataFinded, almacen) => {
+            if (almacen.AlmacenFind === almacen.Almacen) dataFinded = [almacen];
+            return dataFinded
+        }, [data[0]]);
     }
 
     const getArticlesWithShoppsBySkuOffline = async (cadenaConexion = '', sucursal = '', article = '') => {
