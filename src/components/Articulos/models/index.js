@@ -223,7 +223,7 @@ const modelsArticulos = (() => {
                 SELECT
                     AlmacenFind = @Almacen,
                     Almacen = CASE WHEN @Total != 0 THEN L.Almacen ELSE @Almacen END,
-                    L.Tienda,
+                    Tienda = ISNULL(L.Tienda, 0),
                     A.Articulo, A.CodigoBarras, A.Nombre,
                     Relacion = CAST(CAST(A.FactorCompra AS INT) AS NVARCHAR) + '/' + A.UnidadCompra + ' - ' + CAST(CAST(A.FactorVenta AS INT) AS NVARCHAR) + '/' + A.UnidadVenta,
                     ExistUV = CASE WHEN @Total != 0 THEN L.ExistenciaActualRegular ELSE 0 END,
@@ -244,7 +244,7 @@ const modelsArticulos = (() => {
                 LEFT JOIN QVListaprecioConCosto AS L ON L.Articulo = A.Articulo
                 WHERE
                     -- Almacen = @Almacen AND
-                    Tienda = @Tienda AND
+                    -- Tienda = @Tienda AND
                     (A.Articulo = @article OR A.CodigoBarras = @article);
                 `,
                 QueryTypes.SELECT
