@@ -240,7 +240,8 @@ const modelsArticulos = (() => {
                     Stock30 = CAST( StockMinimo AS DECIMAL (9,2) ), Stock30UC = CAST( (StockMinimo / A.FactorVenta) AS DECIMAL(9,2)),
                     Subfamilia = A.Subfamilia,
                     DescSubfamila = CASE WHEN @Total != 0 THEN L.DescripcionSubfamilia ELSE '' END,
-                    Updated = GETDATE()
+                    Updated = GETDATE(),
+                    A.FechaAlta, A.c_ClaveProdServ
                 FROM Articulos AS A
                 LEFT JOIN QVListaprecioConCosto AS L ON L.Articulo = A.Articulo
                 WHERE
