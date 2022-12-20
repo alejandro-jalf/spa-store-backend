@@ -222,6 +222,7 @@ const modelsArticulos = (() => {
                 
                 SELECT
                     AlmacenFind = @Almacen,
+                    TiendaFind = @Tienda,
                     Almacen = CASE WHEN @Total != 0 THEN L.Almacen ELSE @Almacen END,
                     Tienda = ISNULL(L.Tienda, 0),
                     A.Articulo, A.CodigoBarras, A.Nombre,
@@ -250,7 +251,7 @@ const modelsArticulos = (() => {
                 QueryTypes.SELECT
             );
 
-            const data = selectDataByAlmacen(result[0])
+            const data = selectDataByAlmacenAndTienda(result[0])
 
             let resultCompras = [];
             const consultCompras = async () => {
@@ -292,10 +293,10 @@ const modelsArticulos = (() => {
         }
     }
 
-    const selectDataByAlmacen = (data = []) => {
+    const selectDataByAlmacenAndTienda = (data = []) => {
         if (data.length === 0) return data;
         return data.reduce((dataFinded, almacen) => {
-            if (almacen.AlmacenFind === almacen.Almacen) dataFinded = [almacen];
+            if (almacen.AlmacenFind === almacen.Almacen && almacen.TiendaFind === almacen.Tienda) dataFinded = [almacen];
             return dataFinded
         }, [data[0]]);
     }
