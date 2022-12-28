@@ -15,6 +15,7 @@ const {
 const {
     getInventoryByShopAndWarehouse,
     GetSalesForDate,
+    getReplacementsBuy,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -81,10 +82,28 @@ const ServicesReportes = (() => {
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
     }
+    
+    const getReposicionesCompras = async (sucursal = '', FechaCorte = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaCorte);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const dataBase = (sucursal === 'TY' || sucursal === 'TF') ? 'CA2015REPOSICIONESTORTILLERIAS' : 'CA2015REPOSICIONES';
+        const conexion = getConnectionFrom('ZR');
+        const response  = await getReplacementsBuy(conexion, sucursal, dataBase, FechaCorte);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
 
     return {
         getInventoryCloseYear,
         getVentasPorDia,
+        getReposicionesCompras,
     }
 })();
 

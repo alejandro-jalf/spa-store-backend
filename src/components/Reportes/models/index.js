@@ -99,9 +99,42 @@ const modelsReportes = (() => {
         }
     }
 
+    const getReplacementsBuy = async (cadenaConexion = '', sucursal = '', dataBase = '', FechaCorte = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE ${dataBase};
+                DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
+                DECLARE @FechaCorte DATETIME = CAST('${FechaCorte}' AS datetime);
+                SELECT
+                    Consecutivo = RDC.Folio, Sucursal = BDC.Sucursal, Tipo = 'COMPRA', Deducible = RDC.Deducible, Nombre = BDC.Proveedor,RFC = '',
+                    Documento = BDC.Documento, FechaDocumento = BDC.Fecha, FechaCorte = RDC.FechaCorte, Subtotal = BDC.Subtotal, Descuento = BDC.Descuento,
+                    Ieps = BDC.Ieps, Iva = BDC.Iva, Total = BDC.Total, Observaciones = RDC.Observaciones, RDC.TipoDescuento, DocumentoDescuento = RDC.Documento,
+                    ImporteDescuento = RDC.Importe, RDC.Pago
+                FROM ReposicionesDigital.Compras AS RDC
+                LEFT JOIN BitacoraDigital.Compras AS BDC ON BDC.Folio = RDC.Folio AND BDC.id = RDC.idCompra
+                WHERE CAST(CONVERT(NVARCHAR(8),RDC.FechaCorte,112) AS DATETIME) = @FechaCorte
+                AND BDC.Sucursal = @Sucursal
+                AND NOT RDC.Observaciones='CANCELADO'
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultados de ventas', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las ventas por dia',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         GetSalesForDate,
+        getReplacementsBuy,
     }
 })();
 
