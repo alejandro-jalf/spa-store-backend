@@ -115,8 +115,9 @@ const modelsReportes = (() => {
                 FROM ReposicionesDigital.Compras AS RDC
                 LEFT JOIN BitacoraDigital.Compras AS BDC ON BDC.Folio = RDC.Folio AND BDC.id = RDC.idCompra
                 WHERE CAST(CONVERT(NVARCHAR(8),RDC.FechaCorte,112) AS DATETIME) = @FechaCorte
-                AND BDC.Sucursal = @Sucursal
-                AND NOT RDC.Observaciones='CANCELADO'
+                    AND BDC.Sucursal = @Sucursal
+                    AND NOT RDC.Observaciones='CANCELADO'
+                ORDER BY Deducible ASC
                 `,
                 QueryTypes.SELECT
             );
@@ -147,6 +148,7 @@ const modelsReportes = (() => {
                 WHERE CAST(CONVERT(NVARCHAR(8),RDG.FechaCorte,112) AS DATETIME) = @FechaCorte
                     AND RDG.Sucursal = @Sucursal
                     AND NOT estatus='CANCELADO'
+                ORDER BY Deducible ASC
                 `,
                 QueryTypes.SELECT
             );
