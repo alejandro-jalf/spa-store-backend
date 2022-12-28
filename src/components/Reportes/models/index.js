@@ -99,7 +99,7 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReplacementsBuy = async (cadenaConexion = '', sucursal = '', dataBase = '', FechaCorte = '') => {
+    const getReplacementsBuys = async (cadenaConexion = '', sucursal = '', dataBase = '', FechaCorte = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -121,11 +121,41 @@ const modelsReportes = (() => {
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Resultados de ventas', result[0]);
+            return createContentAssert('Resultados de reposiciones de compras', result[0]);
         } catch (error) {
             console.log(error);
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener las ventas por dia',
+                'Fallo la conexion con base de datos al intentar obtener las reposiciones de compras',
+                error
+            );
+        }
+    }
+
+    const getReplacementsBills = async (cadenaConexion = '', sucursal = '', dataBase = '', FechaCorte = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE ${dataBase};
+                DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
+                DECLARE @FechaCorte DATETIME = CAST('${FechaCorte}' AS datetime);
+                SELECT
+                    Consecutivo = RDG.Folio, Sucursal = RDG.Sucursal, Tipo = 'GASTO', Deducible = RDG.Deducible, Nombre = RDG.Tercero,RFC = '',
+                    Documento = RDG.Documento, FechaDocumento = RDG.FechaDocumento, FechaCorte = RDG.FechaCorte, Subtotal = RDG.Subtotal, Ieps = RDG.Ieps,
+                    Iva = RDG.Iva, Total = RDG.Total, Observaciones = RDG.Observaciones
+                FROM ReposicionesDigital.Gastos AS RDG
+                WHERE CAST(CONVERT(NVARCHAR(8),RDG.FechaCorte,112) AS DATETIME) = @FechaCorte
+                    AND RDG.Sucursal = @Sucursal
+                    AND NOT estatus='CANCELADO'
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultados de reposiciones de gastos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las reposiciones de gastos',
                 error
             );
         }
@@ -134,7 +164,8 @@ const modelsReportes = (() => {
     return {
         getInventoryByShopAndWarehouse,
         GetSalesForDate,
-        getReplacementsBuy,
+        getReplacementsBuys,
+        getReplacementsBills,
     }
 })();
 
