@@ -163,11 +163,42 @@ const modelsReportes = (() => {
         }
     }
 
+    const getBinnacleBuys = async (cadenaConexion = '', sucursal = '', dataBase = '', FechaCorte = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE ${dataBase};
+                DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
+                DECLARE @FechaCorte DATETIME = CAST('${FechaCorte}' AS datetime);
+                SELECT
+                    Consecutivo = BDC.Folio, Sucursal = BDC.Sucursal, Tipo = 'COMPRA', Nombre = BDC.Proveedor,RFC = '', Documento = BDC.Documento,
+                    Fecha = BDC.Fecha, Subtotal = BDC.Subtotal, Descuento = BDC.Descuento, Ieps = BDC.Ieps, Iva = BDC.Iva, Total = BDC.Total
+                FROM BitacoraDigital.Compras AS BDC
+                WHERE CAST(CONVERT(NVARCHAR(8),BDC.Fecha,112) AS DATETIME) = @FechaCorte
+                    AND BDC.Sucursal = @Sucursal
+                    AND BDC.Estatus='A TIEMPO'
+                ORDER BY Consecutivo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultados de bitacora de gastos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la bitacora de gastos',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         GetSalesForDate,
         getReplacementsBuys,
         getReplacementsBills,
+        getBinnacleBuys,
     }
 })();
 
