@@ -156,6 +156,7 @@ const ServicesReportes = (() => {
             if (creditAcum.length === 0) creditAcum.push({
                 Caja: credit.Caja,
                 SubTotal: credit.Pagado,
+                Counts: 1,
                 Details: [credit]
             })
             else {
@@ -163,11 +164,13 @@ const ServicesReportes = (() => {
                 if (cajaFinded === -1) creditAcum.push({
                         Caja: credit.Caja,
                         SubTotal: credit.Pagado,
+                        Counts: 1,
                         Details: [credit]
                     })
                 else {
-                    creditAcum[cajaFinded].Details.push(credit)
-                    creditAcum[cajaFinded].SubTotal += credit.Pagado
+                    creditAcum[cajaFinded].Details.push(credit);
+                    creditAcum[cajaFinded].SubTotal += credit.Pagado;
+                    creditAcum[cajaFinded].Counts ++;
                 }
             }
             return creditAcum;
