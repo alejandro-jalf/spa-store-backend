@@ -193,12 +193,46 @@ const modelsReportes = (() => {
         }
     }
 
+    const getListCreditsCustomers = async (cadenaConexion = '', sucursal = '', dataBase = '', FechaCorte = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE ${dataBase};
+                DECLARE @FechaCorte DATETIME = CAST('${FechaCorte}' AS datetime);
+                SELECT DISTINCT
+                    M.Fecha,FechaReferencia = CONVERT(NVARCHAR(8),M.Fecha,112),M.Documento,M.Tercero,M.NombreTercero,
+                    P.FormaPago,FormaPagoDescripcion = UPPER(F.Descripcion),P.Pagado,P.Hora,P.Caja
+                FROM QVDEMovAlmacen M
+                LEFT JOIN PagosDia P ON P.Folio = M.Documento
+                LEFT JOIN FormasPago F ON F.FormaPago = P.FormaPago
+                WHERE M.TipoDocumento = 'V' AND M.Estatus = 'E'
+                    AND LEN(M.Tercero) > 0
+                    AND M.Tercero LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
+                    AND M.Fecha = @FechaCorte
+                    --AND M.Caja = @Caja
+                ORDER BY P.Hora
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Lista de creditos de trabajadores', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                `Fallo la conexion con base en ${sucursal} de datos al intentar obtener la lista de creditos de trabajadores`,
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         GetSalesForDate,
         getReplacementsBuys,
         getReplacementsBills,
         getBinnacleBuys,
+        getListCreditsCustomers,
     }
 })();
 

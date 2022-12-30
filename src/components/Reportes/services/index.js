@@ -18,6 +18,7 @@ const {
     getReplacementsBuys,
     getReplacementsBills,
     getBinnacleBuys,
+    getListCreditsCustomers,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -136,12 +137,30 @@ const ServicesReportes = (() => {
         return createResponse(200, response)
     }
 
+    const getListaCreditoTrabajadores = async (sucursal = '', FechaCorte = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaCorte);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const dataBase = getDatabase(toMoment(FechaCorte), sucursal);
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getListCreditsCustomers(conexion, sucursal, dataBase, FechaCorte);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
     return {
         getInventoryCloseYear,
         getVentasPorDia,
         getReposicionesCompras,
         getReposicionesGastos,
         getBitacoraCompras,
+        getListaCreditoTrabajadores,
     }
 })();
 

@@ -5,6 +5,7 @@ const {
     getReposicionesCompras,
     getReposicionesGastos,
     getBitacoraCompras,
+    getListaCreditoTrabajadores,
 } = require("../services");
 
 router.route("/api/v1/reportes/inventario/cierre/:sucursal/:tienda/:almacen").get(async (req, res) => {
@@ -38,6 +39,13 @@ router.route("/api/v1/reportes/bitacora/compras/:sucursal").get(async (req, res)
     const { sucursal } = req.params;
     const { FechaCorte } = req.query;
     const { status, response } = await getBitacoraCompras(sucursal, FechaCorte);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/reportes/trabajadores/creditos/:sucursal").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { FechaCorte } = req.query;
+    const { status, response } = await getListaCreditoTrabajadores(sucursal, FechaCorte);
     res.status(status).json(response);
 });
 
