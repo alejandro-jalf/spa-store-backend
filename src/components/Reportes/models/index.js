@@ -211,7 +211,7 @@ const modelsReportes = (() => {
                     AND M.Tercero LIKE '[0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9][0-9]'
                     AND M.Fecha = @FechaCorte
                     --AND M.Caja = @Caja
-                ORDER BY P.Hora
+                ORDER BY P.Caja, P.Hora
                 `,
                 QueryTypes.SELECT
             );

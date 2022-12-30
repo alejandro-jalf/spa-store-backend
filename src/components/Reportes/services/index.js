@@ -151,6 +151,28 @@ const ServicesReportes = (() => {
         const response  = await getListCreditsCustomers(conexion, sucursal, dataBase, FechaCorte);
 
         if (!response.success) return createResponse(400, response)
+
+        const listSeparated = response.data.reduce((creditAcum, credit) => {
+            if (creditAcum.length === 0) creditAcum.push({
+                Caja: credit.Caja,
+                SubTotal: credit.Pagado,
+                Details: [credit]
+            })
+            else {
+                const cajaFinded = creditAcum.findIndex((cred) => cred.Caja === credit.Caja)
+                if (cajaFinded === -1) creditAcum.push({
+                        Caja: credit.Caja,
+                        SubTotal: credit.Pagado,
+                        Details: [credit]
+                    })
+                else {
+                    creditAcum[cajaFinded].Details.push(credit)
+                    creditAcum[cajaFinded].SubTotal += credit.Pagado
+                }
+            }
+            return creditAcum;
+        }, [])
+        response.data = listSeparated
         return createResponse(200, response)
     }
 
