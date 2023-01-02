@@ -226,6 +226,46 @@ const modelsReportes = (() => {
         }
     }
 
+    const getVentasByFecha = async (cadenaConexion = '', sucursal = 'ZR', fechaIni = '', FechaFin = '', DB = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE ${DB}
+                DECLARE @FechaInicio DATETIME = CAST('${fechaIni}' AS DATETIME)
+                DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME)
+
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                
+                SET LANGUAGE Español;
+
+                SELECT
+                    Suc = @Sucursal,
+                    Mes,
+                    Year = YEAR(Fecha),
+                    MesMovimientoLetra,
+                    Dia = DAY(Fecha),
+                    Venta = SUM(VentaValorNeta)
+                FROM QVDEMovAlmacen
+                WHERE TipoDocumento = 'V' AND Estatus = 'E'
+                    AND ( Fecha BETWEEN @FechaInicio AND @FechaFinal )
+                GROUP BY Mes, MesMovimientoLetra, DAY(Fecha), YEAR(Fecha)
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener ventas de cocina',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         GetSalesForDate,
@@ -233,6 +273,7 @@ const modelsReportes = (() => {
         getReplacementsBills,
         getBinnacleBuys,
         getListCreditsCustomers,
+        getVentasByFecha,
     }
 })();
 
