@@ -307,11 +307,7 @@ const ServicesReportes = (() => {
 
             const resultMoves = listConexions.map(async (sucursal) => {
                 const suc = getSucursalByCategory('SPA' + sucursal.name);
-                console.log(suc, sucursal);
                 const response = await dataIOTortillas(suc, Fecha);
-                // response.status = response.success ? 'Online' : 'Offline';
-                // response.sucursal = sucursal.name;
-                console.log(response.response);
                 return response.response;
             });
 
