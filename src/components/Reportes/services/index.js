@@ -6,6 +6,9 @@ const {
     getDatabase,
     toMoment,
     getEndDayMonth,
+    getListConnectionByCompany,
+    getSucursalByCategory,
+    createContentAssert,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -285,14 +288,39 @@ const ServicesReportes = (() => {
     }
 
     const getMovesTortillas = async (sucursal = '', Fecha = '') => {
-        let validate = validateSucursal(sucursal);
-        if (!validate.success)
-            return createResponse(400, validate);
+        let validate;
+        if (sucursal.toUpperCase().trim() !== 'ALL') {
+            validate = validateSucursal(sucursal);
+            if (!validate.success) return createResponse(400, validate);
+        }
 
         validate = validateDate(Fecha);
         if (!validate.success)
             return createResponse(400, validate);
 
+        if (sucursal.toUpperCase().trim() !== 'ALL')
+            return await dataIOTortillas();
+        else {
+            const listConexions = getListConnectionByCompany('SPA').filter(
+                (suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.' && suc.name != 'BODEGA'
+            );
+
+            const resultMoves = listConexions.map(async (sucursal) => {
+                const suc = getSucursalByCategory('SPA' + sucursal.name);
+                console.log(suc, sucursal);
+                const response = await dataIOTortillas(suc, Fecha);
+                // response.status = response.success ? 'Online' : 'Offline';
+                // response.sucursal = sucursal.name;
+                console.log(response.response);
+                return response.response;
+            });
+
+            const responsesMoves = await Promise.all(resultMoves);
+            return createResponse(200, createContentAssert('Todas las sucursales', responsesMoves));
+        }
+    }
+
+    const dataIOTortillas = async (sucursal = '', Fecha = '') => {
         const conexion = getConnectionFrom(sucursal);
         const response  = await getIOTortillas(conexion, sucursal, Fecha);
 
@@ -329,6 +357,7 @@ const ServicesReportes = (() => {
         response.data = listMoves
         response.inputs = inputs;
         response.outputs = outputs;
+        response.sucursal = sucursal;
         return createResponse(200, response)
     }
 
