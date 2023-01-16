@@ -22,6 +22,7 @@ const {
     getBinnacleBuys,
     getListCreditsCustomers,
     getVentasByFecha,
+    getIOTortillas,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -283,6 +284,54 @@ const ServicesReportes = (() => {
         return createResponse(200, response);
     }
 
+    const getMovesTortillas = async (sucursal = '', Fecha = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(Fecha);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getIOTortillas(conexion, sucursal, Fecha);
+
+        if (!response.success) return createResponse(400, response);
+
+        let countMoves = 0;
+        let sumCantidad = 0;
+        let movePrevious;
+        let inputs = 0, outputs = 0;
+        const listMoves = response.data.reduce((moves, move,index) => {
+            if (move.TipoDocumento !== 'V') {
+                countMoves = 0;
+                inputs += move.CantidadRegular;
+            } else outputs += move.CantidadRegular;
+
+            if (countMoves === 0) {
+                if (index !== 0) {
+                    movePrevious.CantidadRegular = sumCantidad;
+                    moves.push(movePrevious);
+                }
+                moves.push(move);
+                sumCantidad = 0;
+            } else sumCantidad += move.CantidadRegular;
+
+            countMoves++;
+            movePrevious = move;
+            if (index === response.data.length - 1) {
+                if (move.TipoDocumento === 'V') movePrevious.CantidadRegular = sumCantidad;
+                moves.push(movePrevious);
+            }
+
+            return moves;
+        }, [])
+        response.data = listMoves
+        response.inputs = inputs;
+        response.outputs = outputs;
+        return createResponse(200, response)
+    }
+
     return {
         getInventoryCloseYear,
         getVentasPorDia,
@@ -291,6 +340,7 @@ const ServicesReportes = (() => {
         getBitacoraCompras,
         getListaCreditoTrabajadores,
         getSalesByDate,
+        getMovesTortillas,
     }
 })();
 
