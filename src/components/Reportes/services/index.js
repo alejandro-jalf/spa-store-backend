@@ -299,7 +299,7 @@ const ServicesReportes = (() => {
             return createResponse(400, validate);
 
         if (sucursal.toUpperCase().trim() !== 'ALL')
-            return await dataIOTortillas();
+            return await dataIOTortillas(sucursal, Fecha);
         else {
             const listConexions = getListConnectionByCompany('SPA').filter(
                 (suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.' && suc.name != 'BODEGA'
@@ -308,6 +308,7 @@ const ServicesReportes = (() => {
             const resultMoves = listConexions.map(async (sucursal) => {
                 const suc = getSucursalByCategory('SPA' + sucursal.name);
                 const response = await dataIOTortillas(suc, Fecha);
+                response.response.name = sucursal.name
                 return response.response;
             });
 
@@ -320,7 +321,14 @@ const ServicesReportes = (() => {
         const conexion = getConnectionFrom(sucursal);
         const response  = await getIOTortillas(conexion, sucursal, Fecha);
 
-        if (!response.success) return createResponse(400, response);
+        if (!response.success) {
+            response.data = []
+            response.inputs = 0;
+            response.outputs = 0;
+            response.sucursal = sucursal;
+            response.Fecha = Fecha;
+            return createResponse(400, response);
+        }
 
         let countMoves = 0;
         let sumCantidad = 0;
@@ -354,6 +362,7 @@ const ServicesReportes = (() => {
         response.inputs = inputs;
         response.outputs = outputs;
         response.sucursal = sucursal;
+        response.Fecha = Fecha;
         return createResponse(200, response)
     }
 
