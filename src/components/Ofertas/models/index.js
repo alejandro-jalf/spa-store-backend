@@ -376,7 +376,10 @@ const modelsOfertas = (() => {
             } = bodyMaster
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-            `USE CA2015; INSERT INTO maestroofertas VALUES(
+            `USE CA2015; INSERT INTO maestroofertas (
+                uuid, sucursal, estatus, editable, tipoOferta, fechaInicio, fechaFin, descripcion, fechaAlta,
+                creadoPor, fechaModificado, modificadoPor
+            ) VALUES (
                 '${uuid}', '${sucursal}', ${status}, 1, '${tipoOferta}', CAST('${fechaInicio}' AS DATETIME),
                 CAST('${fechaFin}' AS DATETIME), '${descripcion}', getdate(), '${creadoPor}', getdate(),
                 '${creadoPor}'
@@ -394,7 +397,7 @@ const modelsOfertas = (() => {
         }
     }
 
-    const updateStatusMasterOffer = async (cadenaConexion = '', uuid, bodyMaster) => {
+    const updateStatusMasterOffer = async (cadenaConexion = '', uuid, bodyMaster, complementUpdated = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -402,6 +405,7 @@ const modelsOfertas = (() => {
                 UPDATE maestroofertas 
                 SET
                     estatus = ${bodyMaster.status},
+                    ${complementUpdated}
                     fechamodificado = getdate(),
                     modificadopor = '${bodyMaster.modificadoPor}'
                 WHERE uuid = '${uuid}'`,

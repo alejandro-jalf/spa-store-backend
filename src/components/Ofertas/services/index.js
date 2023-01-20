@@ -292,7 +292,26 @@ const ServicesOfertas = (() => {
 
         bodyMaster.fechamodificado = getDateActual().format('YYYY-MM-DD');
 
-        response = await updateStatusMasterOffer(conexionDB, uuidmaster, bodyMaster);
+        let complementUpdated = ''
+        switch (bodyMaster.status) {
+            case OFERTA_ENVIADA:
+                complementUpdated = 'fechaEnviado = getdate(),'
+                break;
+            case OFERTA_EN_PROCESO:
+                complementUpdated = 'fechaEnProceso = getdate(),'
+                break;
+            case OFERTA_PROGRAMADA:
+                complementUpdated = 'fechaProgramada = getdate(),'
+                break;
+            case OFERTA_CANCELADA:
+                complementUpdated = 'fechaCancelado = getdate(),'
+                break;
+        
+            default:
+                break;
+        }
+
+        response = await updateStatusMasterOffer(conexionDB, uuidmaster, bodyMaster, complementUpdated);
         if (!response.success) return createResponse(400, response);
 
         return createResponse(201, response);
