@@ -334,7 +334,7 @@ const ServicesReportes = (() => {
         let sumCantidad = 0;
         let movePrevious;
         let inputs = 0, outputs = 0;
-        const listMoves = response.data.reduce((moves, move,index) => {
+        const listMoves = response.data.reduce((moves, move, index) => {
             if (move.TipoDocumento !== 'V') {
                 countMoves = 0;
                 inputs += move.CantidadRegular;
@@ -344,9 +344,10 @@ const ServicesReportes = (() => {
                 if (index !== 0) {
                     movePrevious.CantidadRegular = sumCantidad;
                     moves.push(movePrevious);
-                }
-                moves.push(move);
-                sumCantidad = 0;
+                    sumCantidad = 0;
+                } else sumCantidad = move.CantidadRegular;
+                if ((moves.length === 0 && move.TipoDocumento !== 'V') || move.TipoDocumento !== 'V')
+                    moves.push(move);
             } else sumCantidad += move.CantidadRegular;
 
             countMoves++;
