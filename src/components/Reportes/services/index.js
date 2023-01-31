@@ -345,7 +345,7 @@ const ServicesReportes = (() => {
                     movePrevious.CantidadRegular = sumCantidad;
                     moves.push(movePrevious);
                     sumCantidad = 0;
-                } else sumCantidad = move.CantidadRegular;
+                } else if (move.TipoDocumento === 'V') sumCantidad = move.CantidadRegular;
                 if ((moves.length === 0 && move.TipoDocumento !== 'V') || move.TipoDocumento !== 'V')
                     moves.push(move);
             } else sumCantidad += move.CantidadRegular;
