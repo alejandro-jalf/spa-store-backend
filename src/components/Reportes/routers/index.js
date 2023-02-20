@@ -8,6 +8,7 @@ const {
     getListaCreditoTrabajadores,
     getSalesByDate,
     getMovesTortillas,
+    getInformeOperativoMensual,
 } = require("../services");
 
 router.route("/api/v1/reportes/inventario/cierre/:sucursal/:tienda/:almacen").get(async (req, res) => {
@@ -35,6 +36,13 @@ router.route("/api/v1/reportes/movimientos/:sucursal/tortillas").get(async (req,
     const { sucursal } = req.params;
     const fecha = req.query.fecha;
     const { status, ...response } = await getMovesTortillas(sucursal, fecha);
+    res.status(200).json(response);
+});
+
+router.route("/api/v1/reportes/movimientos/:sucursal/informeoperativo").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { fechaStart, fechaEnd } = req.query;
+    const { status, ...response } = await getInformeOperativoMensual(sucursal, fechaStart, fechaEnd);
     res.status(200).json(response);
 });
 

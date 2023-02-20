@@ -301,11 +301,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyInvF = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyInvF = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
@@ -342,11 +343,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyCPS = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyCPS = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
@@ -387,11 +389,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyVPS = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyVPS = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
@@ -434,11 +437,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyRecargas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyRecargas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
@@ -474,11 +478,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyMSalidas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyMSalidas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
@@ -617,11 +622,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyMEntradas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyMEntradas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
@@ -724,11 +730,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyUAI = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyUAI = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
@@ -763,11 +770,12 @@ const modelsReportes = (() => {
         }
     }
 
-    const getReportMonthlyVentas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+    const getReportMonthlyVentas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE ${DB};
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
                 DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;

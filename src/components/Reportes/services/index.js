@@ -26,6 +26,14 @@ const {
     getListCreditsCustomers,
     getVentasByFecha,
     getIOTortillas,
+    getReportMonthlyCPS,
+    getReportMonthlyInvF,
+    getReportMonthlyMEntradas,
+    getReportMonthlyMSalidas,
+    getReportMonthlyRecargas,
+    getReportMonthlyUAI,
+    getReportMonthlyVPS,
+    getReportMonthlyVentas,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -367,6 +375,43 @@ const ServicesReportes = (() => {
         return createResponse(200, response)
     }
 
+    const getInformeOperativoMensual = async (sucursal = '', FechaIni, FechaFin) => {
+        let response;
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateDate(FechaIni);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateDate(FechaFin);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateDates(FechaIni, FechaFin);
+        if (!validate.success) return createResponse(400, validate);
+
+        const dataBase = getDatabase(toMoment(FechaIni), sucursal);
+        const conexion = getConnectionFrom(sucursal);
+
+        const requestReports = [
+            getReportMonthlyCPS,
+            getReportMonthlyInvF,
+            getReportMonthlyMEntradas,
+            getReportMonthlyMSalidas,
+            getReportMonthlyRecargas,
+            getReportMonthlyUAI,
+            getReportMonthlyVPS,
+            getReportMonthlyVentas,
+        ];
+
+        const results = requestReports.map(async(callback) => {
+            response = await callback(conexion, sucursal, FechaIni, FechaFin, dataBase);
+            return response;
+        });
+        const responses = await Promise.all(results);
+
+        return createResponse(200, responses);
+    }
+
     return {
         getInventoryCloseYear,
         getVentasPorDia,
@@ -376,6 +421,7 @@ const ServicesReportes = (() => {
         getListaCreditoTrabajadores,
         getSalesByDate,
         getMovesTortillas,
+        getInformeOperativoMensual,
     }
 })();
 
