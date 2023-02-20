@@ -301,6 +301,522 @@ const modelsReportes = (() => {
         }
     }
 
+    const getReportMonthlyInvF = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Sucursal,Tipo,
+                    Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal,	Tipo = 'INVENTARIO FINAL',A.Almacen,
+                        A.Articulo,A.Nombre,A.ExistenciaActualRegular,A.UltimoCosto, 
+                        CostoValorNeto = (A.ExistenciaActualRegular * A.UltimoCosto) + (((A.ExistenciaActualRegular * A.UltimoCosto) + ((A.ExistenciaActualRegular * A.UltimoCosto) * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100)) + ((A.ExistenciaActualRegular * A.UltimoCosto) * (B.IepsTasaCompra / 100)),
+                        IvaValorCosto = ((A.ExistenciaActualRegular * A.UltimoCosto) + ((A.ExistenciaActualRegular * A.UltimoCosto) * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100),
+                        IepsValorCosto = (A.ExistenciaActualRegular * A.UltimoCosto) * (B.IepsTasaCompra / 100),
+                        CostoValor = A.ExistenciaActualRegular * A.UltimoCosto
+                    FROM FQVExistenciaES(@FechaFinal) A
+                    LEFT JOIN QVExistencias B ON B.Articulo = A.Articulo AND B.Almacen = A.Almacen
+                    WHERE A.Almacen = @Almacen
+                        AND A.ExistenciaActualRegular > 0
+                ) AS A
+                GROUP BY Sucursal, Tipo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Inventario Final Mensual', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de inventario final mensual',
+                error
+            );
+        }
+    }
+
+    const getReportMonthlyCPS = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Almacen,
+                    Familia,Subfamilia,
+                    CostoValor = SUM(CostoValor),
+                    IvaValorCosto = SUM(IvaValorCosto),
+                    IepsValorCosto = SUM(IepsValorCosto),
+                    CostoValorNeto = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                        Sucursal = 'SPAVICTORIA', Tipo = 'COMPRA', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia,
+                        Articulo, Nombre, CantidadRegular, UnidadVenta,CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto,
+                        IvaValorCosto, IepsValorCosto, CostoValor, DescuentoValorCosto, Documento, Referencia, RFCTercero, Tercero,
+                        NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria, DescripcionCategoria,
+                        Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QVDEMovAlmacen 
+                    WHERE TipoDocumento = 'C' AND Estatus = 'E'
+                        AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                        AND Almacen = @Almacen
+                ) AS A
+                GROUP BY Almacen,Familia,Subfamilia
+                ORDER BY CostoValorNeto DESC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Compras Por Subfamilia', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de Compras Por Subfamilia',
+                error
+            );
+        }
+    }
+
+    const getReportMonthlyVPS = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Almacen,
+                    Familia,Subfamilia,
+                    CostoValor = SUM(CostoValor),
+                    Venta = SUM(VentaValor),
+                    Utilidad = SUM(VentaValor) - SUM(CostoValor),
+                    Porcentaje = (SUM(VentaValor) - SUM(CostoValor)) / (SUM(VentaValor))
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'VENTA', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia,
+                        Articulo, Nombre, CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa,
+                        CostoValorNeto, IvaValorCosto, IepsValorCosto, CostoValor, DescuentoValorCosto,
+                        VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta,
+                        Documento, Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen,
+                        Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria, DescripcionCategoria,
+                        Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QvDeMovAlmacen
+                    WHERE ( Fecha BETWEEN @FechaInicio AND @FechaFinal ) 
+                        AND TipoDocumento = 'V' AND Estatus = 'E'
+                        AND NOT Subfamilia = 'SRecargas'
+                ) AS A
+                GROUP BY Almacen,Familia,Subfamilia
+                ORDER BY Utilidad DESC,Almacen,Familia,Subfamilia
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Ventas Por Subfamilia', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de Ventas Por Subfamilia',
+                error
+            );
+        }
+    }
+
+    const getReportMonthlyRecargas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(VentaValor), Iva = SUM(IvaValorVenta), Ieps = SUM(IepsValorVenta), Total = SUM(VentaValorNeta)	
+                FROM (
+                    SELECT
+                            Sucursal = @Sucursal,	Tipo = 'RECARGAS ELECTRONICAS', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia,
+                            Articulo, Nombre, CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto,
+                            IepsValorCosto, CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta,
+                            Documento, Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, FactorCompra, FactorVenta,
+                            Categoria, DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                        FROM QVDEMovAlmacen A
+                        WHERE TipoDocumento = 'V' AND Estatus = 'E' 
+                            AND A.Almacen = @Almacen
+                            AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                            AND A.Subfamilia = 'SRecargas'
+                ) AS A
+                GROUP BY Sucursal, Tipo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Recargas', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de Recargas',
+                error
+            );
+        }
+    }
+
+    const getReportMonthlyMSalidas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Sucursal,Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                            Sucursal = @Sucursal, Tipo = 'TRANSF. SALIDA', A.Almacen, Familia = A.DescripcionFamilia, Subfamilia = A.DescripcionSubfamilia, A.Articulo, A.Nombre,
+                            CantidadRegular, A.UnidadVenta, CantidadRegularUC, A.UnidadCompra, IvaTasa, IepsTasa,
+                            CostoValorNeto = CostoValor + ((CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100)) + (Costovalor * (B.IepsTasaCompra / 100)),
+                            IvaValorCosto = (CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100),
+                            IepsValorCosto = Costovalor * (B.IepsTasaCompra / 100),
+                            CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento, Referencia, RFCTercero,
+                            Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, A.FactorCompra, A.FactorVenta, A.Categoria, A.DescripcionCategoria,
+                            A.Tienda, DescripcionTienda, Observaciones, Fecha
+                        FROM QVDEMovAlmacen A
+                        LEFT JOIN QVExistencias B ON B.Articulo = A.Articulo AND B.Almacen = A.Almacen
+                        WHERE TipoDocumento = 'T' AND Estatus = 'E' 
+                            AND A.Almacen = @Almacen
+                            AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                ) AS A
+                GROUP BY Sucursal, Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                            Sucursal = @Sucursal, Tipo = 'CONSUMO INTERNO', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                            CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto, IepsValorCosto, CostoValor, DescuentoValorCosto,
+                            VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento, Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen,
+                            Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria, DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                        FROM QVDEMovAlmacen A
+                        WHERE TipoDocumento = 'I' AND Estatus = 'E' 
+                            AND A.Almacen = @Almacen
+                            AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                ) AS A
+                GROUP BY Sucursal, Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                            Sucursal = @Sucursal, Tipo = 'AJUSTE DE SALIDA', A.Almacen, Familia = A.DescripcionFamilia, Subfamilia = A.DescripcionSubfamilia, A.Articulo, A.Nombre,
+                            CantidadRegular, A.UnidadVenta, CantidadRegularUC, A.UnidadCompra, IvaTasa, IepsTasa,
+                            CostoValorNeto = CostoValor + ((CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100)) + (Costovalor * (B.IepsTasaCompra / 100)),
+                            IvaValorCosto = (CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100),
+                            IepsValorCosto = Costovalor * (B.IepsTasaCompra / 100),
+                            CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento, Referencia, RFCTercero,
+                            Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, A.FactorCompra, A.FactorVenta, A.Categoria, A.DescripcionCategoria,
+                            A.Tienda, DescripcionTienda, Observaciones, Fecha
+                        FROM QVDEMovAlmacen A
+                        LEFT JOIN QVExistencias B ON B.Articulo = A.Articulo AND B.Almacen = A.Almacen
+                        WHERE TipoDocumento = 'S' AND Estatus = 'E' 
+                            AND A.Almacen = @Almacen
+                            AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                            AND NOT A.Referencia LIKE 'Canc%'
+                            AND NOT A.Referencia = 'AJUSTE DE INVENTARIO'
+                ) AS A
+                GROUP BY Sucursal, Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                            Sucursal = @Sucursal, Tipo = 'DEVOLUCION PROVEEDOR', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia,
+                            Articulo, Nombre, CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto,
+                            IepsValorCosto, CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta,
+                            Documento, Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, FactorCompra, FactorVenta,
+                            Categoria, DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                        FROM QVDEMovAlmacen A
+                        WHERE TipoDocumento = 'P' AND Estatus = 'E' 
+                            AND A.Almacen = @Almacen
+                            AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                ) AS A
+                GROUP BY Sucursal, Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal,Tipo,
+                    Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                            Sucursal = @Sucursal, Tipo = 'MERMA', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                            CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto, IepsValorCosto,
+                            CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento,
+                            Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria,
+                            DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                        FROM QVDEMovAlmacen A
+                        WHERE TipoDocumento = 'M' AND Estatus = 'E' 
+                            AND A.Almacen = @Almacen
+                            AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                ) AS A
+                GROUP BY Sucursal, Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), Ieps = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'COSTO DE VENTAS', Almacen, Familia = DescripcionFamilia,
+                        Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                        CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa,
+                        CostoValorNeto, IvaValorCosto, IepsValorCosto, CostoValor, DescuentoValorCosto,
+                        VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta,
+                        Documento, Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen,
+                        Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria, DescripcionCategoria,
+                        Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QVDEMovAlmacen A
+                    WHERE TipoDocumento = 'V' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen
+                        AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                        AND NOT A.Subfamilia = 'SRecargas'
+                ) AS A
+                GROUP BY Sucursal, Tipo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Movimientos de Salida', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de Movimientos de Salida',
+                error
+            );
+        }
+    }
+
+    const getReportMonthlyMEntradas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'COMPRAS', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                        CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto, IepsValorCosto,
+                        CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento,
+                        Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria,
+                        DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QVDEMovAlmacen A
+                    WHERE TipoDocumento = 'C' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen
+                        AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                ) AS A
+                GROUP BY Sucursal,Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'TRANSF. ENTRADA', A.Almacen, Familia = A.DescripcionFamilia, Subfamilia = A.DescripcionSubfamilia, A.Articulo, A.Nombre,
+                        CantidadRegular, A.UnidadVenta, CantidadRegularUC, A.UnidadCompra, IvaTasa, IepsTasa,
+                        CostoValorNeto = CostoValor + ((CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100)) + (Costovalor * (B.IepsTasaCompra / 100)),
+                        IvaValorCosto = (CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100),
+                        IepsValorCosto = Costovalor * (B.IepsTasaCompra / 100),
+                        CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento, Referencia, RFCTercero,
+                        Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, A.FactorCompra, A.FactorVenta, A.Categoria, A.DescripcionCategoria,
+                        A.Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QVDEMovAlmacen A
+                    LEFT JOIN QVExistencias B ON B.Articulo = A.Articulo AND B.Almacen = A.Almacen
+                    WHERE TipoDocumento = 'A' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen
+                        AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                ) AS A
+                GROUP BY Sucursal, Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'DEVOL. DE CLIENTE', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                        CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto, IepsValorCosto, CostoValor, DescuentoValorCosto,
+                        VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento, Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen,
+                        Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria, DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QVDEMovAlmacen A
+                    WHERE TipoDocumento = 'D' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen
+                        AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                ) AS A
+                GROUP BY Sucursal, Tipo
+
+                UNION ALL
+
+                SELECT
+                    Sucursal,Tipo,
+                    Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), IepsCosto = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)	
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal,	Tipo = 'AJUSTE DE ENTRADA',A.Almacen,Familia = A.DescripcionFamilia,
+                        Subfamilia = A.DescripcionSubfamilia,	A.Articulo,A.Nombre,
+                        CantidadRegular,A.UnidadVenta,CantidadRegularUC,A.UnidadCompra,IvaTasa,IepsTasa,
+                        
+                        CostoValorNeto = CostoValor + ((CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100)) + (Costovalor * (B.IepsTasaCompra / 100)),
+                        IvaValorCosto = (CostoValor + (Costovalor * (B.IepsTasaCompra / 100))) * (B.IvaTasaCompra / 100),
+                        IepsValorCosto = Costovalor * (B.IepsTasaCompra / 100),
+                        CostoValor,DescuentoValorCosto,
+                        
+                        VentaValorNeta,IvaValorVenta,IepsValorVenta,VentaValor,DescuentoValorVenta,
+                        Documento,Referencia,RFCTercero,Tercero,NombreTercero,DescripcionAlmacen,
+                        Cajero,NombreCajero,A.FactorCompra,A.FactorVenta,A.Categoria,A.DescripcionCategoria,
+                        A.Tienda,DescripcionTienda,Observaciones,Fecha
+                    FROM QVDEMovAlmacen A
+                    LEFT JOIN QVExistencias B ON B.Articulo = A.Articulo AND B.Almacen = A.Almacen
+                    WHERE TipoDocumento = 'E' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen
+                        AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                        AND NOT A.Referencia = 'AJUSTE DE INVENTARIO'
+                ) AS A
+                GROUP BY Sucursal, Tipo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Movimientos de Entrada', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de Movimientos de Entrada',
+                error
+            );
+        }
+    }
+
+    const getReportMonthlyUAI = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Sucursal, Tipo, UtilidadImporte = SUM(VentaValor) - SUM(CostoValor), UtilidadPorcentaje = (SUM(VentaValor) - SUM(CostoValor)) / SUM(VentaValor)
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'UTILIDAD ANTES DE IMPUESTOS', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                        CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto, IepsValorCosto, CostoValor, DescuentoValorCosto,
+                        VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento, Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen,
+                        Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria, DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QVDEMovAlmacen A
+                    WHERE TipoDocumento = 'V' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen
+                        AND (Fecha BETWEEN @FechaInicio AND @FechaFinal)
+                        AND NOT A.Subfamilia = 'SRecargas'
+                ) AS A
+                GROUP BY Sucursal, Tipo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Utilidades Antes de Impuestos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de Utilidades Antes de Impuestos',
+                error
+            );
+        }
+    }
+
+    const getReportMonthlyVentas = async (cadenaConexion = '', sucursal = 'ZR', fechaStart = '20230101', fechaEnd = '20230101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                DECLARE @FechaInicio datetime = CAST('${fechaStart}' AS datetime);
+                DECLARE @FechaFinal datetime = CAST('${fechaEnd}' AS datetime);
+
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(VentaValor), Iva = SUM(IvaValorVenta), Ieps = SUM(IepsValorVenta), Total = SUM(VentaValorNeta)
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'VENTAS', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                        CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto, IepsValorCosto,
+                        CostoValor, DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento,
+                        Referencia, RFCTercero, Tercero, NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, FactorCompra, FactorVenta,
+                        Categoria, DescripcionCategoria, Tienda, DescripcionTienda, Observaciones, Fecha
+                    FROM QVDEMovAlmacen A
+                    WHERE TipoDocumento = 'V' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen AND (Fecha BETWEEN @FechaInicio AND @FechaFinal) AND NOT A.Subfamilia = 'SRecargas'
+                ) AS A
+                GROUP BY Sucursal,Tipo
+                    UNION ALL
+                SELECT
+                    Sucursal, Tipo, Subtotal = SUM(CostoValor), Iva = SUM(IvaValorCosto), Ieps = SUM(IepsValorCosto), Total = SUM(CostoValorNeto)
+                FROM (
+                    SELECT
+                        Sucursal = @Sucursal, Tipo = 'COSTO DE VENTAS', Almacen, Familia = DescripcionFamilia, Subfamilia = DescripcionSubfamilia, Articulo, Nombre,
+                        CantidadRegular, UnidadVenta, CantidadRegularUC, UnidadCompra, IvaTasa, IepsTasa, CostoValorNeto, IvaValorCosto, IepsValorCosto, CostoValor,
+                        DescuentoValorCosto, VentaValorNeta, IvaValorVenta, IepsValorVenta, VentaValor, DescuentoValorVenta, Documento, Referencia, RFCTercero, Tercero,
+                        NombreTercero, DescripcionAlmacen, Cajero, NombreCajero, FactorCompra, FactorVenta, Categoria, DescripcionCategoria, Tienda, DescripcionTienda,
+                        Observaciones, Fecha
+                    FROM QVDEMovAlmacen A
+                    WHERE TipoDocumento = 'V' AND Estatus = 'E' 
+                        AND A.Almacen = @Almacen AND (Fecha BETWEEN @FechaInicio AND @FechaFinal) AND NOT A.Subfamilia = 'SRecargas'
+                ) AS A
+                GROUP BY Sucursal, Tipo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos de Ventas', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener datos de Ventas',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         GetSalesForDate,
@@ -310,6 +826,14 @@ const modelsReportes = (() => {
         getListCreditsCustomers,
         getVentasByFecha,
         getIOTortillas,
+        getReportMonthlyInvF,
+        getReportMonthlyCPS,
+        getReportMonthlyVPS,
+        getReportMonthlyRecargas,
+        getReportMonthlyMSalidas,
+        getReportMonthlyMEntradas,
+        getReportMonthlyUAI,
+        getReportMonthlyVentas,
     }
 })();
 
