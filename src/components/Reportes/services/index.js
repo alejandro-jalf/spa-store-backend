@@ -409,7 +409,7 @@ const ServicesReportes = (() => {
         });
         const responses = await Promise.all(results);
 
-        return createResponse(200, responses);
+        return createResponse(200, createContentAssert('Contenido', responses));
     }
 
     return {
