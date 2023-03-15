@@ -111,8 +111,31 @@ const services = (() => {
             correo_user === 'sounix@gmail.com'
         ) return createResponse(
             200,
-            createContentAssert(`Bienvenido ${correo_user}`, {})
-        );
+            createContentAssert(`Bienvenido ${correo_user}`, {
+                access_to_user : "conexiones,folios,usuarios,ValuacionInventario,movimientostortillas,checadorprecios,codificadorarticulos,preciosbajos,stocks,cocina,menucocina,consolidacionesarticulos,consolidaciones,existenciasarticulo,existenciasproveedor,index,mayoristas,novedades,ofertas,validaofertas,pedidos,pedidosugerido,proveedores,bitacorareporte,listacreditostrabajadores,reposicionescompras,reposicionesgastos,informeoperativomensual,asistencias,ventav,ventasdiarias,comparativaventas",
+                    activo_user : true,
+                    apellido_m_user: "Morales",
+                    apellido_p_user: "Soriano",
+                    correo_user: "sounix@gmail.com",
+                    direccion_user: "Acayucan Ver.",
+                    nombre_user: "Alejandro",
+                    novedades : [
+                        {
+                            Actualizada:  "2022-12-28T19:25:03.657Z",
+                            ActualizadaPor:  "alexlofa45@gmail.com",
+                            CreadaPor:  "alexlofa45@gmail.com",
+                            Detalles: "Se agregan herramienta para ver el reporte de la bitacora de compras",
+                            FechaDeLanzamiento: "2022-12-28T19:25:03.657Z",
+                            NumVersion:  "2.20.0",
+                            PaginasActualizadas:  "bitacorareporte"
+                        }
+                    ],
+                    principal: "Administracion/Conexiones",
+                    sucursal_user:  "Oficina",
+                    tipo_user: "manager",
+            }
+            )
+        )
         const resultQuery = await modelGetUserByEmail(conexionDB, correo_user);
         if (!resultQuery.success) {
             return createResponse(500, resultQuery);
