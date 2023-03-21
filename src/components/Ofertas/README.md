@@ -36,6 +36,10 @@ CREATE TABLE MaestroOfertas(
     fechaAlta DATETIME NOT NULL,
     creadoPor NVARCHAR(100) NOT NULL,
     fechaModificado DATETIME NOT NULL,
+    fechaEnviado DATETIME DEFAULT getdate(),
+    fechaEnProceso DATETIME DEFAULT getdate(),
+    fechaProgramada DATETIME DEFAULT getdate(),
+    fechaCancelado DATETIME DEFAULT getdate(),
     modificadoPor NVARCHAR(100) NOT NULL,
 )
 ```
@@ -57,7 +61,7 @@ CREATE TABLE MaestroOfertas(
 | modificadoPor | varchar | 100 |  |
 
 ```sql
-CREATE TABLE ArticulosOferta(
+CREATE TABLE ArticulosOfertas(
     uuid_maestro NVARCHAR(100),
     articulo NVARCHAR(10) NOT NULL,
     nombre NVARCHAR(150) NOT NULL,
