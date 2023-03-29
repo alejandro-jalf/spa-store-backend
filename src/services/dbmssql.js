@@ -3,12 +3,12 @@ const Sequelize = require("sequelize");
 const conexion = (() => {
   let conection = null;
 
-  const dbmssql = (cadenaConexion = '') => {
+  const dbmssql = (cadenaConexion = '', timeOut = 30000) => {
     return new Sequelize(cadenaConexion, {
       pool: { max: 10, min: 0, acquire: 30000, idle: 10000 },
       dialectOptions: {
         options: {
-          requestTimeout: 30000,
+          requestTimeout: timeOut,
           useUTC: false,
           dateFirst: 1,
           enableArithAbort: true,
@@ -20,9 +20,9 @@ const conexion = (() => {
     });
   };
   
-  const getConexion = (stringConection = '') => {
+  const getConexion = (stringConection = '', timeOut) => {
       if (stringConection === '') return null;
-      conection = dbmssql(stringConection);
+      conection = dbmssql(stringConection, timeOut);
       return conection;
   }
 

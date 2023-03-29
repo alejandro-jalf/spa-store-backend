@@ -4,6 +4,8 @@ const {
     createContentAssert,
     getListConnectionByCompany,
     getConnectionFrom,
+    getDateActual,
+    getDatabaseBySuc,
 } = require('../../../utils');
 const {
     validateEmpresa,
@@ -14,6 +16,8 @@ const {
     testConnection,
     calculaFoliosSucursal,
     updateFoliosSucursal,
+    createBackup,
+    createZipBackup,
 } = require('../models');
 
 const ServicesGeneral = (() => {
@@ -77,10 +81,41 @@ const ServicesGeneral = (() => {
         return createResponse(200, response);
     }
 
+    const generateBackup = async (sucursal, source = 'C:\\backups', name = 'bakcup.bak') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        const dataBase = getDatabaseBySuc(sucursal);
+        let nameRefactor = name;
+
+        if (name === 'bakcup.bak')
+            nameRefactor = getDatabaseBySuc(sucursal.toUpperCase()) + '_' + getDateActual().format('YYYYMMDDHHmm') + '.BAK'
+
+        const response = await createBackup(conexion, source, nameRefactor, dataBase);
+        if (!response.success) return createResponse(400, response);
+
+        return createResponse(200, response);
+    }
+
+    const zipBackup = async (sucursal, source = 'C:\\backups\\') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+
+        const response = await createZipBackup(conexion, source);
+        if (!response.success) return createResponse(400, response);
+
+        return createResponse(200, response);
+    }
+
     return {
         getStatusConections,
         getCalculateFolios,
         updateFoliosAvailable,
+        generateBackup,
+        zipBackup,
     }
 })();
 

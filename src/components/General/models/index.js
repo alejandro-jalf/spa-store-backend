@@ -62,10 +62,55 @@ const modelsGeneral = (() => {
         }
     }
 
+    const createBackup = async (cadenaConexion = '', source, name, dataBase) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `BACKUP DATABASE [${dataBase}]
+                TO DISK = N'${source}\\${name}' 
+                WITH NOFORMAT, NOINIT,
+                NAME = N'SQLTestDB-Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;`,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de respaldo', result);
+        } catch (error) {
+            return createContentError('Fallo al intentar realizar respaldo', error);
+        }
+    }
+
+    const createZipBackup = async (cadenaConexion = '', source) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion, 300000);
+            const result = await accessToDataBase.query(
+                `EXEC sp_configure 'show advanced options', 1
+                RECONFIGURE
+                EXEC sp_configure 'xp_cmdshell', 1
+                RECONFIGURE
+                
+                EXEC xp_cmdshell 'rar a "${source}.zip" "${source}"'
+
+                EXEC xp_cmdshell 'DEL /F /A ${source}'
+                
+                EXEC sp_configure 'xp_cmdshell', 0
+                RECONFIGURE
+                EXEC sp_configure 'show advanced options', 0
+                RECONFIGURE`,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de compresion', result);
+        } catch (error) {
+            return createContentError('Fallo al intentar comprimir', error);
+        }
+    }
+
     return {
         testConnection,
         calculaFoliosSucursal,
         updateFoliosSucursal,
+        createBackup,
+        createZipBackup,
     }
 })();
 
