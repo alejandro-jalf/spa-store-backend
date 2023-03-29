@@ -8,6 +8,7 @@ const {
     getDetallesArticulosByCodificador,
     getArticlesWithLowUtilities,
     updateStocksBySucursal,
+    getExistenciasBySucursal,
 } = require("../services");
 
 router.route("/api/v1/articulos/:articulo/precio").get(async (req, res) => {
@@ -46,6 +47,12 @@ router.route("/api/v1/articulos/:nombre/existencias").get(async (req, res) => {
 router.route("/api/v1/articulos/:sku/existencias/detalles").get(async (req, res) => {
     const { sku } = req.params;
     const { status, response } = await getDetallesExistenciasBySku(sku);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/articulos/existencias/:sucursal").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { status, response } = await getExistenciasBySucursal(sucursal);
     res.status(status).json(response);
 });
 

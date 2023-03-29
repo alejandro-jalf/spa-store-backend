@@ -5,7 +5,7 @@ const {
     createContentError
 } = require('../../../utils');
 
-const modelsArticulos = (() => {
+const ModelsArticulos = (() => {
     const getPrecio = async (cadenaConexion = '', sucursal = 'ZR', codigoBarrasArticulo = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -443,6 +443,36 @@ const modelsArticulos = (() => {
         }
     }
 
+    const getExistencesBySucursal = async (cadenaConexion = '', sucursal = 'BO') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+
+                SELECT
+                    Articulo, Nombre,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
+                    ExistenciaActualRegular, ExistenciaActualUC
+                FROM QVExistencias
+                WHERE Almacen = @Almacen AND Tienda = @Tienda
+                    AND ExistenciaActualRegular > 0
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Existencias por sucursal', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener las existencias',
+                error
+            );
+        }
+    }
+
     return {
         getDetailsArticleForCodificador,
         getArticulosConUtilidadBaja,
@@ -453,7 +483,8 @@ const modelsArticulos = (() => {
         getArticlesWithShoppsBySkuOnline,
         getArticlesWithShoppsBySkuOffline,
         getExistenceByProvider,
+        getExistencesBySucursal,
     }
 })();
 
-module.exports = modelsArticulos;
+module.exports = ModelsArticulos;

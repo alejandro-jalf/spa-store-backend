@@ -25,6 +25,7 @@ const {
     getArticlesWithShoppsBySkuOnline,
     getArticlesWithShoppsBySkuOffline,
     getExistenceByProvider,
+    getExistencesBySucursal,
 } = require('../models');
 const {
     getComprasByDate,
@@ -397,6 +398,19 @@ const ServicesArticulos = (() => {
         });
     }
 
+    const getExistenciasBySucursal = async (sucursal = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        const response = await getExistencesBySucursal(conexion, sucursal);
+        
+        if (!response.success) return createResponse(400, response)
+        response.count = response.data.length;
+        return createResponse(200, response)
+    }
+
     return {
         getPriceArticle,
         getDataForStocks,
@@ -406,6 +420,7 @@ const ServicesArticulos = (() => {
         getExistenciasByNombre,
         getDetallesExistenciasBySku,
         getExistenciasByProveedor,
+        getExistenciasBySucursal,
     }
 })();
 
