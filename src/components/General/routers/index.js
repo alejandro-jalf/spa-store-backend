@@ -29,8 +29,8 @@ router.route("/api/v1/general/folios/:sucursal/:serie").put(async (req, res) => 
 
 router.route("/api/v1/general/backup/:sucursal").put(async (req, res) => {
     const { sucursal } = req.params;
-    const { source, name } = req.query;
-    const { status, response } = await generateBackup(sucursal, source, name);
+    const { source, name, dataBase } = req.query;
+    const { status, response } = await generateBackup(sucursal, source, name, dataBase);
     res.status(status).json(response);
 });
 

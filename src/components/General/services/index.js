@@ -81,12 +81,12 @@ const ServicesGeneral = (() => {
         return createResponse(200, response);
     }
 
-    const generateBackup = async (sucursal, source = 'C:\\backups', name = 'bakcup.bak') => {
+    const generateBackup = async (sucursal, source = 'C:\\backups', name = 'bakcup.bak', db) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
-        const dataBase = getDatabaseBySuc(sucursal);
+        const dataBase = db || getDatabaseBySuc(sucursal);
         let nameRefactor = name;
 
         if (name === 'bakcup.bak')
