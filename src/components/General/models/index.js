@@ -114,7 +114,7 @@ const modelsGeneral = (() => {
                 EXEC sp_configure 'xp_cmdshell', 1
                 RECONFIGURE
                 
-                EXEC xp_cmdshell 'cd C:/APP/loadbackups/src/uploadBackup & node index.js ${source}%${nameFile}%${sucursal}'
+                EXEC xp_cmdshell 'cd C:/APP/loadbackups/ & node src/uploadBackup/index.js ${source}%${nameFile}%${sucursal}'
                 
                 EXEC sp_configure 'xp_cmdshell', 0
                 RECONFIGURE

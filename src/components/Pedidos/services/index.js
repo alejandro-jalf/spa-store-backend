@@ -28,7 +28,7 @@ const {
 
 const ServicesPedidos = (() => {
 
-    const getOrdersBodega = async (database = 'SPASUC2021', source = 'BO') => {
+    const getOrdersBodega = async (database = 'SPASUC2011', source = 'BO') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -52,7 +52,7 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const getOrdersBySucursal = async (database = 'SPASUC2021', source = 'BO', sucursal = '') => {
+    const getOrdersBySucursal = async (database = 'SPASUC2011', source = 'BO', sucursal = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -63,7 +63,7 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const getArticlesByArticle = async (database = 'SPASUC2021', source = 'BO', sucursal = '', folio = '', article = '') => {
+    const getArticlesByArticle = async (database = 'SPASUC2011', source = 'BO', sucursal = '', folio = '', article = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -74,7 +74,7 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const getArticlesByName = async (database = 'SPASUC2021', source = 'BO', sucursal = '', folio = '', name = '') => {
+    const getArticlesByName = async (database = 'SPASUC2011', source = 'BO', sucursal = '', folio = '', name = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -85,7 +85,7 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const getArticlesByDias = async (database = 'SPASUC2021', source = 'BO', sucursal = '', folio = '', dias = '') => {
+    const getArticlesByDias = async (database = 'SPASUC2011', source = 'BO', sucursal = '', folio = '', dias = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -96,7 +96,7 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const getArticles = async (database = 'SPASUC2021', source = 'BO', sucursal = '', folio = '') => {
+    const getArticles = async (database = 'SPASUC2011', source = 'BO', sucursal = '', folio = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -107,7 +107,7 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const getReportArticles = async (database = 'SPASUC2021', source = 'BO', sucursal = '', folio = '') => {
+    const getReportArticles = async (database = 'SPASUC2011', source = 'BO', sucursal = '', folio = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -118,7 +118,7 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const createPedido = async (database = 'SPASUC2021', source = 'BO', sucursal = '') => {
+    const createPedido = async (database = 'SPASUC2011', source = 'BO', sucursal = '') => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
 
@@ -129,7 +129,7 @@ const ServicesPedidos = (() => {
         return createResponse(201, response)
     }
 
-    const addArticleToOrder = async (database = 'SPASUC2021', source = 'BO', article = '', bodyArticle = {}) => {
+    const addArticleToOrder = async (database = 'SPASUC2011', source = 'BO', article = '', bodyArticle = {}) => {
         let validate = validateSucursal(source);
         if (!validate.success) return createResponse(400, validate);
         
@@ -144,7 +144,7 @@ const ServicesPedidos = (() => {
     }
 
     const updateStatuOrder = async (
-        database = 'SPASUC2021',
+        database = 'SPASUC2011',
         source = 'BO',
         sucursal = '',
         folio = '',
