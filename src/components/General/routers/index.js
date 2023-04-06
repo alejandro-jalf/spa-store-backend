@@ -6,6 +6,7 @@ const {
     generateBackup,
     zipBackup,
     uploadBackup,
+    getInformationOfDataBases,
 } = require("../services");
 
 router.route("/api/v1/general/:empresa/conexiones/activas").get(async (req, res) => {
@@ -18,6 +19,12 @@ router.route("/api/v1/general/folios/:sucursal").get(async (req, res) => {
     const { sucursal } = req.params;
     const { promMensual } = req.query;
     const { status, response } = await getCalculateFolios(sucursal, promMensual);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/general/databases/:sucursal/information").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { status, response } = await getInformationOfDataBases(sucursal);
     res.status(status).json(response);
 });
 

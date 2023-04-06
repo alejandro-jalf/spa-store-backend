@@ -19,6 +19,7 @@ const {
     createBackup,
     createZipBackup,
     uploadBackupToDrive,
+    getDataBasesOnServer,
 } = require('../models');
 
 const ServicesGeneral = (() => {
@@ -123,13 +124,26 @@ const ServicesGeneral = (() => {
         return createResponse(200, response);
     }
 
+    const getInformationOfDataBases = async (sucursal) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+
+        const response = await getDataBasesOnServer(conexion);
+        if (!response.success) return createResponse(400, response);
+
+        return createResponse(200, response);
+    }
+
     return {
         getStatusConections,
         getCalculateFolios,
         updateFoliosAvailable,
         generateBackup,
         zipBackup,
-        uploadBackup
+        uploadBackup,
+        getInformationOfDataBases,
     }
 })();
 
