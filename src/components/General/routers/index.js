@@ -5,6 +5,7 @@ const {
     updateFoliosAvailable,
     generateBackup,
     zipBackup,
+    uploadBackup,
 } = require("../services");
 
 router.route("/api/v1/general/:empresa/conexiones/activas").get(async (req, res) => {
@@ -38,6 +39,13 @@ router.route("/api/v1/general/backup/:sucursal/zip").put(async (req, res) => {
     const { sucursal } = req.params;
     const { source } = req.query;
     const { status, response } = await zipBackup(sucursal, source);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/general/backup/:sucursal/upload").put(async (req, res) => {
+    const { sucursal } = req.params;
+    const { source, nameFile } = req.query;
+    const { status, response } = await uploadBackup(source, nameFile, sucursal);
     res.status(status).json(response);
 });
 

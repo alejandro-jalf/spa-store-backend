@@ -105,12 +105,37 @@ const modelsGeneral = (() => {
         }
     }
 
+    const uploadBackupToDrive = async (cadenaConexion = '', source, nameFile, sucursal) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion, 300000);
+            const result = await accessToDataBase.query(
+                `EXEC sp_configure 'show advanced options', 1
+                RECONFIGURE
+                EXEC sp_configure 'xp_cmdshell', 1
+                RECONFIGURE
+                
+                EXEC xp_cmdshell 'node C:\\APP\\loadbackups\\src\\uploadBackup\\index.js ${source}%${nameFile}%${sucursal}'
+                
+                EXEC sp_configure 'xp_cmdshell', 0
+                RECONFIGURE
+                EXEC sp_configure 'show advanced options', 0
+                RECONFIGURE`,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de subir respaldo', result);
+        } catch (error) {
+            return createContentError('Fallo al intentar subir el respaldo a google drive', error);
+        }
+    }
+
     return {
         testConnection,
         calculaFoliosSucursal,
         updateFoliosSucursal,
         createBackup,
         createZipBackup,
+        uploadBackupToDrive,
     }
 })();
 
