@@ -161,7 +161,7 @@ const modelsGeneral = (() => {
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
-            return createContentAssert('Resultado de subir respaldo', result);
+            return createContentAssert('Resultado de subir respaldo', result[0]);
         } catch (error) {
             return createContentError('Fallo al intentar subir el respaldo a google drive', error);
         }
