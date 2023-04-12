@@ -133,6 +133,15 @@ const ServicesGeneral = (() => {
         const response = await getDataBasesOnServer(conexion);
         if (!response.success) return createResponse(400, response);
 
+        response.data.forEach((db) => {
+            db.IsSupporting = false;
+            db.resultBackup = {};
+            db.resultZip = {};
+            db.resultUpload = {};
+            db.progress = 0;
+            db.message = '';
+        });
+
         return createResponse(200, response);
     }
 

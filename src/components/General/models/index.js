@@ -152,7 +152,8 @@ const modelsGeneral = (() => {
                     (SELECT sum(size) FROM fs WHERE type = 0 AND fs.database_id = db.database_id) DataFileSizeMB,
                     (SELECT sum(size) FROM fs WHERE type = 1 AND fs.database_id = db.database_id) LogFileSizeMB,
                     state_desc AS Estatus,
-                    L.Fecha AS LastBackup
+                    L.Fecha AS LastBackup,
+                    IsSupporting = 1
                 FROM sys.databases db
                 LEFT JOIN lastBackup AS L ON L.database_name = db.name
                 WHERE database_id > 4
