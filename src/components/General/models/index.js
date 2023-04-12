@@ -160,12 +160,31 @@ const modelsGeneral = (() => {
                 WHERE database_id > 4
                 ORDER BY DataFileSizeMB DESC
                 `,
-                QueryTypes.UPDATE
+                QueryTypes.SELECT
             );
             dbmssql.closeConexion();
             return createContentAssert('Informacion de las bases de datos', result[0]);
         } catch (error) {
-            return createContentError('Fallo al intentar subir el respaldo a google drive', error);
+            return createContentError('Fallo al intentar obtener la informacion de las bases de datos', error);
+        }
+    }
+
+    const getDataFilesBD = async (cadenaConexion = '', dataBase) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion, 30000);
+            const result = await accessToDataBase.query(
+                `
+                USE ${dataBase};
+                SELECT
+                    file_id, name, type_desc, physical_name, size/128.0 sizeInMB, max_size  
+                FROM sys.database_files;  
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Informacion de los archivos de la base de datos: ' + dataBase, result[0]);
+        } catch (error) {
+            return createContentError('Fallo al intentar obtener informacion de los archivos fisicos de las base de datos', error);
         }
     }
 
@@ -177,6 +196,7 @@ const modelsGeneral = (() => {
         createZipBackup,
         uploadBackupToDrive,
         getDataBasesOnServer,
+        getDataFilesBD,
     }
 })();
 

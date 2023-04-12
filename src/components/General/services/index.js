@@ -20,6 +20,7 @@ const {
     createZipBackup,
     uploadBackupToDrive,
     getDataBasesOnServer,
+    getDataFilesBD,
 } = require('../models');
 
 const ServicesGeneral = (() => {
@@ -133,16 +134,21 @@ const ServicesGeneral = (() => {
         const response = await getDataBasesOnServer(conexion);
         if (!response.success) return createResponse(400, response);
 
-        response.data.forEach((db) => {
+        const dataFiles = response.data.map(async (db) => {
             db.IsSupporting = false;
             db.resultBackup = {};
             db.resultZip = {};
             db.resultUpload = {};
             db.progress = 0;
             db.message = '';
+            const responseFiles = db.Estatus === 'ONLINE' ? await getDataFilesBD(conexion, db.DataBaseName) : {};
+            db.dataFiles = responseFiles;
+            return db;
         });
 
-        return createResponse(200, response);
+        const results = await Promise.all(dataFiles);
+
+        return createResponse(200, createContentAssert('Resultados de informacion', results));
     }
 
     return {
