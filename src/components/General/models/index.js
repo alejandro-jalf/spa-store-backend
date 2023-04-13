@@ -5,7 +5,7 @@ const {
     createContentError
 } = require('../../../utils');
 
-const modelsGeneral = (() => {
+const ModelsGeneral = (() => {
     const testConnection = async (cadenaConexion = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -198,6 +198,32 @@ const modelsGeneral = (() => {
         }
     }
 
+    const reduceLog = async (cadenaConexion = '', dataBase, nameLog) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion, 30000);
+            const result = await accessToDataBase.query(
+                `
+                USE ${dataBase};
+                CHECKPOINT;
+                CHECKPOINT;
+
+                ALTER DATABASE ${dataBase}
+                SET RECOVERY SIMPLE;
+
+                DBCC SHRINKFILE (N'${nameLog}', 10);
+
+                ALTER DATABASE ${dataBase}
+                SET RECOVERY FULL;
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultados de reduccion de log en: ' + dataBase, result[0]);
+        } catch (error) {
+            return createContentError('Fallo al intentar reducir el log de la base de datos: ' + dataBase, error);
+        }
+    }
+
     return {
         testConnection,
         calculaFoliosSucursal,
@@ -207,7 +233,8 @@ const modelsGeneral = (() => {
         uploadBackupToDrive,
         getDataBasesOnServer,
         getDataFilesBD,
+        reduceLog,
     }
 })();
 
-module.exports = modelsGeneral;
+module.exports = ModelsGeneral;

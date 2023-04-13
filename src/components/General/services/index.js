@@ -21,6 +21,7 @@ const {
     uploadBackupToDrive,
     getDataBasesOnServer,
     getDataFilesBD,
+    reduceLog,
 } = require('../models');
 
 const ServicesGeneral = (() => {
@@ -141,6 +142,7 @@ const ServicesGeneral = (() => {
                     db.resultBackup = {};
                     db.resultZip = {};
                     db.resultUpload = {};
+                    db.resultReduceLog = {};
                     db.progress = 0;
                     db.message = '';
                     const responseFiles = db.Estatus === 'ONLINE' ? await getDataFilesBD(conexion, db.DataBaseName) : {};
@@ -165,6 +167,22 @@ const ServicesGeneral = (() => {
         }
     }
 
+    const reduceLogOf = async (sucursal, dataBase, nameLog) => {
+        try {
+            let validate = validateSucursal(sucursal);
+            if (!validate.success) return createResponse(400, validate);
+
+            const conexion = getConnectionFrom(sucursal);
+
+            const response = await reduceLog(conexion, dataBase, nameLog);
+            if (!response.success) return createResponse(400, response);
+    
+            return createResponse(200, response);
+        } catch (error) {
+            return createContentError('Fallo al intentar reducir el tamaño del log', error)
+        }
+    }
+
     return {
         getStatusConections,
         getCalculateFolios,
@@ -173,6 +191,7 @@ const ServicesGeneral = (() => {
         zipBackup,
         uploadBackup,
         getInformationOfDataBases,
+        reduceLogOf,
     }
 })();
 
