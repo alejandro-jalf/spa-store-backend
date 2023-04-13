@@ -134,6 +134,16 @@ const modelsGeneral = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion, 30000);
             const result = await accessToDataBase.query(
                 `
+                USE master
+                SELECT DISTINCT
+                    SUBSTRING(volume_mount_point, 1, 1) AS Disco,
+                    total_bytes/1024/1024/1024 AS total_GB,
+                    available_bytes/1024/1024/1024 AS Disponible_GB,
+                    ISNULL(ROUND(available_bytes / CAST(NULLIF(total_bytes, 0) AS FLOAT) * 100, 2), 0) as Porcentaje_Disponible
+                FROM
+                    sys.master_files AS f
+                CROSS APPLY
+                    sys.dm_os_volume_stats(f.database_id, f.file_id);
                 WITH fs
                 AS
                 (

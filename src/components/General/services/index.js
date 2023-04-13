@@ -126,29 +126,43 @@ const ServicesGeneral = (() => {
     }
 
     const getInformationOfDataBases = async (sucursal) => {
-        let validate = validateSucursal(sucursal);
-        if (!validate.success) return createResponse(400, validate);
+        try {
+            let validate = validateSucursal(sucursal);
+            if (!validate.success) return createResponse(400, validate);
 
-        const conexion = getConnectionFrom(sucursal);
+            const conexion = getConnectionFrom(sucursal);
 
-        const response = await getDataBasesOnServer(conexion);
-        if (!response.success) return createResponse(400, response);
+            const response = await getDataBasesOnServer(conexion);
+            if (!response.success) return createResponse(400, response);
 
-        const dataFiles = response.data.map(async (db) => {
-            db.IsSupporting = false;
-            db.resultBackup = {};
-            db.resultZip = {};
-            db.resultUpload = {};
-            db.progress = 0;
-            db.message = '';
-            const responseFiles = db.Estatus === 'ONLINE' ? await getDataFilesBD(conexion, db.DataBaseName) : {};
-            db.dataFiles = responseFiles;
-            return db;
-        });
+            const dataFiles = response.data.map(async (db) => {
+                if (!db.Disco) {
+                    db.IsSupporting = false;
+                    db.resultBackup = {};
+                    db.resultZip = {};
+                    db.resultUpload = {};
+                    db.progress = 0;
+                    db.message = '';
+                    const responseFiles = db.Estatus === 'ONLINE' ? await getDataFilesBD(conexion, db.DataBaseName) : {};
+                    db.dataFiles = responseFiles;
+                }
+                return db;
+            });
 
-        const results = await Promise.all(dataFiles);
+            const results = await Promise.all(dataFiles);
+            let detailsHD = {};
+            const filtersResults = results.filter((data) => {
+                if (data.Disco) detailsHD = data;
+                else return data
+            })
 
-        return createResponse(200, createContentAssert('Resultados de informacion', results));
+            const responseFinal = createContentAssert('Resultados de informacion', filtersResults)
+            responseFinal.detailsHD = detailsHD;
+
+            return createResponse(200, responseFinal);
+        } catch (error) {
+            return createContentError('Fallo al intentar obtener datos de las bases de datos', error)
+        }
     }
 
     return {
