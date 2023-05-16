@@ -14,9 +14,11 @@ const {
     getTransferenciasToday,
     getArticlesByTranfer,
     getArticleByCreateAt,
+    getListRevisionCosto,
+    updateListCosto,
 } = require('../models');
 const {
-    validateDate
+    validateDate, validateListCost
 } = require('../validations');
 
 const servicesConsolidaciones = (() => {
@@ -212,10 +214,50 @@ const servicesConsolidaciones = (() => {
         return article;
     }
 
+    const getListCostTransfers = async (sucursal = '', date = '') => {
+        sucursal = sucursal.trim().toLocaleUpperCase();
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+        
+        validate = validateDate(date);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+
+        const response = await getListRevisionCosto(conexion, sucursal, date);
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
+    const updateCostsTranfers = async (sucursal = '', listCostos) => {
+        sucursal = sucursal.trim().toLocaleUpperCase();
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+        
+        validate = validateListCost(listCostos);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        let whenLastCost = '';
+        let articles = '';
+
+        listCostos.forEach((costo, position) => {
+            whenLastCost += `\nWHEN '${costo.Article}' THEN ${costo.CostoUnitario}`;
+            if (position > 0) articles += ',';
+            articles += `'${costo.Article}'`;
+        });
+
+        const response = await updateListCosto(conexion, sucursal, whenLastCost, articles);
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
     return {
         getArticlesOfConsolidacion,
         getConsolidacionesForDate,
         getConsolidacionByCreateAt,
+        getListCostTransfers,
+        updateCostsTranfers,
     }
 })();
 

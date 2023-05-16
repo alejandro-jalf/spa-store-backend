@@ -147,11 +147,72 @@ const modelsConsolidaciones = (() => {
         }
     }
 
+    const getListRevisionCosto = async (cadenaConexion = '', sucursal = '', fecha = '20221206') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Fecha datetime = CAST('${fecha}' AS datetime);
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                
+                SELECT
+                    Fecha, Documento, D.Articulo, D.Nombre, CostoUnitario, UltimoCosto,
+                    Diferencia = ABS(D.CostoUnitario-L.UltimoCosto)
+                FROM QVDEMovAlmacen D
+                LEFT JOIN QVExistencias L ON D.Articulo = L.Articulo AND @Tienda = L.Tienda AND @Almacen = L.Almacen
+                WHERE D.Fecha = @Fecha AND D.TipoDocumento = 'A' AND D.Almacen = @Almacen
+                ORDER BY Fecha,Documento DESC,D.Articulo
+                `,
+                QueryTypes.SELECT
+            );
+            return createContentAssert('Lista de costos por transferencias', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la Lista de costos por transferencias de ' + sucursal,
+                error
+            );
+        }
+    }
+
+    const updateListCosto = async (cadenaConexion = '', sucursal = '', whenLastCost = '', listArticles = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+
+                UPDATE Existencias 
+                SET UltimoCosto = CASE Articulo
+                        ${whenLastCost}
+                        ELSE UltimoCosto END,
+                    CostoPromedio = CASE Articulo
+                        ${whenLastCost}
+                        ELSE CostoPromedio END
+                WHERE Almacen = @Almacen AND Articulo IN (${listArticles});
+                `,
+                QueryTypes.UPDATE
+            );
+            return createContentAssert('Costos actualizados', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar los costos de ' + sucursal,
+                error
+            );
+        }
+    }
+
     return {
         getArticlesByTranfer,
         getTransferenciasToday,
         getEntradasToday,
         getArticleByCreateAt,
+        getListRevisionCosto,
+        updateListCosto,
     }
 })();
 

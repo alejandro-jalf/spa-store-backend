@@ -2,7 +2,7 @@ const {
     createContentAssert,
     createContentError,
 } = require('../../../utils');
-const { schemaFecha } = require('../schemas')
+const { schemaFecha, schemaBodyListCost } = require('../schemas')
 
 const validationConsolidaciones = (() => {
 
@@ -14,8 +14,20 @@ const validationConsolidaciones = (() => {
         return createContentAssert('Fecha correcta');
     }
 
+    const validateListCost = (bodyListCost = []) => {
+        if (bodyListCost.length === 0)
+            return createContentError('No hay datos para actualizar');
+
+        const resultValidate = schemaBodyListCost.validate(bodyListCost);
+        if (resultValidate.error)
+            return createContentError('Deberia ser un arreglo con Articulo y CostoUnitario', resultValidate.error);
+
+        return createContentAssert('Lista de datos correctos');
+    }
+
     return {
         validateDate,
+        validateListCost,
     }
 })();
 
