@@ -22,6 +22,7 @@ const {
     getDataBasesOnServer,
     getDataFilesBD,
     reduceLog,
+    getFacturas,
 } = require('../models');
 
 const ServicesGeneral = (() => {
@@ -183,6 +184,23 @@ const ServicesGeneral = (() => {
         }
     }
 
+    const getFacturasBySucursal = async (sucursal, dateStart, dateEnd) => {
+        try {
+            let validate = validateSucursal(sucursal);
+            if (!validate.success) return createResponse(400, validate);
+
+            const conexion = getConnectionFrom(sucursal);
+
+            const response = await getFacturas(conexion, dateStart, dateEnd);
+            if (!response.success) return createResponse(400, response);
+
+            // console.log(response);
+            return createResponse(200, response);
+        } catch (error) {
+            return createContentError('Fallo al intentar obtener las facturas de la sucursal: ' + sucursal, error)
+        }
+    }
+
     return {
         getStatusConections,
         getCalculateFolios,
@@ -192,6 +210,7 @@ const ServicesGeneral = (() => {
         uploadBackup,
         getInformationOfDataBases,
         reduceLogOf,
+        getFacturasBySucursal,
     }
 })();
 

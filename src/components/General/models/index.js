@@ -224,6 +224,32 @@ const ModelsGeneral = (() => {
         }
     }
 
+    const getFacturas = async (cadenaConexion = '', dateStart = '', dateEnd = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion, 30000);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @fechaInicial DATETIME = CAST('${dateStart}' AS DATETIME);
+                DECLARE @fechaFinal DATETIME = CAST('${dateEnd}' AS DATETIME);
+
+                SELECT
+                    R_RFC, Tercero, C.Nombre, MDocumento, TipoC, Tienda, Serie, Folio,
+                    Fecha, Subtotal, IVA, F.Descuento, Total, Estado, EdoTimbre
+                FROM MaestroFacturas AS F
+                INNER JOIN Clientes AS C ON C.Cliente = F.Tercero
+                WHERE Fecha >= @fechaInicial AND Fecha <= @fechaFinal
+                ORDER BY Fecha;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            console.log(result[0].length);
+            return createContentAssert('Facturas de la sucursal ', result[0]);
+        } catch (error) {
+            return createContentError('Fallo al intentar obtener las facturas de: ', error);
+        }
+    }
+
     return {
         testConnection,
         calculaFoliosSucursal,
@@ -234,6 +260,7 @@ const ModelsGeneral = (() => {
         getDataBasesOnServer,
         getDataFilesBD,
         reduceLog,
+        getFacturas,
     }
 })();
 
