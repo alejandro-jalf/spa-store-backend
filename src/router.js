@@ -11,5 +11,6 @@ router.use(require("./components/Pedidos/routers"));
 router.use(require("./components/Proveedores/routers"));
 router.use(require("./components/Mayoristas/routers"));
 router.use(require("./components/Usuarios/routers"));
+router.use(require("./components/SolicitudArticulos/routers"));
 
 module.exports = router;

@@ -9,7 +9,8 @@ const {
 } = require('../services')
 
 router.route("/api/v1/solicitud/articulos").get(async (req, res) => {
-    const { status, response } = await getRequestArticles();
+    const { sucursal } = req.query;
+    const { status, response } = await getRequestArticles(sucursal);
     res.status(status).json(response);
 });
 

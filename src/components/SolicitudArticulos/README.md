@@ -6,7 +6,7 @@ Componente para controlar el backend de la aplicacion de solicitud de articulos
 
 | **Metodo** | **Ruta** | **Request** | **Descripcion** |
 |------------|----------|-------------|-----------------|
-| **GET** | _/api/v1/solicitud/articulos_ | | Obtiene una lista de articulos solicitados como maximo 200 |
+| **GET** | _/api/v1/solicitud/articulos_ | query = { sucursal: '' } | Obtiene una lista de articulos solicitados como maximo 200 |
 | **GET** | _/api/v1/solicitud/articulos/:uuid_ |  | Obtiene detalles de un articulo solicitado |
 | **POST** | _/api/v1/solicitud/articulos/:sucursal_ | body = { CreadoPor: '' } | Crea una nueva solicitud de articulo |
 | **PUT** | _/api/v1/solicitud/articulos/:uuid/update_ | body = { CodigoBarra: '', Nombre: '', IVA: 0, Ieps: 0, TazaIeps: 0.0, TipoModelo: '', Marca: '', Presentacion: '', UnidadMedida: '', UnidadCompra: '', FactorCompra, FactorCompra: 0.0, UnidadVenta: '', FactorVenta: 0.0, ActualizadoPor: '', } | Actualiza los datos de la solicitud |

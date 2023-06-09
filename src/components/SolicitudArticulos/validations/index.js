@@ -5,19 +5,21 @@ const validationPedidos = (() => {
 
     const validateSucursal = (sucursal = '') => {
         if (
+            sucursal.toUpperCase() !== 'ALL' &&
             sucursal.toUpperCase() !== 'ZR' &&
             sucursal.toUpperCase() !== 'VC' &&
-            sucursal.toUpperCase() !== 'OU' &&
-            sucursal.toUpperCase() !== 'JL' &&
-            sucursal.toUpperCase() !== 'SU' &&
-            sucursal.toUpperCase() !== 'SY' &&
-            sucursal.toUpperCase() !== 'SU' &&
-            sucursal.toUpperCase() !== 'MA' &&
-            sucursal.toUpperCase() !== 'RE' &&
             sucursal.toUpperCase() !== 'ER' &&
+            sucursal.toUpperCase() !== 'OU' &&
+            sucursal.toUpperCase() !== 'SY' &&
+            sucursal.toUpperCase() !== 'JL' &&
             sucursal.toUpperCase() !== 'BO'
         ) return createContentError('La sucursal no es valida');
         return createContentAssert('Sucursal valida');
+    }
+
+    const validateCreatedBy = (nameCreated = '') => {
+        if (nameCreated.trim() === '') return createContentError('El nombre de quien crea la solicitud no debe de estar vacio');
+        return createContentAssert('Nombre valido');
     }
 
     const validateBodyUpdateRequest = (bodyRequest = {}) => {
@@ -43,6 +45,7 @@ const validationPedidos = (() => {
         validateSucursal,
         validateStatusRequest,
         validateBodyUpdateRequest,
+        validateCreatedBy,
     }
 })();
 

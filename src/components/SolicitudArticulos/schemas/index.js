@@ -13,7 +13,7 @@ const schemasPedidos = (() => {
         Presentacion: joi.number().required(),
         UnidadMedida: joi.string().min(0).max(3).required(),
         UnidadCompra: joi.string().min(0).max(3).required(),
-        FactorCompra: joi.number.required(),
+        FactorCompra: joi.number().required(),
         UnidadVenta: joi.string().min(0).max(3).required(),
         FactorVenta: joi.number().required(),
         ActualizadoPor: joi.string().max(40).required(),

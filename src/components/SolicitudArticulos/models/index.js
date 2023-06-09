@@ -6,11 +6,11 @@ const {
 } = require('../../../utils');
 
 const modelsPedidos = (() => {
-    const getSolicitudes = async (cadenaConexion = '') => {
+    const getSolicitudesAll = async (cadenaConexion = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                'SELECT TOP 200 * FROM SolicitudArticulos;',
+                'USE CA2015; SELECT TOP 100 * FROM SolicitudArticulos ORDER BY FechaCreado DESC;',
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
@@ -23,11 +23,31 @@ const modelsPedidos = (() => {
         }
     }
 
+    const getSolicitudesBySuc = async (cadenaConexion = '', sucursal = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `USE CA2015;
+                SELECT TOP 100 * FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' ORDER BY FechaCreado DESC;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Lista de solicitudes por sucursal', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la Lista de solicitudes por sucursal',
+                error
+            );
+        }
+    }
+
     const getArticuloSolicitado = async (cadenaConexion = '', uuid) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE CA2015;
                 SELECT * FROM SolicitudArticulos WHERE UUID = '${uuid}}';
                 `,
                 QueryTypes.SELECT
@@ -47,6 +67,7 @@ const modelsPedidos = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE CA2015;
                 DECLARE @Consecutivo int = (SELECT TOP 1 Consecutivo FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' ORDER BY Consecutivo DESC)
                 DECLARE @NewConsecutivo int = ISNULL(@Consecutivo, 0);
 
@@ -80,6 +101,7 @@ const modelsPedidos = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE CA2015;
                 UPDATE SolicitudArticulos SET
                     CodigoBarra = '${CodigoBarra}', Nombre = '${Nombre}', IVA = ${IVA}, Ieps = ${Ieps},
                     TazaIeps = ${TazaIeps}, TipoModelo = '${TipoModelo}', Marca = '${Marca}', Presentacion = ${Presentacion},
@@ -91,7 +113,7 @@ const modelsPedidos = (() => {
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
-            return createContentAssert('Resultado de actualizacion', result[0]);
+            return createContentAssert('Resultado de actualizacion', result);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar actualizar los datos de la solicitud',
@@ -105,6 +127,7 @@ const modelsPedidos = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
+                USE CA2015;
                 UPDATE SolicitudArticulos SET
                     Estatus = '${estatus}', Articulo = '${Articulo}'
                 WHERE UUID = '${uuid}';
@@ -125,7 +148,7 @@ const modelsPedidos = (() => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `DELTE FROM SolicitudArticulos WHERE UUID = '${uuid}' AND Estatus = 'CANCELADO';`,
+                `USE CA2015; DELTE FROM SolicitudArticulos WHERE UUID = '${uuid}' AND Estatus = 'CANCELADO';`,
                 QueryTypes.DELETE
             );
             dbmssql.closeConexion();
@@ -139,7 +162,8 @@ const modelsPedidos = (() => {
     }
 
     return {
-        getSolicitudes,
+        getSolicitudesAll,
+        getSolicitudesBySuc,
         getArticuloSolicitado,
         createSolicitud,
         updateSolicitud,
