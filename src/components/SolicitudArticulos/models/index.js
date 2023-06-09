@@ -6,154 +6,65 @@ const {
 } = require('../../../utils');
 
 const modelsPedidos = (() => {
-    const getOrdersSuggestedOld = async (cadenaConexion = '', sucursal= '', hostDatabase = '') => {
+    const getSolicitudes = async (cadenaConexion = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `
-                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
-
-                SELECT
-                    Tienda,Almacen,DescripcionSubfamilia,
-                    Articulo,Nombre,StockMinimo,
-                    tipoRotacion,estatusRotacion,FactorCompra,FactorVenta,
-                    ExistLoc,ExistExt,tipoSugerido, CalculoRotacion,
-                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta
-                FROM (
-                SELECT
-                    A.Tienda,A.Almacen,A.Subfamilia,A.DescripcionSubfamilia,
-                    A.Articulo,A.Nombre,A.StockMinimo,
-                    CalculoRotacion =
-                        CASE
-                            WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN ((A.StockMinimo / 30)*3)
-                            WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN ((A.StockMinimo / 30)*7)
-                            ELSE ((A.StockMinimo / 30)*15)
-                        END,
-                    --CalculoRotacionMedia = ((A.StockMinimo / 30)*7),
-                    --CalculoRotacionBaja = ((A.StockMinimo / 30)*15),
-                    tipoRotacion =
-                        CASE
-                            WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 0 
-                            WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 1
-                            ELSE 2
-                        END,
-                    estatusRotacion =
-                        CASE
-                            WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 'ROTACION ALTA' 
-                            WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 'ROTACION MEDIA'  
-                            ELSE 'ROTACION BAJA' 
-                        END,
-                    A.FactorCompra,A.FactorVenta,A.UnidadCompra,A.UnidadVenta,
-                    ExistLoc = A.ExistenciaActualRegular,ExistExt = B.ExistenciaActualRegular,
-                    tipoSugerido =
-                        CASE
-                            WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 
-                                CASE WHEN CEILING( ((((A.StockMinimo / 30)*3) - A.ExistenciaActualRegular) / A.FactorVenta) ) > 0 THEN CEILING( ((((A.StockMinimo / 30)*3) - A.ExistenciaActualRegular) / A.FactorVenta) ) ELSE 0 END
-                            WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 
-                                CASE WHEN CEILING( ((((A.StockMinimo / 30)*7) - A.ExistenciaActualRegular) / A.FactorVenta) ) > 0 THEN CEILING( ((((A.StockMinimo / 30)*7) - A.ExistenciaActualRegular) / A.FactorVenta) ) ELSE 0 END
-                            ELSE 
-                                CASE WHEN CEILING( ((((A.StockMinimo / 30)*15) - A.ExistenciaActualRegular) / A.FactorVenta) ) > 0 THEN CEILING( ((((A.StockMinimo / 30)*15) - A.ExistenciaActualRegular) / A.FactorVenta) ) ELSE 0 END
-                        END
-                FROM ${hostDatabase}.dbo.QVExistencias A
-                LEFT JOIN (
-                    SELECT
-                        Articulo,ExistenciaActualRegular
-                    FROM QVExistencias
-                    WHERE Tienda = 6 AND Almacen = 21
-                        AND Articulo IN (SELECT Articulo FROM Catalogo WHERE Tienda = 6 AND Baja = 0)
-                        AND ExistenciaActualRegular > 0
-                ) B ON B.Articulo COLLATE Modern_Spanish_CI_AS = A.Articulo
-                WHERE A.Tienda = @Tienda AND A.Almacen = @Almacen
-                    AND A.Articulo IN (SELECT Articulo FROM ${hostDatabase}.dbo.Catalogo WHERE Tienda = @Tienda AND Baja = 0)
-                    AND B.ExistenciaActualRegular IS NOT NULL
-                    AND A.StockMinimo > A.ExistenciaActualRegular
-                    AND A.ExistenciaActualRegular  < B.ExistenciaActualRegular
-                    --AND (A.StockMinimo / 4) > A.ExistenciaActualRegular
-                ) AS Tabla
-                WHERE tipoSugerido > 0
-                ORDER BY Subfamilia,tipoRotacion,tipoSugerido DESC,Articulo
-                `,
+                'SELECT TOP 200 * FROM SolicitudArticulos;',
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Pedido sujerido', result[0]);
+            return createContentAssert('Lista de solicitudes', result[0]);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener el pedido sujerido',
+                'Fallo la conexion con base de datos al intentar obtener la Lista de solicitudes',
                 error
             );
         }
     }
 
-    const getOrdersSuggested = async (cadenaConexion = '', sucursal= '', hostDatabase = '') => {
+    const getArticuloSolicitado = async (cadenaConexion = '', uuid) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
-                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
-
-                WITH cteExistenciaBodega (Almacen,Tienda,DescripcionSubfamilia,Articulo,Nombre,FactorCompra,FactorVenta,ExistExt, UnidadCompra, UnidadVenta)
-                AS (
-                    SELECT
-                        Almacen,Tienda,DescripcionSubfamilia,Articulo,Nombre,FactorCompra,FactorVenta,ExistExt = ExistenciaActualRegular, UnidadCompra, UnidadVenta
-                    FROM QVExistencias
-                    WHERE Almacen = 21 AND Tienda = 6 AND ExistenciaActualRegular > 0
-                )
-
-                SELECT
-                    *
-                FROM (
-
-                    SELECT 
-                        Tienda = @Tienda,Almacen = @Almacen,
-                        B.DescripcionSubfamilia,B.Articulo,B.Nombre,A.StockMinimo,
-                        Relacion = CAST(CAST(B.FactorCompra AS int) AS nvarchar) + B.UnidadCompra + '/' + CAST(CAST(B.FactorVenta AS int) AS nvarchar) + B.UnidadVenta,
-                        tipoRotacion = 
-                            CASE 
-                                WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 0 
-                                WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 1
-                                ELSE 2
-                            END,
-                        estatusRotacion = 
-                            CASE 
-                                WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 'ROTACION ALTA' 
-                                WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 'ROTACION MEDIA'  
-                                ELSE 'ROTACION BAJA' 
-                            END,
-                        B.FactorCompra,B.FactorVenta,ExitLoc = A.ExistenciaActualRegular,B.ExistExt,
-                        tipoSugerido = 
-                            CASE 
-                                WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 
-                                    CASE WHEN CEILING( ((((A.StockMinimo / 30)*3) - A.ExistenciaActualRegular) / A.FactorVenta) ) > 0 THEN CEILING( ((((A.StockMinimo / 30)*3) - A.ExistenciaActualRegular) / A.FactorVenta) ) ELSE 0 END
-                                WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 
-                                    CASE WHEN CEILING( ((((A.StockMinimo / 30)*7) - A.ExistenciaActualRegular) / A.FactorVenta) ) > 0 THEN CEILING( ((((A.StockMinimo / 30)*7) - A.ExistenciaActualRegular) / A.FactorVenta) ) ELSE 0 END
-                                ELSE 
-                                    CASE WHEN CEILING( ((((A.StockMinimo / 30)*15) - A.ExistenciaActualRegular) / A.FactorVenta) ) > 0 THEN CEILING( ((((A.StockMinimo / 30)*15) - A.ExistenciaActualRegular) / A.FactorVenta) ) ELSE 0 END
-                            END,
-                        CalculoRotacion = 
-                            CASE 
-                                WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN ((A.StockMinimo / 30)*3)
-                                WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN ((A.StockMinimo / 30)*7)
-                                ELSE ((A.StockMinimo / 30)*15)
-                            END
-                    FROM cteExistenciaBodega B
-                    LEFT JOIN ${hostDatabase}.dbo.QVExistencias A
-                        ON A.Articulo COLLATE Modern_Spanish_CI_AS = B.Articulo AND A.Almacen = @Almacen AND A.Tienda = @Tienda
-                ) AS T
-                WHERE tipoSugerido > 0 OR StockMinimo IS NULL
-                ORDER BY DescripcionSubfamilia,tipoRotacion,tipoSugerido DESC,Articulo
+                SELECT * FROM SolicitudArticulos WHERE UUID = '${uuid}}';
                 `,
                 QueryTypes.SELECT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Pedido sugerido', result[0]);
+            return createContentAssert('articulo solicitado', result[0]);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener el pedido sugerido',
+                'Fallo la conexion con base de datos al intentar obtener la articulo solicitado',
+                error
+            );
+        }
+    }
+
+    const createSolicitud = async (cadenaConexion = '', sucursal= '', CreadoPor = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Consecutivo int = (SELECT TOP 1 Consecutivo FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' ORDER BY Consecutivo DESC)
+                DECLARE @NewConsecutivo int = ISNULL(@Consecutivo, 0);
+
+                INSERT INTO SolicitudArticulos(
+                    Consecutivo, Sucursal, FechaCreado, CodigoBarra, Articulo, Nombre, IVA, Ieps, TazaIeps, TipoModelo, Marca, Presentacion,
+                    UnidadMedida, UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, CreadoPor, FechaActualizado, ActualizadoPor
+                ) VALUES (
+                    @NewConsecutivo + 1, '${sucursal}', GETDATE(), '', '', '', 0, 0, 0, '', '', 0, '', '', 0, '', 0, '${CreadoPor}', GETDATE(), '${CreadoPor}'
+                );
+                SELECT *  FROM SolicitudArticulos WHERE Sucursal = 'Zaragoza' AND Consecutivo = @NewConsecutivo + 1;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Crear solicitud', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener el Crear solicitud',
                 error
             );
         }
