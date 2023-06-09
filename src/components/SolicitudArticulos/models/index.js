@@ -56,12 +56,13 @@ const modelsPedidos = (() => {
                 ) VALUES (
                     @NewConsecutivo + 1, '${sucursal}', GETDATE(), '', '', '', 0, 0, 0, '', '', 0, '', '', 0, '', 0, '${CreadoPor}', GETDATE(), '${CreadoPor}'
                 );
-                SELECT *  FROM SolicitudArticulos WHERE Sucursal = 'Zaragoza' AND Consecutivo = @NewConsecutivo + 1;
+                SELECT *  FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' AND Consecutivo = @NewConsecutivo + 1;
                 `,
-                QueryTypes.SELECT
+                QueryTypes.UPSERT
             );
             dbmssql.closeConexion();
-            return createContentAssert('Crear solicitud', result[0]);
+            console.log(result);
+            return createContentAssert('Datos de solicitud nueva', result[0]);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar obtener el Crear solicitud',
@@ -70,19 +71,30 @@ const modelsPedidos = (() => {
         }
     }
 
-    const getPedidosEnBodega = async (cadenaConexion = '', database = 'SPASUC2021') => {
+    const updateSolicitud = async (cadenaConexion = '', uuid = '', body = {}) => {
         try {
+            const {
+                CodigoBarra, Articulo, Nombre, IVA, Ieps, TazaIeps, TipoModelo, Marca, Presentacion,
+                UnidadMedida, UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, ActualizadoPor
+            } = body;
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `USE ${database}
-                EXECUTE ListaPedidosBodega`,
-                QueryTypes.SELECT
+                `
+                UPDATE SolicitudArticulos SET
+                    CodigoBarra = '${CodigoBarra}', Articulo = '${Articulo}', Nombre = '${Nombre}', IVA = ${IVA}, Ieps = ${Ieps},
+                    TazaIeps = ${TazaIeps}, TipoModelo = '${TipoModelo}', Marca = '${Marca}', Presentacion = ${Presentacion},
+                    UnidadMedida = '${UnidadMedida}', UnidadCompra = '${UnidadCompra}', FactorCompra = ${FactorCompra},
+                    UnidadVenta = '${UnidadVenta}', FactorVenta = ${FactorVenta}, FechaActualizado = GETDATE(),
+                    ActualizadoPor  = '${ActualizadoPor}'
+                WHERE UUID = '${uuid}';
+                `,
+                QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
-            return createContentAssert('Datos encontrados en la base de datos', result[0]);
+            return createContentAssert('Resultado de actualizacion', result[0]);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener los pedidos en bodega',
+                'Fallo la conexion con base de datos al intentar actualizar los datos de la solicitud',
                 error
             );
         }
@@ -315,20 +327,10 @@ const modelsPedidos = (() => {
     }
 
     return {
-        getPedidosEnBodega,
-        getPedidosBySucursal,
-        getListaArticulosByArticulo,
-        getListaArticulosByNombre,
-        getListaArticulosByDias,
-        getReporteListaArticulos,
-        getListaArticulos,
-        addPedido,
-        addArticle,
-        sendPedido,
-        enProcesoPedido,
-        cancelPedido,
-        atendidoPedido,
-        getOrdersSuggested,
+        getSolicitudes,
+        getArticuloSolicitado,
+        createSolicitud,
+        updateSolicitud,
     }
 })();
 
