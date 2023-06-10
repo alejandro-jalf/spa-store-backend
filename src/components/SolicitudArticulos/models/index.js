@@ -135,7 +135,7 @@ const modelsPedidos = (() => {
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
-            return createContentAssert('Resultado de actualizar estatus', result[0]);
+            return createContentAssert('Resultado de actualizar estatus', result);
         } catch (error) {
             return createContentError(
                 'Fallo la conexion con base de datos al intentar actualizar el estatus de la solicitud',
@@ -148,7 +148,7 @@ const modelsPedidos = (() => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `USE CA2015; DELTE FROM SolicitudArticulos WHERE UUID = '${uuid}' AND Estatus = 'CANCELADO';`,
+                `USE CA2015; DELETE FROM SolicitudArticulos WHERE UUID = '${uuid}' AND Estatus = 'CANCELADO';`,
                 QueryTypes.DELETE
             );
             dbmssql.closeConexion();

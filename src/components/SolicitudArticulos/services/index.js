@@ -87,12 +87,25 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
+    const deleteRequest = async (uuid = '') => {
+        const response = await deleteSolicitud(conexionSol, uuid);
+
+        if (!response.success) return createResponse(400, response);
+        if (response.data[1] === 0)
+            return createResponse(
+                400,
+                createContentError('No se pudo eliminar la solicitud. Recuerde que para poder eliminar una solicitud tiene que estar cancelada')
+            )
+        return createResponse(200, response)
+    }
+
     return {
         getRequestArticles,
         getRequestArticle,
         createRequestArticle,
         updateRequestArticle,
         updateStatusRequest,
+        deleteRequest,
     }
 })();
 
