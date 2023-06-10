@@ -229,8 +229,8 @@ const ModelsGeneral = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion, 30000);
             const result = await accessToDataBase.query(
                 `
-                DECLARE @fechaInicial DATETIME = CAST('${dateStart}' AS DATETIME);
-                DECLARE @fechaFinal DATETIME = CAST('${dateEnd}' AS DATETIME);
+                DECLARE @fechaInicial DATETIME = CAST('${dateStart} 00:00:00.000' AS DATETIME);
+                DECLARE @fechaFinal DATETIME = CAST('${dateEnd} 23:59:59.999' AS DATETIME);
 
                 SELECT
                     R_RFC, Tercero, C.Nombre, MDocumento, TipoC, Tienda, Serie, Folio,
