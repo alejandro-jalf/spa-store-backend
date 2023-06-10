@@ -33,10 +33,10 @@ const validationPedidos = (() => {
         if (status.trim() === '') return createContentError('Se recibio estatus vacio');
         if (
             status.trim().toUpperCase() !== 'EN SUCURSAL' &&
-            status.trim().toUpperCase() !== 'EN PROCESO' &&
             status.trim().toUpperCase() !== 'ENVIADO' &&
-            status.trim().toUpperCase() !== 'CANCELADO' &&
-            status.trim().toUpperCase() !== 'ATENDIDO'
+            status.trim().toUpperCase() !== 'EN PROCESO' &&
+            status.trim().toUpperCase() !== 'ATENDIDO' &&
+            status.trim().toUpperCase() !== 'CANCELADO'
         ) return createContentError('Estatus invalido');
         return createContentAssert('Estatus correcto');
     }

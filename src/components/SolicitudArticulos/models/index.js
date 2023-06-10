@@ -73,9 +73,9 @@ const modelsPedidos = (() => {
 
                 INSERT INTO SolicitudArticulos(
                     Consecutivo, Sucursal, FechaCreado, CodigoBarra, Articulo, Nombre, IVA, Ieps, TazaIeps, TipoModelo, Marca, Presentacion,
-                    UnidadMedida, UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, CreadoPor, FechaActualizado, ActualizadoPor
+                    UnidadMedida, UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, CreadoPor, FechaActualizado, Estatus, ActualizadoPor
                 ) VALUES (
-                    @NewConsecutivo + 1, '${sucursal}', GETDATE(), '', '', '', 0, 0, 0, '', '', 0, '', '', 0, '', 0, '${CreadoPor}', GETDATE(), '${CreadoPor}'
+                    @NewConsecutivo + 1, '${sucursal}', GETDATE(), '', '', '', 0, 0, 0, '', '', 0, '', '', 0, '', 0, '${CreadoPor}', GETDATE(), 'EN SUCURSAL, '${CreadoPor}'
                 );
                 SELECT *  FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' AND Consecutivo = @NewConsecutivo + 1;
                 `,
