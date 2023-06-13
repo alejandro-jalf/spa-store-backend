@@ -48,7 +48,7 @@ const modelsPedidos = (() => {
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                SELECT * FROM SolicitudArticulos WHERE UUID = '${uuid}}';
+                SELECT * FROM SolicitudArticulos WHERE UUID = '${uuid}';
                 `,
                 QueryTypes.SELECT
             );
@@ -73,9 +73,9 @@ const modelsPedidos = (() => {
 
                 INSERT INTO SolicitudArticulos(
                     Consecutivo, Sucursal, FechaCreado, CodigoBarra, Articulo, Nombre, IVA, Ieps, TazaIeps, TipoModelo, Marca, Presentacion,
-                    UnidadMedida, UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, CreadoPor, FechaActualizado, Estatus, ActualizadoPor
+                    UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, CreadoPor, FechaActualizado, Estatus, ActualizadoPor
                 ) VALUES (
-                    @NewConsecutivo + 1, '${sucursal}', GETDATE(), '', '', '', 0, 0, 0, '', '', 0, '', '', 0, '', 0, '${CreadoPor}', GETDATE(), 'EN SUCURSAL, '${CreadoPor}'
+                    @NewConsecutivo + 1, '${sucursal}', GETDATE(), '', '', '', 0, 0, 0, '', '', '', '', 0, '', 0, '${CreadoPor}', GETDATE(), 'EN SUCURSAL', '${CreadoPor}'
                 );
                 SELECT *  FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' AND Consecutivo = @NewConsecutivo + 1;
                 `,
@@ -104,8 +104,8 @@ const modelsPedidos = (() => {
                 USE CA2015;
                 UPDATE SolicitudArticulos SET
                     CodigoBarra = '${CodigoBarra}', Nombre = '${Nombre}', IVA = ${IVA}, Ieps = ${Ieps},
-                    TazaIeps = ${TazaIeps}, TipoModelo = '${TipoModelo}', Marca = '${Marca}', Presentacion = ${Presentacion},
-                    UnidadMedida = '${UnidadMedida}', UnidadCompra = '${UnidadCompra}', FactorCompra = ${FactorCompra},
+                    TazaIeps = ${TazaIeps}, TipoModelo = '${TipoModelo}', Marca = '${Marca}',
+                    Presentacion = '${Presentacion}', UnidadCompra = '${UnidadCompra}', FactorCompra = ${FactorCompra},
                     UnidadVenta = '${UnidadVenta}', FactorVenta = ${FactorVenta}, FechaActualizado = GETDATE(),
                     ActualizadoPor  = '${ActualizadoPor}'
                 WHERE UUID = '${uuid}';
