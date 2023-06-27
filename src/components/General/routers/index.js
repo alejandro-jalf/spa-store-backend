@@ -9,6 +9,7 @@ const {
     getInformationOfDataBases,
     reduceLogOf,
     getFacturasBySucursal,
+    getExistencesOld,
 } = require("../services");
 
 router.route("/api/v1/general/:empresa/conexiones/activas").get(async (req, res) => {
@@ -34,6 +35,12 @@ router.route("/api/v1/general/facturas/:sucursal").get(async (req, res) => {
     const { sucursal } = req.params;
     const { dateStart, dateEnd } = req.query;
     const { status, response } = await getFacturasBySucursal(sucursal, dateStart, dateEnd);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/general/existencias/:sucursal/antiguedad/:dias").get(async (req, res) => {
+    const { sucursal, dias } = req.params;
+    const { status, response } = await getExistencesOld(sucursal, dias);
     res.status(status).json(response);
 });
 

@@ -23,6 +23,7 @@ const {
     getDataFilesBD,
     reduceLog,
     getFacturas,
+    getExistenciasAntiguedad,
 } = require('../models');
 
 const ServicesGeneral = (() => {
@@ -194,10 +195,25 @@ const ServicesGeneral = (() => {
             const response = await getFacturas(conexion, dateStart, dateEnd);
             if (!response.success) return createResponse(400, response);
 
-            // console.log(response);
             return createResponse(200, response);
         } catch (error) {
             return createContentError('Fallo al intentar obtener las facturas de la sucursal: ' + sucursal, error)
+        }
+    }
+
+    const getExistencesOld = async (sucursal, dias) => {
+        try {
+            let validate = validateSucursal(sucursal);
+            if (!validate.success) return createResponse(400, validate);
+
+            const conexion = getConnectionFrom(sucursal);
+
+            const response = await getExistenciasAntiguedad(conexion, dias);
+            if (!response.success) return createResponse(400, response);
+
+            return createResponse(200, response);
+        } catch (error) {
+            return createContentError('Fallo al intentar obtener las existencias por antiguedad: ' + sucursal, error)
         }
     }
 
@@ -211,6 +227,7 @@ const ServicesGeneral = (() => {
         getInformationOfDataBases,
         reduceLogOf,
         getFacturasBySucursal,
+        getExistencesOld,
     }
 })();
 

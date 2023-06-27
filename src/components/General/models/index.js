@@ -250,6 +250,28 @@ const ModelsGeneral = (() => {
         }
     }
 
+    const getExistenciasAntiguedad = async (cadenaConexion = '', dias = 45) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion, 30000);
+            const result = await accessToDataBase.query(
+                `
+                SELECT 
+                    *,
+                    Estatus = CASE WHEN ExistUV >= StockMinimo AND ExistUV <= StockMaximo THEN 'OK' WHEN ExistUV < StockMinimo THEN 'BAJO' WHEN ExistUV > StockMaximo THEN 'SOBRE' ELSE '' END
+                FROM VistaBIExistencias 
+                WHERE Dias >= ${dias}
+                ORDER BY Dias DESC;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            console.log(result[0].length);
+            return createContentAssert('Existencias por antiguedad', result[0]);
+        } catch (error) {
+            return createContentError('Fallo al intentar obtener las existencias por antiguedad: ', error);
+        }
+    }
+
     return {
         testConnection,
         calculaFoliosSucursal,
@@ -261,6 +283,7 @@ const ModelsGeneral = (() => {
         getDataFilesBD,
         reduceLog,
         getFacturas,
+        getExistenciasAntiguedad,
     }
 })();
 
