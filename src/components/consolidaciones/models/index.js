@@ -53,7 +53,7 @@ const modelsConsolidaciones = (() => {
 
                 SET LANGUAGE Español;
 
-                WITH tranferencias (
+                WITH Tranferencias (
                     Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones, NombreCajero
                 ) AS (
                     SELECT 
@@ -63,19 +63,26 @@ const modelsConsolidaciones = (() => {
                         AND Estatus = 'E'
                         AND Fecha BETWEEN @FechaInicio AND @FechaFinal
                     GROUP BY Fecha, Documento, Referencia, DescripcionAlmacen, Hora, Observaciones, NombreCajero
+                ),
+                Entradas (
+                    Entrada, AlmacenDestinoEntrada, Referencia, Articulos
+                ) AS (
+                    SELECT
+                        Documento AS Entrada,  DescripcionAlmacen AS AlmacenDestinoEntrada, Referencia, Articulos = COUNT(*)
+                    FROM QVDEMovAlmacen
+                    WHERE TipoDocumento = 'A' AND Estatus = 'E'
+                        AND Fecha BETWEEN @FechaInicio AND @FechaFinal
+                    GROUP BY Documento, DescripcionAlmacen, Referencia
                 )
-
+                
                 SELECT
                     T.Fecha, T.Documento, T.Referencia, T.DescripcionAlmacen, T.Hora,
-                    E.Documento AS Entrada, T.Observaciones,E.DescripcionAlmacen AS AlmacenDestinoEntrada,
-                    T.NombreCajero, Articulos = COUNT(*)
-                FROM QVDEMovAlmacen AS E
-                INNER JOIN tranferencias AS T
-                ON E.Referencia = T.Documento
-                WHERE TipoDocumento = 'A' AND Estatus = 'E' 
-                    AND ( T.Fecha BETWEEN @FechaInicio AND @FechaFinal )
-                GROUP BY T.Fecha, T.Documento, T.Referencia, T.DescripcionAlmacen,
-                    T.Hora, E.Documento, T.Observaciones, E.DescripcionAlmacen, T.NombreCajero
+                    Entrada = ISNULL(E.Entrada, 'NO EXISTE'),
+                    Observaciones = CASE WHEN E.Entrada IS NULL THEN 'Entrada No Encontrada' ELSE T.Observaciones END,
+                    AlmacenDestinoEntrada = ISNULL(E.AlmacenDestinoEntrada, 'Sin Almacen Destino'),
+                    T.NombreCajero, Articulos = ISNULL(E.Articulos, 0)
+                FROM Tranferencias AS T
+                LEFT JOIN Entradas AS E ON E.Referencia = T.Documento
                 ORDER BY T.Fecha DESC, T.Hora DESC
                 `,
                 QueryTypes.SELECT

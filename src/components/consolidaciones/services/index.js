@@ -125,19 +125,23 @@ const servicesConsolidaciones = (() => {
 
     const getVerificacion = (entradas, tranferencia) => {
         const sucursal = getSucursalByAlmacen(tranferencia.AlmacenDestinoEntrada);
+        console.log(tranferencia.AlmacenDestinoEntrada, sucursal)
         let documento = undefined;
         let offLine = false;
 
-        entradas.forEach((entrada) => {
-            if (sucursal === entrada.suc) {
-                if (!entrada.success)
-                    offLine = true;
-                else
-                    documento = entrada.data.find((doc) => doc.Documento === tranferencia.Entrada);
-            }
-        })
-        if (offLine) return 'Sin conexion';
-        return documento ? 'Exito' : 'Fallo'
+        if (tranferencia.AlmacenDestinoEntrada !== 'Sin Almacen Destino') {
+            entradas.forEach((entrada) => {
+                if (sucursal === entrada.suc) {
+                    if (!entrada.success)
+                        offLine = true;
+                    else
+                        documento = entrada.data.find((doc) => doc.Documento === tranferencia.Entrada);
+                }
+            })
+            if (offLine) return 'Sin conexion';
+            return documento ? 'Exito' : 'Fallo'
+        }
+        return 'No Encontrado'
     }
 
     const getEntradasForDate = async (transferencias, dateStart, dateEnd, dateIni) => {
