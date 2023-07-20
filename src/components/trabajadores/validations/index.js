@@ -32,6 +32,16 @@ const validationTrabajadores = (() => {
         return createContentAssert('Sucursal valida');
     }
 
+    const validateEstatus = (estatus = '') => {
+        if (
+            estatus.toUpperCase() !== 'ENTRADA DIA' &&
+            estatus.toUpperCase() !== 'SALIDA COMIDA' &&
+            estatus.toUpperCase() !== 'ENTRADA COMIDA' &&
+            estatus.toUpperCase() !== 'SALIDA DIA'
+        ) return createContentError('Estatus no valido');
+        return createContentAssert('Estatus Valido');
+    }
+
     const validateDate = (date = '') => {
         const resultValidate = schemaFecha.validate(date);
         if (resultValidate.error)
@@ -43,6 +53,7 @@ const validationTrabajadores = (() => {
     return {
         validateSucursal,
         validateDate,
+        validateEstatus,
     }
 })();
 

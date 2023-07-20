@@ -29,7 +29,8 @@ router.route("/api/v1/trabajadores/claves/:sucursal/:cajero").get(async (req, re
 
 router.route("/api/v1/trabajadores/asistencias/:sucursal/:cajero/:estatus").post(async (req, res) => {
     const { sucursal, cajero, estatus } = req.params;
-    const { status, response } = await registerAsistenciaTrabajador(sucursal, cajero, estatus);
+    const { Clave } = req.body;
+    const { status, response } = await registerAsistenciaTrabajador(sucursal, cajero, Clave, estatus);
     res.status(status).json(response);
 });
 

@@ -3,9 +3,11 @@ const {
     getConnectionFrom,
     createContentError,
     getSucursalByCategory,
+    cifraData,
+    descifraData,
 } = require('../../../utils');
-const { validateSucursal, validateDate } = require('../validations');
-const { getAsistenciasBySucursal, getTrabajadores, getClave } = require('../models');
+const { validateSucursal, validateDate, validateEstatus } = require('../validations');
+const { getAsistenciasBySucursal, getTrabajadores, getClave, registerAsistencia, createClave } = require('../models');
 const moment = require('moment')
 
 const ServicesTrabajadores = (() => {
@@ -93,6 +95,40 @@ const ServicesTrabajadores = (() => {
       if (!response.success) return createResponse(400, response);
       if (response.data.length === 0)
         return createResponse(200, createContentError('No existe clave para el cajero ' + cajero));
+      response.data[0].Clave = descifraData(response.data[0].Clave);
+      return createResponse(200, response);
+    }
+
+    const registerAsistenciaTrabajador = async (sucursal, cajero, clave, estatus) => {
+      let validate = validateEstatus(estatus);
+      if (!validate.success) return createResponse(400, validate);
+      if (!clave) return createResponse(200, createContentError('Falta la clave del cajero'));
+
+      const conexion = getConnectionFrom(sucursal);
+      
+      let response = await getClave(conexion, cajero.trim());
+      if (!response.success) return createResponse(400, response);
+      if (response.data.length === 0)
+        return createResponse(200, createContentError('No se encontro clave para el cajero ' + cajero));
+        
+      const cifrado = cifraData(clave.trim());
+      if (cifrado !== response.data[0].Clave)
+        return createResponse(200, createContentError('Contraseña incorrecta'));
+      
+      response = await registerAsistencia(conexion, response.data[0].IdTrabajador, estatus.toUpperCase());
+      if (!response.success) return createResponse(400, response);
+
+      return createResponse(200, response);
+    }
+
+    const addClaveTrabajador = async (sucursal, Clave, Cajero, IdTrabajador) => {
+      const conexion = getConnectionFrom(sucursal);
+
+      const cifrado = cifraData(Clave.trim());
+      
+      response = await createClave(conexion, IdTrabajador, Cajero, cifrado);
+      if (!response.success) return createResponse(400, response);
+
       return createResponse(200, response);
     }
 
@@ -100,6 +136,8 @@ const ServicesTrabajadores = (() => {
         getAllAssists,
         getAllTrabajadores,
         getClaveTrabajador,
+        registerAsistenciaTrabajador,
+        addClaveTrabajador,
     }
 })();
 
