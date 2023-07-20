@@ -64,7 +64,11 @@ const modelsTrabajadores = (() => {
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                SELECT * FROM ClaveTrabajador WHERE Cajero = '${Cajero}';
+                SELECT
+                    C.*, T.Nombre
+                FROM ClaveTrabajador AS C
+                LEFT JOIN Trabajadores AS T ON C.IdTrabajador = T.IdTrabajador
+                WHERE C.Cajero = '${Cajero}';
                 `,
                 QueryTypes.SELECT
             );
@@ -120,6 +124,27 @@ const modelsTrabajadores = (() => {
             );
         }
     }
+
+    const updateIdTrabajador = async (cadenaConexion = '', Cajero, IdTrabajador) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                UPDATE ClaveTrabajador SET IdTrabajador = '${IdTrabajador}' WHERE Cajero = '${Cajero}';
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Id del trabajador actualizada', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar el Id del trabajador',
+                error
+            );
+        }
+    }
     
     const registerAsistencia = async (cadenaConexion = '', IdTrabajador, Estatus) => {
         try {
@@ -148,6 +173,7 @@ const modelsTrabajadores = (() => {
         getClave,
         createClave,
         updateClave,
+        updateIdTrabajador,
         registerAsistencia,
     }
 })();

@@ -12,3 +12,4 @@ Componente para controlar las rutas relacionadas con la informacion y acciones n
 | **POST** | _/api/v1/trabajadores/asistencias/:sucursal/:cajero/:estatus_ |  | Registra una asistencia del trabajador |
 | **POST** | _/api/v1/trabajadores/claves/:sucursal_ | body = { Cajero: '', Clave: '', IdTrabajador: '' } | Registra la clave del trabajador |
 | **PUT** | _/api/v1/trabajadores/claves/:sucursal/:cajero_ | body = { Clave: '' } | Actualiza la clave del trabajador |
+| **PUT** | _/api/v1/trabajadores/claves/:sucursal/:cajero/IdTrabajador_ | body = { IdTrabajador: '' } | Actualiza el id del trabajador |
