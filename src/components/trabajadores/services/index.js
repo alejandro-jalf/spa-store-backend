@@ -122,10 +122,12 @@ const ServicesTrabajadores = (() => {
       const cifrado = cifraData(clave.trim());
       if (cifrado !== response.data[0].Clave)
         return createResponse(200, createContentError('Contraseña incorrecta'));
-      
+
+      const dataTrabajador = response.data[0];
       response = await registerAsistencia(conexion, response.data[0].IdTrabajador, estatus.toUpperCase());
       if (!response.success) return createResponse(400, response);
 
+      response.message = `Se ha generado el registro de [${estatus}] para el trabajador [${dataTrabajador.Nombre}]`;
       return createResponse(200, response);
     }
 
