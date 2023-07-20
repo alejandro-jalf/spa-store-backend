@@ -100,13 +100,13 @@ const modelsTrabajadores = (() => {
         }
     }
     
-    const updateClave = async (cadenaConexion = '', IdTrabajador, Clave) => {
+    const updateClave = async (cadenaConexion = '', Cajero, Clave) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                UPDATE ClaveTrabajador SET Clave = '${Clave}' WHERE IdTrabajador = '${IdTrabajador}';
+                UPDATE ClaveTrabajador SET Clave = '${Clave}' WHERE Cajero = '${Cajero}';
                 `,
                 QueryTypes.UPDATE
             );
