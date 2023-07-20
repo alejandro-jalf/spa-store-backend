@@ -36,9 +36,119 @@ const modelsTrabajadores = (() => {
             );
         }
     }
+    
+    const getTrabajadores = async (cadenaConexion = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                SELECT * FROM Trabajadores;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Lista de trabajadores', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la lista de trabajadores',
+                error
+            );
+        }
+    }
+    
+    const getClave = async (cadenaConexion = '', Cajero) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                SELECT * FROM ClaveTrabajador WHERE Cajero = '${Cajero}';
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos del trabajador', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la clave del trabajador',
+                error
+            );
+        }
+    }
+    
+    const createClave = async (cadenaConexion = '', IdTrabajador, Cajero, Clave) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015
+                INSERT INTO ClaveTrabajador(IdTrabajador, Cajero, Clave) VALUES ('${IdTrabajador}', '${Cajero}', '${Clave}');
+                `,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Clave registrada', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar registrar la clave del trabajador',
+                error
+            );
+        }
+    }
+    
+    const updateClave = async (cadenaConexion = '', IdTrabajador, Clave) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                UPDATE ClaveTrabajador SET Clave = '${Clave}' WHERE IdTrabajador = '${IdTrabajador}';
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Clave actualizada', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar la clave del trabajador',
+                error
+            );
+        }
+    }
+    
+    const registerAsistencia = async (cadenaConexion = '', IdTrabajador, Estatus) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                INSERT INTO Asistencias (IdTrabajador, FechaServidor, Estatus) VALUES ('${IdTrabajador}', GETDATE(), '${Estatus}');
+                `,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Asistencia registrada', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar registrar la asistencia del trabajador',
+                error
+            );
+        }
+    }
 
     return {
         getAsistenciasBySucursal,
+        getTrabajadores,
+        getClave,
+        createClave,
+        updateClave,
+        registerAsistencia,
     }
 })();
 

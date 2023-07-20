@@ -5,7 +5,7 @@ const {
     getSucursalByCategory,
 } = require('../../../utils');
 const { validateSucursal, validateDate } = require('../validations');
-const { getAsistenciasBySucursal } = require('../models');
+const { getAsistenciasBySucursal, getTrabajadores, getClave } = require('../models');
 const moment = require('moment')
 
 const ServicesTrabajadores = (() => {
@@ -78,8 +78,28 @@ const ServicesTrabajadores = (() => {
         return createResponse(200, response)
     }
 
+    const getAllTrabajadores = async (sucursal) => {
+      const conexion = getConnectionFrom(sucursal);
+      const response = await getTrabajadores(conexion);
+
+      if (!response.success) return createResponse(400, response);
+      return createResponse(200, response);
+    }
+
+    const getClaveTrabajador = async (sucursal, cajero) => {
+      const conexion = getConnectionFrom(sucursal);
+      const response = await getClave(conexion, cajero);
+
+      if (!response.success) return createResponse(400, response);
+      if (response.data.length === 0)
+        return createResponse(200, createContentError('No existe clave para el cajero ' + cajero));
+      return createResponse(200, response);
+    }
+
     return {
         getAllAssists,
+        getAllTrabajadores,
+        getClaveTrabajador,
     }
 })();
 
