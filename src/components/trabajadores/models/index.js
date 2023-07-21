@@ -65,7 +65,7 @@ const modelsTrabajadores = (() => {
                 `
                 USE CA2015;
                 SELECT
-                    C.*, T.Nombre
+                    C.*, T.Nombre, T.Categoria
                 FROM ClaveTrabajador AS C
                 LEFT JOIN Trabajadores AS T ON C.IdTrabajador = T.IdTrabajador
                 WHERE C.Cajero = '${Cajero}';
