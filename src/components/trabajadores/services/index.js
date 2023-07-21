@@ -16,7 +16,7 @@ const {
   updateClave,
   updateIdTrabajador
 } = require('../models');
-const moment = require('moment')
+const moment = require('moment');
 
 const ServicesTrabajadores = (() => {
     
@@ -137,6 +137,8 @@ const ServicesTrabajadores = (() => {
       const cifrado = cifraData(Clave.trim());
       
       response = await createClave(conexion, IdTrabajador, Cajero, cifrado);
+      if (!!response.error && response.error.original.number === 2627)
+        return createResponse(200, createContentError(`Ya existe una clave para el cajero ${Cajero}`));
       if (!response.success) return createResponse(400, response);
 
       return createResponse(200, response);
