@@ -14,7 +14,8 @@ const {
   registerAsistencia,
   createClave,
   updateClave,
-  updateIdTrabajador
+  updateIdTrabajador,
+  getClaves
 } = require('../models');
 const moment = require('moment');
 
@@ -107,6 +108,18 @@ const ServicesTrabajadores = (() => {
       return createResponse(200, response);
     }
 
+    const getAllClaves = async (sucursal) => {
+      const conexion = getConnectionFrom(sucursal);
+      const response = await getClaves(conexion, sucursal);
+
+      if (!response.success) return createResponse(400, response);
+      response.data = response.data.map((cajero) => {
+        cajero.Clave = descifraData(cajero.Clave)
+        return cajero;
+      })
+      return createResponse(200, response);
+    }
+
     const registerAsistenciaTrabajador = async (sucursal, cajero, clave, estatus) => {
       let validate = validateEstatus(estatus);
       if (!validate.success) return createResponse(400, validate);
@@ -177,6 +190,7 @@ const ServicesTrabajadores = (() => {
         getAllAssists,
         getAllTrabajadores,
         getClaveTrabajador,
+        getAllClaves,
         registerAsistenciaTrabajador,
         addClaveTrabajador,
         updateClaveTrabajador,

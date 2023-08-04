@@ -7,6 +7,7 @@ const {
     addClaveTrabajador,
     updateClaveTrabajador,
     updateIdTrabajadorForClave,
+    getAllClaves,
 } = require("../services");
 
 router.route("/api/v1/trabajadores/asistencias/:sucursal").get(async (req, res) => {
@@ -19,6 +20,12 @@ router.route("/api/v1/trabajadores/asistencias/:sucursal").get(async (req, res) 
 router.route("/api/v1/trabajadores/:sucursal").get(async (req, res) => {
     const { sucursal } = req.params;
     const { status, response } = await getAllTrabajadores(sucursal);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/trabajadores/claves/:sucursal").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { status, response } = await getAllClaves(sucursal);
     res.status(status).json(response);
 });
 

@@ -83,6 +83,31 @@ const modelsTrabajadores = (() => {
         }
     }
     
+    const getClaves = async (cadenaConexion = '', sucursal) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                SELECT
+                    Sucursal = '${sucursal}',
+                    C.*, T.Nombre, T.Categoria
+                FROM ClaveTrabajador AS C
+                LEFT JOIN Trabajadores AS T ON C.IdTrabajador = T.IdTrabajador;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos del trabajador', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener la clave del trabajador',
+                error
+            );
+        }
+    }
+    
     const createClave = async (cadenaConexion = '', IdTrabajador, Cajero, Clave) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -171,6 +196,7 @@ const modelsTrabajadores = (() => {
         getAsistenciasBySucursal,
         getTrabajadores,
         getClave,
+        getClaves,
         createClave,
         updateClave,
         updateIdTrabajador,
