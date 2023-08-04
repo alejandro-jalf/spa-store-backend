@@ -8,6 +8,7 @@ const {
     updateClaveTrabajador,
     updateIdTrabajadorForClave,
     getAllClaves,
+    updatePrivilegiosTrabajador,
 } = require("../services");
 
 router.route("/api/v1/trabajadores/asistencias/:sucursal").get(async (req, res) => {
@@ -44,8 +45,8 @@ router.route("/api/v1/trabajadores/asistencias/:sucursal/:cajero/:estatus").post
 
 router.route("/api/v1/trabajadores/claves/:sucursal").post(async (req, res) => {
     const { sucursal } = req.params;
-    const { Clave, Cajero, IdTrabajador } = req.body;
-    const { status, response } = await addClaveTrabajador(sucursal, Clave, Cajero, IdTrabajador);
+    const { Clave, Cajero, IdTrabajador, Privilegios } = req.body;
+    const { status, response } = await addClaveTrabajador(sucursal, Clave, Cajero, IdTrabajador, Privilegios);
     res.status(status).json(response);
 });
 
@@ -60,6 +61,13 @@ router.route("/api/v1/trabajadores/claves/:sucursal/:cajero/IdTrabajador").put(a
     const { sucursal, cajero } = req.params;
     const { IdTrabajador } = req.body;
     const { status, response } = await updateIdTrabajadorForClave(sucursal, IdTrabajador, cajero);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/trabajadores/claves/:sucursal/:cajero/privilegios").put(async (req, res) => {
+    const { sucursal, cajero } = req.params;
+    const { Privilegios } = req.body;
+    const { status, response } = await updatePrivilegiosTrabajador(sucursal, cajero, Privilegios);
     res.status(status).json(response);
 });
 

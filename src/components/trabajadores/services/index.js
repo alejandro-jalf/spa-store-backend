@@ -15,7 +15,8 @@ const {
   createClave,
   updateClave,
   updateIdTrabajador,
-  getClaves
+  getClaves,
+  updatePrivilegios
 } = require('../models');
 const moment = require('moment');
 
@@ -144,12 +145,12 @@ const ServicesTrabajadores = (() => {
       return createResponse(200, response);
     }
 
-    const addClaveTrabajador = async (sucursal, Clave, Cajero, IdTrabajador) => {
+    const addClaveTrabajador = async (sucursal, Clave, Cajero, IdTrabajador, Privilegios) => {
       const conexion = getConnectionFrom(sucursal);
 
       const cifrado = cifraData(Clave.trim());
       
-      response = await createClave(conexion, IdTrabajador, Cajero, cifrado);
+      response = await createClave(conexion, IdTrabajador, Cajero, cifrado, Privilegios);
       if (!!response.error && response.error.original.number === 2627)
         return createResponse(200, createContentError(`Ya existe una clave para el cajero ${Cajero}`));
       if (!response.success) return createResponse(400, response);
@@ -167,6 +168,20 @@ const ServicesTrabajadores = (() => {
 
       const cifrado = cifraData(Clave.trim());
       response = await updateClave(conexion, Cajero, cifrado);
+      if (!response.success) return createResponse(400, response);
+
+      return createResponse(200, response);
+    }
+
+    const updatePrivilegiosTrabajador = async (sucursal, Cajero, Privilegios) => {
+      const conexion = getConnectionFrom(sucursal);
+
+      let response = await getClave(conexion, Cajero.trim());
+      if (!response.success) return createResponse(400, response);
+      if (response.data.length === 0)
+        return createResponse(200, createContentError('No se encontro clave para el cajero ' + Cajero));
+
+      response = await updatePrivilegios(conexion, Cajero, Privilegios);
       if (!response.success) return createResponse(400, response);
 
       return createResponse(200, response);
@@ -194,6 +209,7 @@ const ServicesTrabajadores = (() => {
         registerAsistenciaTrabajador,
         addClaveTrabajador,
         updateClaveTrabajador,
+        updatePrivilegiosTrabajador,
         updateIdTrabajadorForClave,
     }
 })();

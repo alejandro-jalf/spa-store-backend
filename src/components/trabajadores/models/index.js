@@ -108,13 +108,13 @@ const modelsTrabajadores = (() => {
         }
     }
     
-    const createClave = async (cadenaConexion = '', IdTrabajador, Cajero, Clave) => {
+    const createClave = async (cadenaConexion = '', IdTrabajador, Cajero, Clave, Privilegios) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 USE CA2015
-                INSERT INTO ClaveTrabajador(IdTrabajador, Cajero, Clave) VALUES ('${IdTrabajador}', '${Cajero}', '${Clave}');
+                INSERT INTO ClaveTrabajador(IdTrabajador, Cajero, Clave, Privilegios) VALUES ('${IdTrabajador}', '${Cajero}', '${Clave}', '${Privilegios}');
                 `,
                 QueryTypes.INSERT
             );
@@ -145,6 +145,27 @@ const modelsTrabajadores = (() => {
             console.log(error);
             return createContentError(
                 'Fallo la conexion con base de datos al intentar actualizar la clave del trabajador',
+                error
+            );
+        }
+    }
+    
+    const updatePrivilegios = async (cadenaConexion = '', Cajero, Privilegios) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                UPDATE ClaveTrabajador SET Privilegios = '${Privilegios}' WHERE Cajero = '${Cajero}';
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Clave actualizada', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar los privilegios del trabajador',
                 error
             );
         }
@@ -199,6 +220,7 @@ const modelsTrabajadores = (() => {
         getClaves,
         createClave,
         updateClave,
+        updatePrivilegios,
         updateIdTrabajador,
         registerAsistencia,
     }
