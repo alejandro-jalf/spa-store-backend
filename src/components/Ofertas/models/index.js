@@ -33,6 +33,7 @@ const modelsOfertas = (() => {
                         ( O.OfertaCaduca = 'NO' AND O.Disponible > 0)
                         OR FechaFinal >= @FechaActual
                     )
+                    AND OfertaBaja = 'NO'
                     AND C.Tienda = @Tienda AND C.Almacen = @Almacen
                     AND O.Tienda = @Tienda
                 `,
@@ -113,7 +114,7 @@ const modelsOfertas = (() => {
                     SELECT
                         Articulo, OfertaCaduca, FechaInicial, FechaFinal
                     FROM QVOfertas
-                    WHERE (OfertaCaduca = 'NO' OR FechaFinal >= @FechaActual) AND Tienda = @Tienda
+                    WHERE (OfertaCaduca = 'NO' OR FechaFinal >= @FechaActual) AND Tienda = @Tienda AND OfertaBaja = 'NO'
                 )
 
                 SELECT
