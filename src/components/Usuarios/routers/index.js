@@ -12,6 +12,7 @@ const {
     updatePassword,
     updateDataGeneral,
     updateMain,
+    getVersionById,
 } = require("../services");
 
 router.route('/api/v1').get(async (req, res) => {
@@ -29,6 +30,12 @@ router.route('/api/v1/usuarios').get(async (req, res) => {
 router.route('/api/v1/usuarios/:correo_user').get(async (req, res) => {
     const { correo_user } = req.params;
     const { status, response } = await getUserByEmail(correo_user);
+    res.status(status).json(response);
+});
+
+router.route('/api/v1/versiones/:idVersion').get(async (req, res) => {
+    const { idVersion } = req.params;
+    const { status, response } = await getVersionById(idVersion);
     res.status(status).json(response);
 });
 

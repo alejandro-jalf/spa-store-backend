@@ -388,6 +388,18 @@ const services = (() => {
         return createResponse(200, resultQuery);
     }
 
+    const getVersionById = async (idVersion) => {
+        return createResponse(200, createContentAssert(
+            'Data de Version',
+            {
+                Name: 'HimarioDeVictoria',
+                Version: '2.2.4',
+                id: 'HimarioDeVictoria',
+                idVersion,
+            }
+        ));
+    }
+
     return {
         getAllUsers,
         getUserByEmail,
@@ -401,6 +413,7 @@ const services = (() => {
         updateStatus,
         updateMain,
         deleteUser,
+        getVersionById,
     }
 })();
 
