@@ -37,6 +37,7 @@ const {
     getTimedOffersByDate,
     getOnlyOffersByMasterOffer,
     getDataArticlesWithOffers,
+    changePreciosByOffer,
 } = require('../models');
 const { response } = require('express');
 
@@ -199,6 +200,43 @@ const ServicesOfertas = (() => {
         }
 
         return createResponse(201, response);
+    }
+
+    const changeNivelPreciosByOffers = async (sucursal, uuidmaster) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        let response = await getMasterOffers(conexionDB, uuidmaster);
+        const offersMaster = response.data[0];
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length <= 0) return createResponse(200, createContentError('el uuid maestro no existe'));
+        if (offersMaster.sucursal !== sucursal.toUpperCase())
+            return createResponse(200, createContentError('el uuid maestro no pertenece a la sucursal: ' + sucursal.toUpperCase()));
+
+        const statusActual = offersMaster.estatus;
+        if (statusActual !== OFERTA_PROGRAMADA)
+            return createResponse(200, createContentError('La oferta no ha sido programada'));
+        else {
+            const dateActual = getDateActual();
+            const dateEnd = toMoment(offersMaster.fechaFin.toString().replace('T', ' ').replace('Z', ''))
+            if (dateActual.isBefore(dateEnd)) {
+                response = await getOnlyOffersByMasterOffer(conexionDB, sucursal, uuidmaster);
+                if (!response.success) return createResponse(400, response);
+
+                const articles = response.data.reduce((art, oferta, index) => {
+                    if (index === 0) art += '\'' + oferta.articulo + '\''
+                    else art += ', \'' + oferta.articulo + '\''
+                    return art;
+                }, '')
+
+                const conexionSuc = getConnectionFrom(sucursal);
+                response = await changePreciosByOffer(conexionSuc, sucursal, articles);
+                if (!response.success) return createResponse(400, response);
+
+                return createResponse(200, response);
+            } else
+                return createResponse(200, createContentError('La oferta ya termino'));
+        }
     }
 
     const changeStatusMasterOffer = async (sucursal, uuidmaster, bodyMaster) => {
@@ -594,6 +632,7 @@ const ServicesOfertas = (() => {
         getValidationArticlesOffersForWincaja,
         getCheckArticlesOffers,
         changeStatusMasterOffer,
+        changeNivelPreciosByOffers,
         changeDataMasterOffer,
         getOfferValidation,
         getMasterOffersBySuc,

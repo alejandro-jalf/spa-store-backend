@@ -14,6 +14,7 @@ const {
     getDetailsArticleByArticulo,
     getValidationArticlesOffersForWincaja,
     getCheckArticlesOffers,
+    changeNivelPreciosByOffers,
 } = require("../services");
 
 router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
@@ -69,6 +70,13 @@ router.route("/api/v1/ofertas/:sucursal/articulos").post(async (req, res) => {
     const { sucursal } = req.params;
     const bodyArticle = req.body;
     const { status, response } = await createArticleOffer(sucursal, bodyArticle);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/ofertas/:sucursal/maestros/:uuidmaster/precios").put(async (req, res) => {
+    const { sucursal, uuidmaster } = req.params;
+    const bodyMaster = req.body;
+    const { status, response } = await changeNivelPreciosByOffers(sucursal, uuidmaster);
     res.status(status).json(response);
 });
 
