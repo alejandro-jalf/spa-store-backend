@@ -268,20 +268,21 @@ const modelsOfertas = (() => {
         }
     }
 
-    const getAllMasterOffers = async (cadenaConexion = '') => {
+    const getAllMasterOffers = async (cadenaConexion = '', limit) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                SELECT
+                SELECT TOP ${limit}
                     M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor, Articulos = CASE WHEN (A.articulo IS NULL) THEN 0 ELSE 1 END
+                    M.creadoPor, M.fechaModificado, M.modificadoPor,
+                    Articulos = COUNT(*)
                 FROM maestroofertas AS M
                 LEFT JOIN ArticulosOfertas AS A ON M.uuid = A.uuid_maestro
                 GROUP BY M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor, A.articulo
-                ORDER BY M.fechaAlta DESC
+                    M.creadoPor, M.fechaModificado, M.modificadoPor
+                ORDER BY M.fechaAlta DESC;
                 `,
                 QueryTypes.SELECT
             );
@@ -295,21 +296,22 @@ const modelsOfertas = (() => {
         }
     }
 
-    const getAllMasterOffersOf = async (cadenaConexion = '', sucursal = 'ZR') => {
+    const getAllMasterOffersOf = async (cadenaConexion = '', sucursal = 'ZR', limit) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                SELECT
+                SELECT TOP ${limit}
                     M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor, Articulos = CASE WHEN (A.articulo IS NULL) THEN 0 ELSE 1 END
+                    M.creadoPor, M.fechaModificado, M.modificadoPor,
+                    Articulos = COUNT(*)
                 FROM maestroofertas AS M
                 LEFT JOIN ArticulosOfertas AS A ON M.uuid = A.uuid_maestro
                 WHERE M.sucursal = '${sucursal.toUpperCase()}'
                 GROUP BY M.uuid, M.sucursal, M.estatus, M.editable, M.tipoOferta, M.fechaInicio, M.fechaFin, M.descripcion, M.fechaAlta,
-                    M.creadoPor, M.fechaModificado, M.modificadoPor, A.articulo
-                ORDER BY M.fechaAlta DESC
+                    M.creadoPor, M.fechaModificado, M.modificadoPor
+                ORDER BY M.fechaAlta DESC;
                 `,
                 QueryTypes.SELECT
             );

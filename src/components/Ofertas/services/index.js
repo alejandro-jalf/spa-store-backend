@@ -150,7 +150,7 @@ const ServicesOfertas = (() => {
         return createResponse(200, response);
     }
 
-    const getMasterOffersBySuc = async (sucursal = 'ALL', limit = 300) => {
+    const getMasterOffersBySuc = async (sucursal = 'ALL', limit = 100) => {
         limit = parseInt(limit)
         let validate = validateSucursal(sucursal.toUpperCase());
         if (!validate.success) return createResponse(400, validate);
@@ -163,19 +163,6 @@ const ServicesOfertas = (() => {
             response = await getAllMasterOffersOf(conexionDB, sucursal.toUpperCase(), limit);
             if (!response.success) return createResponse(400, response);
         }
-
-        const mastersOffers = [];
-        response.data.forEach((master, index) => {
-            if (index === 0) mastersOffers.push(master)
-            else {
-                const indexMaster = mastersOffers.findIndex((mOffer) => mOffer.uuid === master.uuid)
-                if (indexMaster !== -1)
-                    mastersOffers[indexMaster].Articulos = mastersOffers[indexMaster].Articulos + master.Articulos;
-                else mastersOffers.push(master)
-            }
-        });
-        const offersToped = mastersOffers.filter((offer, position) => limit === 0 ? true : position < limit)
-        response.data = offersToped;
 
         return createResponse(200, response);
     }
