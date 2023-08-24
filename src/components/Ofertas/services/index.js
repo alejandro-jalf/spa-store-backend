@@ -38,6 +38,7 @@ const {
     getOnlyOffersByMasterOffer,
     getDataArticlesWithOffers,
     changePreciosByOffer,
+    deleteOffersOld,
 } = require('../models');
 const { response } = require('express');
 
@@ -615,6 +616,12 @@ const ServicesOfertas = (() => {
         return createResponse(201, response);
     }
 
+    const removeOffersOld = async () => {
+        const response = await deleteOffersOld(conexionDB);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(201, response);
+    }
+
     return {
         getValidationArticlesOffersForWincaja,
         getCheckArticlesOffers,
@@ -631,6 +638,7 @@ const ServicesOfertas = (() => {
         changeDataOffer,
         getDetailsArticleByLike,
         getDetailsArticleByArticulo,
+        removeOffersOld,
     }
 })();
 

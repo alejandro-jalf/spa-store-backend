@@ -670,6 +670,37 @@ const modelsOfertas = (() => {
         }
     }
 
+    const deleteOffersOld = async (cadenaConexion = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                DECLARE @Now datetime = GETDATE();
+
+                WITH MasterOLd(uuid)
+                AS (
+                    SELECT uuid FROM MaestroOfertas
+                    WHERE estatus = 4 OR estatus = 0
+                        AND DATEDIFF(DAY, fechaAlta, @Now) > 15
+                )
+
+                DELETE FROM ArticulosOfertas WHERE uuid_maestro IN (SELECT * FROM MasterOLd);
+                DELETE FROM MaestroOfertas WHERE estatus = 4 OR estatus = 0 AND DATEDIFF(DAY, fechaAlta, @Now) > 15;
+                `,
+                QueryTypes.DELETE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Ofertas antiguas eliminadas', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar eliminar las ofertas antiguas',
+                error
+            );
+        }
+    }
+
     return {
         getValidationArticlesByUuuiMaster,
         getDetailsArticleByArticle,
@@ -691,6 +722,7 @@ const modelsOfertas = (() => {
         createOffers,
         updateOffer,
         deleteOffer,
+        deleteOffersOld,
     }
 })();
 

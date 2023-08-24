@@ -15,6 +15,7 @@ const {
     getValidationArticlesOffersForWincaja,
     getCheckArticlesOffers,
     changeNivelPreciosByOffers,
+    removeOffersOld,
 } = require("../services");
 
 router.route("/api/v1/ofertas/:sucursal/validas").get(async (req, res) => {
@@ -112,6 +113,11 @@ router.route("/api/v1/ofertas/:sucursal/articulos/:articulo").delete(async (req,
     const { sucursal, articulo } = req.params;
     const { uuidmaster } = req.query;
     const { status, response } = await removeArticleOffer(sucursal, articulo, uuidmaster);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/ofertas/old").delete(async (req, res) => {
+    const { status, response } = await removeOffersOld();
     res.status(status).json(response);
 });
 
