@@ -34,6 +34,7 @@ const {
     getReportMonthlyUAI,
     getReportMonthlyVPS,
     getReportMonthlyVentas,
+    getSalesByArticles,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -100,6 +101,106 @@ const ServicesReportes = (() => {
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
     }
+    
+    const getVentasPorArticulos = async (sucursal = '', FechaIni = '', FechaFin = '', articles = []) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaIni);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDates(FechaIni, FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        let response;
+
+        if (sucursal.toUpperCase() === 'ALL') {
+            const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+
+            const responses = listConexions.map(async (sucursal) => {
+                const suc = getSucursalByCategory('SPA' + sucursal.name);
+                const response = await getSalesBySuc(suc, FechaIni, FechaFin, articles);
+                return response;
+            });
+
+            const resultVentas = await Promise.all(responses);
+            const serversOffline = resultVentas.filter((server) => !server.success);
+            if (serversOffline.length === resultVentas.length)
+                return createResponse(200, createContentError('No hay conexion con los servidores'));
+
+            const data = resultVentas.reduce((dias, sucursal) => {
+                if (sucursal.success) {
+                    if (dias.length === 0) {
+                        const dateStartMoment = toMoment(FechaIni.slice(0, 4) + '-' + FechaIni.slice(4, 6) + '-' + FechaIni.slice(6, 8));
+                        const dateEndMoment = toMoment(FechaFin.slice(0, 4) + '-' + FechaFin.slice(4, 6) + '-' + FechaFin.slice(6, 8));
+                        const totalDias = dateEndMoment.diff(dateStartMoment, 'days');
+
+                        for (let day = 0; day < totalDias.length; day++) {
+                            const newDay = dateStartMoment.add(day, 'days')
+                            dias.push({ Fecha: newDay.format('DD-MM-YYYY'), FechaMoment: newDay })
+                        }
+                    }
+
+                    sucursal.data.forEach((diaToVerify) => {
+                        const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.replace('T', ' ').replace('Z', '')))
+                        if (diaIndex !== -1) dias[diaIndex][`${diaToVerify.SubTotal}`] = {
+                            Piezas: diaToVerify.VentasPza,
+                            Cajas: diaToVerify.VentasCja,
+                            Valor: diaToVerify.VentasValor
+                        }
+                    })
+                } else dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = -1)
+                return dias;
+            }, []);
+            response = createContentAssert('Ventas de todas las sucursales', data)
+        } else { 
+            console.log(articles);
+            response = await getSalesBySuc(sucursal, FechaIni, FechaFin, articles);
+            if (!response.success) return createResponse(400, response);
+            response.Sucursal = sucursal;
+        }
+
+        return createResponse(200, response)
+    }
+
+    const getSalesBySuc = async (sucursal, FechaIni, FechaFin, articles) => {
+        const dataBaseStart = getDatabase(toMoment(FechaIni), sucursal);
+        const dataBaseEnd = getDatabase(toMoment(FechaFin), sucursal);
+
+        const articulos = articles.reduce((arts, article, index) => {
+            if (index === 0) arts += '\'' + article + '\'';
+            else arts += ',\'' + article + '\'';
+            return arts;
+        }, '')
+
+        let union = '';
+        if (dataBaseStart !== dataBaseEnd)
+            union = `
+            UNION ALL
+            SELECT
+                Sucursal = @Sucursal,
+                Articulo, Nombre, Fecha, VentasPza = SUM(CantidadRegular), VentasCja = SUM(CantidadRegularUC), VentasValor = SUM(VentaValorNeta),
+                Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta
+            FROM ${dataBaseEnd}.dbo.QVDEMovAlmacen
+            WHERE Articulo IN (${articulos})
+                AND TipoDocumento = 'V' AND Estatus = 'E'
+                AND (Fecha BETWEEN @fechaInicial AND @FechaFinal)
+                AND Tienda = @Tienda
+                AND Almacen = @Almacen
+            GROUP BY Articulo, Nombre, Fecha, FactorCompra, FactorVenta, UnidadCompra, UnidadVenta;
+            `;
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getSalesByArticles(conexion, sucursal, FechaIni, FechaFin, dataBaseStart, union, articulos);
+        return response;
+    } 
     
     const getReposicionesCompras = async (sucursal = '', FechaCorte = '') => {
         let validate = validateSucursal(sucursal);
@@ -415,6 +516,7 @@ const ServicesReportes = (() => {
     return {
         getInventoryCloseYear,
         getVentasPorDia,
+        getVentasPorArticulos,
         getReposicionesCompras,
         getReposicionesGastos,
         getBitacoraCompras,

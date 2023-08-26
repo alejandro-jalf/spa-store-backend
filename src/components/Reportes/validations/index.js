@@ -8,12 +8,14 @@ const { schemaFecha } = require('../schemas')
 const validationReportes = (() => {
     const validateSucursal = (sucursal = '') => {
         if (
+            sucursal.toUpperCase() !== 'ALL' &&
             sucursal.toUpperCase() !== 'ZR' &&
             sucursal.toUpperCase() !== 'VC' &&
             sucursal.toUpperCase() !== 'OU' &&
             sucursal.toUpperCase() !== 'JL' &&
             sucursal.toUpperCase() !== 'ER' &&
             sucursal.toUpperCase() !== 'SY' &&
+            sucursal.toUpperCase() !== 'SC' &&
             sucursal.toUpperCase() !== 'TY' &&
             sucursal.toUpperCase() !== 'TF' &&
             sucursal.toUpperCase() !== 'BO'
