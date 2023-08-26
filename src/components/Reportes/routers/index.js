@@ -33,7 +33,7 @@ router.route("/api/v1/reportes/ventas/:sucursal/estadisticas").get(async (req, r
     res.status(200).json(response);
 });
 
-router.route("/api/v1/reportes/ventas/:sucursal/articulos").get(async (req, res) => {
+router.route("/api/v1/reportes/ventas/:sucursal/articulos").post(async (req, res) => {
     const { sucursal } = req.params;
     const { articulos } = req.body;
     const { fechaIni, fechaFin } = req.query;

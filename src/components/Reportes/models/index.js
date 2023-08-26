@@ -59,21 +59,22 @@ const modelsReportes = (() => {
 
                 SELECT
                     Sucursal = @Sucursal,
-                    Articulo, Nombre, Fecha, VentasPza = SUM(CantidadRegular), VentasCja = SUM(CantidadRegularUC), VentasValor = SUM(VentaValorNeta),
-                    Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta
-                FROM ${dataBaseStart}.dbo.QVDEMovAlmacen
-                WHERE Articulo IN (${articles})
-                    AND TipoDocumento = 'V' AND Estatus = 'E'
-                    AND (Fecha BETWEEN @fechaInicial AND @FechaFinal)
-                    AND Tienda = @Tienda
-                    AND Almacen = @Almacen
-                GROUP BY Articulo, Nombre, Fecha, FactorCompra, FactorVenta, UnidadCompra, UnidadVenta
+                    M.Articulo, M.Nombre, M.Fecha, VentasPza = SUM(M.CantidadRegular), VentasCja = SUM(M.CantidadRegularUC), VentasValor = SUM(M.VentaValorNeta),
+                    Relacion = CAST(CAST(M.FactorCompra AS INT) AS NVARCHAR) + '/' + M.UnidadCompra + ' - ' + CAST(CAST(M.FactorVenta AS INT) AS NVARCHAR) + '/' + M.UnidadVenta,
+                    E.ExistenciaActualRegular
+                FROM ${dataBaseStart}.dbo.QVDEMovAlmacen AS M
+                LEFT JOIN QVExistencias AS E ON M.Articulo = E.Articulo AND M.Almacen = E.Almacen AND M.Tienda = E.Tienda
+                WHERE M.Articulo IN (${articles})
+                    AND M.TipoDocumento = 'V' AND M.Estatus = 'E'
+                    AND (M.Fecha BETWEEN @fechaInicial AND @FechaFinal)
+                    AND M.Tienda = @Tienda
+                    AND M.Almacen = @Almacen
+                GROUP BY M.Articulo, M.Nombre, M.Fecha, M.FactorCompra, M.FactorVenta, M.UnidadCompra, M.UnidadVenta, E.ExistenciaActualRegular
 
                 ${union}
                 `,
                 QueryTypes.SELECT
             );
-            dbmssql.closeConexion();
             return createContentAssert('Resultados de ventas', result[0]);
         } catch (error) {
             console.log(error);

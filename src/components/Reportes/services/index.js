@@ -119,7 +119,35 @@ const ServicesReportes = (() => {
         if (!validate.success)
             return createResponse(400, validate);
 
+        if (articles.length === 0)
+            return createResponse(400, createContentError('No se recibieron articulos'));
+
         let response;
+        let dataArticles = {};
+        const articlesSucs = [];
+        const addDataArticle = (data,) => {
+            if (!dataArticles[`${data.Articulo}`]) {
+                articlesSucs.push(`${data.Sucursal}-${data.Articulo}`)
+                dataArticles[`${data.Articulo}`] = {
+                    Articulo: data.Articulo,
+                    Nombre: data.Nombre,
+                    Relacion: data.Relacion,
+                    Piezas: data.VentasPza,
+                    Cajas: data.VentasCja,
+                    Valor: data.VentasValor,
+                    ExistenciaActual: data. ExistenciaActualRegular
+                }
+            } else {
+                dataArticles[`${data.Articulo}`].Piezas += data.VentasPza;
+                dataArticles[`${data.Articulo}`].Cajas += data.VentasCja;
+                dataArticles[`${data.Articulo}`].Valor += data.VentasValor;
+                const existeceSuc = articlesSucs.find((articleSuc) => articleSuc === `${data.Sucursal}-${data.Articulo}`)
+                if (!existeceSuc) {
+                    articlesSucs.push(`${data.Sucursal}-${data.Articulo}`)
+                    dataArticles[`${data.Articulo}`].ExistenciaActual += data.ExistenciaActualRegular;
+                }
+            }
+        }
 
         if (sucursal.toUpperCase() === 'ALL') {
             const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
@@ -136,35 +164,44 @@ const ServicesReportes = (() => {
                 return createResponse(200, createContentError('No hay conexion con los servidores'));
 
             const data = resultVentas.reduce((dias, sucursal) => {
-                if (sucursal.success) {
-                    if (dias.length === 0) {
-                        const dateStartMoment = toMoment(FechaIni.slice(0, 4) + '-' + FechaIni.slice(4, 6) + '-' + FechaIni.slice(6, 8));
-                        const dateEndMoment = toMoment(FechaFin.slice(0, 4) + '-' + FechaFin.slice(4, 6) + '-' + FechaFin.slice(6, 8));
-                        const totalDias = dateEndMoment.diff(dateStartMoment, 'days');
-
-                        for (let day = 0; day < totalDias.length; day++) {
-                            const newDay = dateStartMoment.add(day, 'days')
-                            dias.push({ Fecha: newDay.format('DD-MM-YYYY'), FechaMoment: newDay })
-                        }
+                if (dias.length === 0) {
+                    const dateStartMoment = toMoment(FechaIni.slice(0, 4) + '-' + FechaIni.slice(4, 6) + '-' + FechaIni.slice(6, 8));
+                    const dateEndMoment = toMoment(FechaFin.slice(0, 4) + '-' + FechaFin.slice(4, 6) + '-' + FechaFin.slice(6, 8));
+                    const totalDias = dateEndMoment.diff(dateStartMoment, 'days');
+    
+                    for (let day = 0; day <= totalDias; day++) {
+                        const newDay = dateStartMoment.add((day === 0) ? 0 : 1, 'days');
+                        dias.push({ Fecha: newDay.format('DD-MM-YYYY'), FechaMoment: newDay })
                     }
-
+                }
+                
+                if (sucursal.success) {
                     sucursal.data.forEach((diaToVerify) => {
-                        const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.replace('T', ' ').replace('Z', '')))
-                        if (diaIndex !== -1) dias[diaIndex][`${diaToVerify.SubTotal}`] = {
-                            Piezas: diaToVerify.VentasPza,
-                            Cajas: diaToVerify.VentasCja,
-                            Valor: diaToVerify.VentasValor
+                        const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.Fecha).format('DD-MM-YYYY'))
+                        if (diaIndex !== -1) {
+                            if (!dias[diaIndex][`${diaToVerify.Sucursal}`]) dias[diaIndex][`${diaToVerify.Sucursal}`] = {}
+                            dias[diaIndex][`${diaToVerify.Sucursal}`][`${diaToVerify.Articulo}`] = {
+                                Piezas: diaToVerify.VentasPza,
+                                Cajas: diaToVerify.VentasCja,
+                                Valor: diaToVerify.VentasValor
+                            }
                         }
+
+                        addDataArticle(diaToVerify);
                     })
-                } else dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = -1)
+                } else
+                    dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = { Piezas: -1, Cajas: -1, Valor: -1 })
                 return dias;
             }, []);
             response = createContentAssert('Ventas de todas las sucursales', data)
-        } else { 
-            console.log(articles);
+            response.Sucursal = sucursal;
+            response.Totales = dataArticles;
+        } else {
             response = await getSalesBySuc(sucursal, FechaIni, FechaFin, articles);
             if (!response.success) return createResponse(400, response);
+            response.data.forEach((diaToVerify) => addDataArticle(diaToVerify));
             response.Sucursal = sucursal;
+            response.Totales = dataArticles;
         }
 
         return createResponse(200, response)
