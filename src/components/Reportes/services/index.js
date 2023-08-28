@@ -171,7 +171,7 @@ const ServicesReportes = (() => {
     
                     for (let day = 0; day <= totalDias; day++) {
                         const newDay = dateStartMoment.add((day === 0) ? 0 : 1, 'days');
-                        dias.push({ Fecha: newDay.format('DD-MM-YYYY'), FechaMoment: newDay })
+                        dias.push({ Fecha: newDay.format('DD-MM-YYYY'), FechaMoment: newDay, Totales: {} })
                     }
                 }
                 
@@ -179,18 +179,23 @@ const ServicesReportes = (() => {
                     sucursal.data.forEach((diaToVerify) => {
                         const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.Fecha).format('DD-MM-YYYY'))
                         if (diaIndex !== -1) {
-                            if (!dias[diaIndex][`${diaToVerify.Sucursal}`]) dias[diaIndex][`${diaToVerify.Sucursal}`] = {}
+                            if (!dias[diaIndex][`${diaToVerify.Sucursal}`]) dias[diaIndex][`${diaToVerify.Sucursal}`] = {};
                             dias[diaIndex][`${diaToVerify.Sucursal}`][`${diaToVerify.Articulo}`] = {
                                 Piezas: diaToVerify.VentasPza,
                                 Cajas: diaToVerify.VentasCja,
                                 Valor: diaToVerify.VentasValor
                             }
+
+                            if (!dias[diaIndex].Totales[`${diaToVerify.Articulo}`]) dias[diaIndex].Totales[`${diaToVerify.Articulo}`] = { Piezas: 0, Cajas: 0, Valor: 0 };
+                            dias[diaIndex].Totales[`${diaToVerify.Articulo}`].Piezas += diaToVerify.VentasPza;
+                            dias[diaIndex].Totales[`${diaToVerify.Articulo}`].Cajas += diaToVerify.VentasCja;
+                            dias[diaIndex].Totales[`${diaToVerify.Articulo}`].Valor += diaToVerify.VentasValor;
                         }
 
                         addDataArticle(diaToVerify);
                     })
                 } else
-                    dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = { Piezas: -1, Cajas: -1, Valor: -1 })
+                    dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = { Fail: true })
                 return dias;
             }, []);
             response = createContentAssert('Ventas de todas las sucursales', data)
