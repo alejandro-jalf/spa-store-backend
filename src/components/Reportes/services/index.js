@@ -35,6 +35,7 @@ const {
     getReportMonthlyVPS,
     getReportMonthlyVentas,
     getSalesByArticles,
+    getOnlyExistences,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -135,7 +136,9 @@ const ServicesReportes = (() => {
                     Piezas: data.VentasPza,
                     Cajas: data.VentasCja,
                     Valor: data.VentasValor,
-                    ExistenciaActual: data. ExistenciaActualRegular
+                    ExistenciaActual: data.ExistenciaActualRegular,
+                    ExistenciaActualUC: data.ExistenciaActualUC,
+                    CostoExistenciaNeto: data.CostoExistenciaNeto
                 }
             } else {
                 dataArticles[`${data.Articulo}`].Piezas += data.VentasPza;
@@ -145,6 +148,8 @@ const ServicesReportes = (() => {
                 if (!existeceSuc) {
                     articlesSucs.push(`${data.Sucursal}-${data.Articulo}`)
                     dataArticles[`${data.Articulo}`].ExistenciaActual += data.ExistenciaActualRegular;
+                    dataArticles[`${data.Articulo}`].ExistenciaActualUC += data.ExistenciaActualUC;
+                    dataArticles[`${data.Articulo}`].CostoExistenciaNeto += data.CostoExistenciaNeto;
                 }
             }
         }
@@ -152,9 +157,15 @@ const ServicesReportes = (() => {
         if (sucursal.toUpperCase() === 'ALL') {
             const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
 
+            listConexions.push({ name: 'ExistenciaBodega', connection: ''});
             const responses = listConexions.map(async (sucursal) => {
-                const suc = getSucursalByCategory('SPA' + sucursal.name);
-                const response = await getSalesBySuc(suc, FechaIni, FechaFin, articles);
+                let response
+                if (sucursal.name === 'ExistenciaBodega')
+                    response = await getSalesBySuc('ExistenciaBodega', FechaIni, FechaFin, articles)
+                else {
+                    const suc = getSucursalByCategory('SPA' + sucursal.name);
+                    response = await getSalesBySuc(suc, FechaIni, FechaFin, articles);
+                }
                 return response;
             });
 
@@ -175,7 +186,7 @@ const ServicesReportes = (() => {
                     }
                 }
                 
-                if (sucursal.success) {
+                if (sucursal.success && !sucursal.Existencia) {
                     sucursal.data.forEach((diaToVerify) => {
                         const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.Fecha).format('DD-MM-YYYY'))
                         if (diaIndex !== -1) {
@@ -194,10 +205,20 @@ const ServicesReportes = (() => {
 
                         addDataArticle(diaToVerify);
                     })
-                } else
+                } else if (!sucursal.Existencia)
                     dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = { Fail: true })
                 return dias;
             }, []);
+            const resultExistenceBO = resultVentas.find((result) => result.Existencia);
+            if (resultExistenceBO.success) {
+                resultExistenceBO.data.forEach((existence) => {
+                    if (dataArticles[`${existence.Articulo}`]) {
+                        dataArticles[`${existence.Articulo}`].ExistenciaActual += existence.ExistenciaActualRegular;
+                        dataArticles[`${existence.Articulo}`].ExistenciaActualUC += existence.ExistenciaActualUC;
+                        dataArticles[`${existence.Articulo}`].CostoExistenciaNeto += existence.CostoExistenciaNeto;
+                    }
+                })
+            }
             response = createContentAssert('Ventas de todas las sucursales', data)
             response.Sucursal = sucursal;
             response.Totales = dataArticles;
@@ -222,21 +243,29 @@ const ServicesReportes = (() => {
             return arts;
         }, '')
 
+        if (sucursal === 'ExistenciaBodega') {
+            const response = await getOnlyExistences(getConnectionFrom('BO'), 'BO', articulos);
+            response.Existencia = true;
+            return response;
+        }
+
         let union = '';
         if (dataBaseStart !== dataBaseEnd)
             union = `
             UNION ALL
             SELECT
                 Sucursal = @Sucursal,
-                Articulo, Nombre, Fecha, VentasPza = SUM(CantidadRegular), VentasCja = SUM(CantidadRegularUC), VentasValor = SUM(VentaValorNeta),
-                Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta
-            FROM ${dataBaseEnd}.dbo.QVDEMovAlmacen
-            WHERE Articulo IN (${articulos})
-                AND TipoDocumento = 'V' AND Estatus = 'E'
-                AND (Fecha BETWEEN @fechaInicial AND @FechaFinal)
-                AND Tienda = @Tienda
-                AND Almacen = @Almacen
-            GROUP BY Articulo, Nombre, Fecha, FactorCompra, FactorVenta, UnidadCompra, UnidadVenta;
+                M.Articulo, M.Nombre, M.Fecha, VentasPza = SUM(M.CantidadRegular), VentasCja = SUM(M.CantidadRegularUC), VentasValor = SUM(M.VentaValorNeta),
+                Relacion = CAST(CAST(M.FactorCompra AS INT) AS NVARCHAR) + '/' + M.UnidadCompra + ' - ' + CAST(CAST(M.FactorVenta AS INT) AS NVARCHAR) + '/' + M.UnidadVenta,
+                E.ExistenciaActualRegular, E.ExistenciaActualUC, E.CostoExistenciaNeto
+            FROM ${dataBaseEnd}.dbo.QVDEMovAlmacen AS M
+            LEFT JOIN QVExistencias AS E ON M.Articulo = E.Articulo AND M.Almacen = E.Almacen AND M.Tienda = E.Tienda
+            WHERE M.Articulo IN (${articles})
+                AND M.TipoDocumento = 'V' AND M.Estatus = 'E'
+                AND (M.Fecha BETWEEN @fechaInicial AND @FechaFinal)
+                AND M.Tienda = @Tienda
+                AND M.Almacen = @Almacen
+            GROUP BY M.Articulo, M.Nombre, M.Fecha, M.FactorCompra, M.FactorVenta, M.UnidadCompra, M.UnidadVenta, E.ExistenciaActualRegular, E.ExistenciaActualUC, E.CostoExistenciaNeto;
             `;
 
         const conexion = getConnectionFrom(sucursal);

@@ -61,7 +61,7 @@ const modelsReportes = (() => {
                     Sucursal = @Sucursal,
                     M.Articulo, M.Nombre, M.Fecha, VentasPza = SUM(M.CantidadRegular), VentasCja = SUM(M.CantidadRegularUC), VentasValor = SUM(M.VentaValorNeta),
                     Relacion = CAST(CAST(M.FactorCompra AS INT) AS NVARCHAR) + '/' + M.UnidadCompra + ' - ' + CAST(CAST(M.FactorVenta AS INT) AS NVARCHAR) + '/' + M.UnidadVenta,
-                    E.ExistenciaActualRegular
+                    E.ExistenciaActualRegular, E.ExistenciaActualUC, E.CostoExistenciaNeto
                 FROM ${dataBaseStart}.dbo.QVDEMovAlmacen AS M
                 LEFT JOIN QVExistencias AS E ON M.Articulo = E.Articulo AND M.Almacen = E.Almacen AND M.Tienda = E.Tienda
                 WHERE M.Articulo IN (${articles})
@@ -69,7 +69,7 @@ const modelsReportes = (() => {
                     AND (M.Fecha BETWEEN @fechaInicial AND @FechaFinal)
                     AND M.Tienda = @Tienda
                     AND M.Almacen = @Almacen
-                GROUP BY M.Articulo, M.Nombre, M.Fecha, M.FactorCompra, M.FactorVenta, M.UnidadCompra, M.UnidadVenta, E.ExistenciaActualRegular
+                GROUP BY M.Articulo, M.Nombre, M.Fecha, M.FactorCompra, M.FactorVenta, M.UnidadCompra, M.UnidadVenta, E.ExistenciaActualRegular, E.ExistenciaActualUC, E.CostoExistenciaNeto
 
                 ${union}
                 `,
@@ -135,6 +135,36 @@ const modelsReportes = (() => {
             console.log(error);
             return createContentError(
                 'Fallo la conexion con base de datos al intentar obtener las ventas por dia',
+                error
+            );
+        }
+    }
+
+    const getOnlyExistences = async (cadenaConexion = '', sucursal = '', articles) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
+                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                
+                SELECT
+                    Articulo,
+                    ExistenciaActualRegular,
+                    ExistenciaActualUC,
+                    CostoExistenciaNeto
+                FROM QVExistencias
+                WHERE Tienda = @Tienda AND Almacen = @Almacen AND Articulo IN(${articles});
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Existencias', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener las existencias',
                 error
             );
         }
@@ -870,6 +900,7 @@ const modelsReportes = (() => {
         getInventoryByShopAndWarehouse,
         getSalesByArticles,
         GetSalesForDate,
+        getOnlyExistences,
         getReplacementsBuys,
         getReplacementsBills,
         getBinnacleBuys,
