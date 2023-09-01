@@ -260,7 +260,7 @@ const ServicesReportes = (() => {
                 E.ExistenciaActualRegular, E.ExistenciaActualUC, E.CostoExistenciaNeto
             FROM ${dataBaseEnd}.dbo.QVDEMovAlmacen AS M
             LEFT JOIN QVExistencias AS E ON M.Articulo = E.Articulo AND M.Almacen = E.Almacen AND M.Tienda = E.Tienda
-            WHERE M.Articulo IN (${articles})
+            WHERE M.Articulo IN (${articulos})
                 AND M.TipoDocumento = 'V' AND M.Estatus = 'E'
                 AND (M.Fecha BETWEEN @fechaInicial AND @FechaFinal)
                 AND M.Tienda = @Tienda
