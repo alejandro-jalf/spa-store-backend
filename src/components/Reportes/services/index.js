@@ -125,8 +125,9 @@ const ServicesReportes = (() => {
 
         let response;
         let dataArticles = {};
+        let existencias = {};
         const articlesSucs = [];
-        const addDataArticle = (data,) => {
+        const _addDataArticle = (data) => {
             if (!dataArticles[`${data.Articulo}`]) {
                 articlesSucs.push(`${data.Sucursal}-${data.Articulo}`)
                 dataArticles[`${data.Articulo}`] = {
@@ -136,6 +137,12 @@ const ServicesReportes = (() => {
                     Piezas: data.VentasPza,
                     Cajas: data.VentasCja,
                     Valor: data.VentasValor,
+                    ExistenciaActual: data.ExistenciaActualRegular,
+                    ExistenciaActualUC: data.ExistenciaActualUC,
+                    CostoExistenciaNeto: data.CostoExistenciaNeto
+                }
+                existencias[`${data.Articulo}`] = {}
+                existencias[`${data.Articulo}`][`${data.Sucursal}`] = {
                     ExistenciaActual: data.ExistenciaActualRegular,
                     ExistenciaActualUC: data.ExistenciaActualUC,
                     CostoExistenciaNeto: data.CostoExistenciaNeto
@@ -151,6 +158,12 @@ const ServicesReportes = (() => {
                     dataArticles[`${data.Articulo}`].ExistenciaActualUC += data.ExistenciaActualUC;
                     dataArticles[`${data.Articulo}`].CostoExistenciaNeto += data.CostoExistenciaNeto;
                 }
+                if (!existencias[`${data.Articulo}`][`${data.Sucursal}`])
+                    existencias[`${data.Articulo}`][`${data.Sucursal}`] = {
+                        ExistenciaActual: data.ExistenciaActualRegular,
+                        ExistenciaActualUC: data.ExistenciaActualUC,
+                        CostoExistenciaNeto: data.CostoExistenciaNeto
+                    }
             }
         }
 
@@ -203,7 +216,7 @@ const ServicesReportes = (() => {
                             dias[diaIndex].Totales[`${diaToVerify.Articulo}`].Valor += diaToVerify.VentasValor;
                         }
 
-                        addDataArticle(diaToVerify);
+                        _addDataArticle(diaToVerify);
                     })
                 } else if (!sucursal.Existencia)
                     dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = { Fail: true })
@@ -216,18 +229,26 @@ const ServicesReportes = (() => {
                         dataArticles[`${existence.Articulo}`].ExistenciaActual += existence.ExistenciaActualRegular;
                         dataArticles[`${existence.Articulo}`].ExistenciaActualUC += existence.ExistenciaActualUC;
                         dataArticles[`${existence.Articulo}`].CostoExistenciaNeto += existence.CostoExistenciaNeto;
+
+                        existencias[`${existence.Articulo}`].BO = {
+                            ExistenciaActual: existence.ExistenciaActualRegular,
+                            ExistenciaActualUC: existence.ExistenciaActualUC,
+                            CostoExistenciaNeto: existence.CostoExistenciaNeto
+                        };
                     }
                 })
             }
             response = createContentAssert('Ventas de todas las sucursales', data)
             response.Sucursal = sucursal;
             response.Totales = dataArticles;
+            response.Existencias = existencias;
         } else {
             response = await getSalesBySuc(sucursal, FechaIni, FechaFin, articles);
             if (!response.success) return createResponse(400, response);
-            response.data.forEach((diaToVerify) => addDataArticle(diaToVerify));
+            response.data.forEach((diaToVerify) => _addDataArticle(diaToVerify));
             response.Sucursal = sucursal;
             response.Totales = dataArticles;
+            response.Existencias = existencias;
         }
 
         return createResponse(200, response)
