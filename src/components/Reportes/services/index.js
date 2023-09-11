@@ -225,7 +225,37 @@ const ServicesReportes = (() => {
         } else {
             response = await getSalesBySuc(sucursal, FechaIni, FechaFin, articles);
             if (!response.success) return createResponse(400, response);
-            response.data.forEach((diaToVerify) => _addDataArticle(diaToVerify));
+            const dateStartMoment = toMoment(FechaIni.slice(0, 4) + '-' + FechaIni.slice(4, 6) + '-' + FechaIni.slice(6, 8));
+            const dateEndMoment = toMoment(FechaFin.slice(0, 4) + '-' + FechaFin.slice(4, 6) + '-' + FechaFin.slice(6, 8));
+            const totalDias = dateEndMoment.diff(dateStartMoment, 'days');
+
+            const data = response.data.reduce((dias, diaToVerify) => {
+                if (dias.length === 0) {
+                    for (let day = 0; day <= totalDias; day++) {
+                        const newDay = dateStartMoment.add((day === 0) ? 0 : 1, 'days');
+                        dias.push({
+                            Fecha: newDay.format('DD-MM-YYYY'),
+                            Articulo: diaToVerify.Articulo,
+                            Nombre: diaToVerify.Nombre,
+                            VentasPza: 0,
+                            VentasCja: 0,
+                            VentasValor: 0,
+                            Relacion: diaToVerify.Relacion,
+                            ExistenciaActualRegular: diaToVerify.ExistenciaActualRegular,
+                            ExistenciaActualUC: diaToVerify.ExistenciaActualUC,
+                            CostoExistenciaNeto: diaToVerify.CostoExistenciaNeto,
+                        })
+                    }
+                }
+                const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.Fecha).format('DD-MM-YYYY'))
+                if (diaIndex !== -1) {
+                    diaToVerify.Fecha = dias[diaIndex].Fecha
+                    dias[diaIndex] = { ...diaToVerify }
+                }
+                _addDataArticle(diaToVerify)
+                return dias
+            }, []);
+            response.data = data
             response.Sucursal = sucursal;
             response.Totales = dataArticles;
             response.Existencias = existencias;
