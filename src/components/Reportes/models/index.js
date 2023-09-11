@@ -71,6 +71,18 @@ const modelsReportes = (() => {
                     AND M.Almacen = @Almacen
                 GROUP BY M.Articulo, M.Nombre, M.Fecha, M.FactorCompra, M.FactorVenta, M.UnidadCompra, M.UnidadVenta, E.ExistenciaActualRegular, E.ExistenciaActualUC, E.CostoExistenciaNeto
 
+                UNION ALL
+
+                SELECT
+                    Sucursal = @Sucursal,
+                    E.Articulo, E.Nombre, Fecha =  CAST('20000101' AS datetime), VentasPza = 0, VentasCja = 0, VentasValor = 0,
+                    Relacion = CAST(CAST(E.FactorCompra AS INT) AS NVARCHAR) + '/' + E.UnidadCompra + ' - ' + CAST(CAST(E.FactorVenta AS INT) AS NVARCHAR) + '/' + E.UnidadVenta,
+                    E.ExistenciaActualRegular, E.ExistenciaActualUC, E.CostoExistenciaNeto
+                FROM QVExistencias AS E
+                WHERE Articulo IN (${articles})
+                    AND Tienda = @Tienda
+                    AND Almacen = @Almacen
+
                 ${union}
                 `,
                 QueryTypes.SELECT

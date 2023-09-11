@@ -143,9 +143,9 @@ const ServicesReportes = (() => {
                 }
                 existencias[`${data.Articulo}`] = {}
                 existencias[`${data.Articulo}`][`${data.Sucursal}`] = {
-                    ExistenciaActual: data.ExistenciaActualRegular,
-                    ExistenciaActualUC: data.ExistenciaActualUC,
-                    CostoExistenciaNeto: data.CostoExistenciaNeto
+                    Piezas: data.ExistenciaActualRegular,
+                    Cajas: data.ExistenciaActualUC,
+                    Valor: data.CostoExistenciaNeto
                 }
             } else {
                 dataArticles[`${data.Articulo}`].Piezas += data.VentasPza;
@@ -160,9 +160,9 @@ const ServicesReportes = (() => {
                 }
                 if (!existencias[`${data.Articulo}`][`${data.Sucursal}`])
                     existencias[`${data.Articulo}`][`${data.Sucursal}`] = {
-                        ExistenciaActual: data.ExistenciaActualRegular,
-                        ExistenciaActualUC: data.ExistenciaActualUC,
-                        CostoExistenciaNeto: data.CostoExistenciaNeto
+                        Piezas: data.ExistenciaActualRegular,
+                        Cajas: data.ExistenciaActualUC,
+                        Valor: data.CostoExistenciaNeto
                     }
             }
         }
@@ -170,15 +170,10 @@ const ServicesReportes = (() => {
         if (sucursal.toUpperCase() === 'ALL') {
             const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
 
-            listConexions.push({ name: 'ExistenciaBodega', connection: ''});
             const responses = listConexions.map(async (sucursal) => {
                 let response
-                if (sucursal.name === 'ExistenciaBodega')
-                    response = await getSalesBySuc('ExistenciaBodega', FechaIni, FechaFin, articles)
-                else {
-                    const suc = getSucursalByCategory('SPA' + sucursal.name);
-                    response = await getSalesBySuc(suc, FechaIni, FechaFin, articles);
-                }
+                const suc = getSucursalByCategory('SPA' + sucursal.name);
+                response = await getSalesBySuc(suc, FechaIni, FechaFin, articles);
                 return response;
             });
 
@@ -199,7 +194,7 @@ const ServicesReportes = (() => {
                     }
                 }
                 
-                if (sucursal.success && !sucursal.Existencia) {
+                if (sucursal.success) {
                     sucursal.data.forEach((diaToVerify) => {
                         const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.Fecha).format('DD-MM-YYYY'))
                         if (diaIndex !== -1) {
@@ -218,26 +213,11 @@ const ServicesReportes = (() => {
 
                         _addDataArticle(diaToVerify);
                     })
-                } else if (!sucursal.Existencia)
+                } else
                     dias.forEach((dia, index) => dias[index][`${sucursal.Sucursal}`] = { Fail: true })
                 return dias;
             }, []);
-            const resultExistenceBO = resultVentas.find((result) => result.Existencia);
-            if (resultExistenceBO.success) {
-                resultExistenceBO.data.forEach((existence) => {
-                    if (dataArticles[`${existence.Articulo}`]) {
-                        dataArticles[`${existence.Articulo}`].ExistenciaActual += existence.ExistenciaActualRegular;
-                        dataArticles[`${existence.Articulo}`].ExistenciaActualUC += existence.ExistenciaActualUC;
-                        dataArticles[`${existence.Articulo}`].CostoExistenciaNeto += existence.CostoExistenciaNeto;
 
-                        existencias[`${existence.Articulo}`].BO = {
-                            ExistenciaActual: existence.ExistenciaActualRegular,
-                            ExistenciaActualUC: existence.ExistenciaActualUC,
-                            CostoExistenciaNeto: existence.CostoExistenciaNeto
-                        };
-                    }
-                })
-            }
             response = createContentAssert('Ventas de todas las sucursales', data)
             response.Sucursal = sucursal;
             response.Totales = dataArticles;
@@ -263,12 +243,6 @@ const ServicesReportes = (() => {
             else arts += ',\'' + article + '\'';
             return arts;
         }, '')
-
-        if (sucursal === 'ExistenciaBodega') {
-            const response = await getOnlyExistences(getConnectionFrom('BO'), 'BO', articulos);
-            response.Existencia = true;
-            return response;
-        }
 
         let union = '';
         if (dataBaseStart !== dataBaseEnd)
