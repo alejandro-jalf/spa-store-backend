@@ -233,25 +233,20 @@ const ServicesReportes = (() => {
                 if (dias.length === 0) {
                     for (let day = 0; day <= totalDias; day++) {
                         const newDay = dateStartMoment.add((day === 0) ? 0 : 1, 'days');
-                        dias.push({
-                            Fecha: newDay.format('DD-MM-YYYY'),
-                            Articulo: diaToVerify.Articulo,
-                            Nombre: diaToVerify.Nombre,
-                            VentasPza: 0,
-                            VentasCja: 0,
-                            VentasValor: 0,
-                            Relacion: diaToVerify.Relacion,
-                            ExistenciaActualRegular: diaToVerify.ExistenciaActualRegular,
-                            ExistenciaActualUC: diaToVerify.ExistenciaActualUC,
-                            CostoExistenciaNeto: diaToVerify.CostoExistenciaNeto,
-                        })
+                        dias.push({ Fecha: newDay.format('DD-MM-YYYY') })
                     }
                 }
-                const diaIndex = dias.findIndex((daySaved) => daySaved.Fecha === toMoment(diaToVerify.Fecha).format('DD-MM-YYYY'))
-                if (diaIndex !== -1) {
-                    diaToVerify.Fecha = dias[diaIndex].Fecha
-                    dias[diaIndex] = { ...diaToVerify }
-                }
+
+                const diaIndex = dias.findIndex(
+                    (daySaved) => daySaved.Fecha === toMoment(diaToVerify.Fecha).format('DD-MM-YYYY')
+                )
+
+                if (diaIndex !== -1)
+                    dias[diaIndex][`${diaToVerify.Articulo}`] = {
+                        Piezas: diaToVerify.VentasPza,
+                        Cajas: diaToVerify.VentasCja,
+                        Valor: diaToVerify.VentasValor
+                    }
                 _addDataArticle(diaToVerify)
                 return dias
             }, []);
