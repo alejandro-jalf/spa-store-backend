@@ -9,6 +9,7 @@ const {
     getListConnectionByCompany,
     getSucursalByCategory,
     createContentAssert,
+    configSearch,
 } = require('../../../utils');
 const {
     validateSucursal,
@@ -674,7 +675,7 @@ const ServicesReportes = (() => {
         return createResponse(400, createContentError('Ordenamiento invalido'));
 
         const conexion = getConnectionFrom(sucursal);
-        const response  = await getMovesByFilter(conexion, sucursal, dataBase, typeDoc, likeDoc, likeRef, order);
+        const response  = await getMovesByFilter(conexion, sucursal, dataBase, typeDoc, configSearch(likeDoc), configSearch(likeRef), order);
 
         if (!response.success) return createResponse(400, response)
         const res = {

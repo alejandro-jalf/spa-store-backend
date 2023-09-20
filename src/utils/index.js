@@ -502,6 +502,12 @@ const utils = (() => {
         return newString;
     }
 
+    const configSearch = (value) => {
+        if (!value) return ''
+        const newValue = value.replaceAll(' ', '%').replaceAll('*', '%')
+        return newValue
+    }
+
     return {
         createContentAssert,
         createContentError,
@@ -529,6 +535,7 @@ const utils = (() => {
         toBit,
         cifraData,
         descifraData,
+        configSearch,
     }
 })();
 
