@@ -36,6 +36,7 @@ const {
     getReportMonthlyVentas,
     getSalesByArticles,
     getOnlyExistences,
+    getMove,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -604,6 +605,60 @@ const ServicesReportes = (() => {
         return createResponse(200, createContentAssert('Contenido', responses));
     }
 
+    const getDataOfDocument = async (sucursal = '', document = '', dataBase = '') => {
+        const validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        if (document === '')
+            return createResponse(
+                400,
+                createContentError('No envio un numero de documento')
+            );
+
+        if (dataBase === '')
+            return createResponse(
+                400,
+                createContentError('No especifico la base de datos')
+            );
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getMove(conexion, sucursal, document, dataBase);
+
+        if (!response.success) return createResponse(400, response)
+
+        const { dataDoc, data } = response.data.reduce((result, row) => {
+            if (Object.keys(result.dataDoc).length === 0)
+                result.dataDoc = {
+                    Documento: row.Documento,
+                    Referencia: row.Referencia,
+                    DescripcionAlmacen: row.DescripcionAlmacen,
+                    Caja: row.Caja,
+                    Cajero: row.Cajero,
+                    NombreCajero: row.NombreCajero,
+                    Observaciones: row.Observaciones,
+                    Fecha: row.Fecha,
+                    Hora: row.Hora,
+                    TipoDocumento: row.TipoDocumento,
+                    Estatus: row.Estatus,
+                }
+            result.data.push({
+                Articulo: row.Articulo,
+                CantidadRegular: row.CantidadRegular,
+                Nombre: row.Nombre,
+                UnidadVenta: row.UnidadVenta,
+                Relacion: row.Relacion,
+                CostoValorNeto: row.CostoValorNeto,
+            })
+            return result
+        }, { dataDoc: {}, data: [] })
+
+        dataDoc.articles = data.length;
+        response.data = data;
+        response.dataDoc = dataDoc;
+        return createResponse(200, response);
+    }
+
     return {
         getInventoryCloseYear,
         getVentasPorDia,
@@ -615,6 +670,7 @@ const ServicesReportes = (() => {
         getSalesByDate,
         getMovesTortillas,
         getInformeOperativoMensual,
+        getDataOfDocument,
     }
 })();
 

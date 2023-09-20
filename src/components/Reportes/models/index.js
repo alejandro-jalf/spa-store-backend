@@ -908,6 +908,32 @@ const modelsReportes = (() => {
         }
     }
 
+    const getMove = async (cadenaConexion = '', sucursal = 'ZR', document = '', DB = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE ${DB};
+                SELECT
+                    Articulo, CantidadRegular, Nombre, UnidadVenta,
+                    Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta,
+                    CostoValorNeto,
+                    Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus
+                FROM QVDEMovAlmacen WHERE Documento = '${document}';
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('datos del documento', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener los datos del documento',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         getSalesByArticles,
@@ -927,6 +953,7 @@ const modelsReportes = (() => {
         getReportMonthlyMEntradas,
         getReportMonthlyUAI,
         getReportMonthlyVentas,
+        getMove,
     }
 })();
 

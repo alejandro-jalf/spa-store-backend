@@ -10,6 +10,7 @@ const {
     getMovesTortillas,
     getInformeOperativoMensual,
     getVentasPorArticulos,
+    getDataOfDocument,
 } = require("../services");
 
 router.route("/api/v1/reportes/inventario/cierre/:sucursal/:tienda/:almacen").get(async (req, res) => {
@@ -39,6 +40,13 @@ router.route("/api/v1/reportes/ventas/:sucursal/articulos").post(async (req, res
     const { fechaIni, fechaFin } = req.query;
     const { status, response } = await getVentasPorArticulos(sucursal, fechaIni, fechaFin, articulos);
     res.status(status).json(response);
+});
+
+router.route("/api/v1/reportes/movimientos/:sucursal/documento/:document").get(async (req, res) => {
+    const { sucursal, document } = req.params;
+    const database = req.query.database;
+    const { status, ...response } = await getDataOfDocument(sucursal, document, database);
+    res.status(200).json(response);
 });
 
 router.route("/api/v1/reportes/movimientos/:sucursal/tortillas").get(async (req, res) => {
