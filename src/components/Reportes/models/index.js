@@ -934,6 +934,32 @@ const modelsReportes = (() => {
         }
     }
 
+    const getMovesByFilter = async (cadenaConexion = '', sucursal = 'ZR', DB = '', typeDoc = 'V', likeDoc = '', likeRef = '', order = 'ASC') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE ${DB};
+                SELECT TOP 500
+                    Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus,
+                    Articulos = COUNT(*)
+                FROM QVDEMovAlmacen WHERE TipoDocumento = '${typeDoc}' AND Documento LIKE '%${likeDoc}%' AND Referencia LIKE '%${likeRef}%'
+                GROUP BY Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus
+                ORDER BY Fecha ${order}
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Lista de documentos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener los documentos',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         getSalesByArticles,
@@ -954,6 +980,7 @@ const modelsReportes = (() => {
         getReportMonthlyUAI,
         getReportMonthlyVentas,
         getMove,
+        getMovesByFilter,
     }
 })();
 

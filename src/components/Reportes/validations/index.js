@@ -80,6 +80,13 @@ const validationReportes = (() => {
         return createContentAssert('Fechas aprovadas');
     }
 
+    const validateEmpty = (value, name) => {
+        if (!value || value === '')
+        return createContentError(`No se recibio "${name}"`);
+
+        return createContentAssert('Dato validado');
+    }
+
     const validateDates = (fechaIni = '', fechaFin = '') => {
         const dateStart = toMoment(fechaIni.slice(0, 4) + '-' + fechaIni.slice(4, 6) + '-' + fechaIni.slice(6, 8));
         const dateEnd = toMoment(fechaFin.slice(0, 4) + '-' + fechaFin.slice(4, 6) + '-' + fechaFin.slice(6, 8));
@@ -94,6 +101,7 @@ const validationReportes = (() => {
         validateDate,
         validateDates,
         validateFechas,
+        validateEmpty,
     }
 })();
 

@@ -15,7 +15,8 @@ const {
     validateAlmacenTienda,
     validateDate,
     validateDates,
-    validateFechas
+    validateFechas,
+    validateEmpty
 } = require('../validations');
 const {
     getInventoryByShopAndWarehouse,
@@ -37,6 +38,7 @@ const {
     getSalesByArticles,
     getOnlyExistences,
     getMove,
+    getMovesByFilter,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -606,21 +608,14 @@ const ServicesReportes = (() => {
     }
 
     const getDataOfDocument = async (sucursal = '', document = '', dataBase = '') => {
-        const validate = validateSucursal(sucursal);
-        if (!validate.success)
-            return createResponse(400, validate);
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
 
-        if (document === '')
-            return createResponse(
-                400,
-                createContentError('No envio un numero de documento')
-            );
+        validate = validateEmpty(document, 'El Documento');
+        if (!validate.success) return createResponse(400, validate);
 
-        if (dataBase === '')
-            return createResponse(
-                400,
-                createContentError('No especifico la base de datos')
-            );
+        validate = validateEmpty(dataBase, 'La Base de Datos');
+        if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
         const response  = await getMove(conexion, sucursal, document, dataBase);
@@ -653,10 +648,41 @@ const ServicesReportes = (() => {
             return result
         }, { dataDoc: {}, data: [] })
 
-        dataDoc.articles = data.length;
-        response.data = data;
-        response.dataDoc = dataDoc;
-        return createResponse(200, response);
+        const res = {
+            message: response.message,
+            articles: data.length,
+            dataDoc: dataDoc,
+            data: data,
+        }
+        return createResponse(200, res);
+    }
+
+    const getListDocuments = async (sucursal = '', dataBase = '', typeDoc = '', likeDoc = '', likeRef = '', order = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateEmpty(typeDoc, 'El Tipo de Documento');
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateEmpty(dataBase, 'La Base de Datos');
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateEmpty(order, 'el orden por fechas');
+        if (!validate.success) return createResponse(400, validate);
+        
+        if (order !== 'ASC' && order !== 'DESC')
+        return createResponse(400, createContentError('Ordenamiento invalido'));
+
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getMovesByFilter(conexion, sucursal, dataBase, typeDoc, likeDoc, likeRef, order);
+
+        if (!response.success) return createResponse(400, response)
+        const res = {
+            message: response.message,
+            count: response.data.length,
+            data: response.data
+        }
+        return createResponse(200, res);
     }
 
     return {
@@ -671,6 +697,7 @@ const ServicesReportes = (() => {
         getMovesTortillas,
         getInformeOperativoMensual,
         getDataOfDocument,
+        getListDocuments,
     }
 })();
 

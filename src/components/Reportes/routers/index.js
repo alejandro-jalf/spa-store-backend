@@ -11,6 +11,7 @@ const {
     getInformeOperativoMensual,
     getVentasPorArticulos,
     getDataOfDocument,
+    getListDocuments,
 } = require("../services");
 
 router.route("/api/v1/reportes/inventario/cierre/:sucursal/:tienda/:almacen").get(async (req, res) => {
@@ -45,15 +46,23 @@ router.route("/api/v1/reportes/ventas/:sucursal/articulos").post(async (req, res
 router.route("/api/v1/reportes/movimientos/:sucursal/documento/:document").get(async (req, res) => {
     const { sucursal, document } = req.params;
     const database = req.query.database;
-    const { status, ...response } = await getDataOfDocument(sucursal, document, database);
-    res.status(200).json(response);
+    const { status, response } = await getDataOfDocument(sucursal, document, database);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/reportes/movimientos/:sucursal").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { database, typeDoc, likeDoc, likeRef, order } = req.query;
+    console.log('entra');
+    const { status, response } = await getListDocuments(sucursal, database, typeDoc, likeDoc, likeRef, order);
+    res.status(status).json(response);
 });
 
 router.route("/api/v1/reportes/movimientos/:sucursal/tortillas").get(async (req, res) => {
     const { sucursal } = req.params;
     const fecha = req.query.fecha;
-    const { status, ...response } = await getMovesTortillas(sucursal, fecha);
-    res.status(200).json(response);
+    const { status, response } = await getMovesTortillas(sucursal, fecha);
+    res.status(status).json(response);
 });
 
 router.route("/api/v1/reportes/movimientos/:sucursal/informeoperativo").get(async (req, res) => {
