@@ -24,6 +24,7 @@ const {
     reduceLog,
     getFacturas,
     getExistenciasAntiguedad,
+    getListDatabases,
 } = require('../models');
 
 const ServicesGeneral = (() => {
@@ -217,6 +218,13 @@ const ServicesGeneral = (() => {
         }
     }
 
+    const getDataBases = async (sucursal = '') => {
+        const conexion = getConnectionFrom(sucursal);
+        const response  = await getListDatabases(conexion);
+
+        return createResponse(200, response);
+    }
+
     return {
         getStatusConections,
         getCalculateFolios,
@@ -228,6 +236,7 @@ const ServicesGeneral = (() => {
         reduceLogOf,
         getFacturasBySucursal,
         getExistencesOld,
+        getDataBases
     }
 })();
 

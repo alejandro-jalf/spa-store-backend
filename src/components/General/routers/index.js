@@ -7,6 +7,7 @@ const {
     zipBackup,
     uploadBackup,
     getInformationOfDataBases,
+    getDataBases,
     reduceLogOf,
     getFacturasBySucursal,
     getExistencesOld,
@@ -28,6 +29,12 @@ router.route("/api/v1/general/folios/:sucursal").get(async (req, res) => {
 router.route("/api/v1/general/databases/:sucursal/information").get(async (req, res) => {
     const { sucursal } = req.params;
     const { status, response } = await getInformationOfDataBases(sucursal);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/general/databases/:sucursal").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { status, response } = await getDataBases(sucursal);
     res.status(status).json(response);
 });
 

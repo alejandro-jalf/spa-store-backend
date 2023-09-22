@@ -272,6 +272,21 @@ const ModelsGeneral = (() => {
         }
     }
 
+    const getListDatabases = async (cadenaConexion = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion, 30000);
+            const result = await accessToDataBase.query(
+                'SELECT name AS DataBaseName FROM sys.databases WHERE database_id > 4',
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            console.log(result[0].length);
+            return createContentAssert('Lista de bases de datos', result[0]);
+        } catch (error) {
+            return createContentError('Fallo al intentar obtener la lista de base de datos: ', error);
+        }
+    }
+
     return {
         testConnection,
         calculaFoliosSucursal,
@@ -284,6 +299,7 @@ const ModelsGeneral = (() => {
         reduceLog,
         getFacturas,
         getExistenciasAntiguedad,
+        getListDatabases,
     }
 })();
 
