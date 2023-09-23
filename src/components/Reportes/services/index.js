@@ -650,6 +650,7 @@ const ServicesReportes = (() => {
         }, { dataDoc: {}, data: [] })
 
         const res = {
+            success: response.success,
             message: response.message,
             articles: data.length,
             dataDoc: dataDoc,
@@ -679,6 +680,7 @@ const ServicesReportes = (() => {
 
         if (!response.success) return createResponse(400, response)
         const res = {
+            success: response.success,
             message: response.message,
             count: response.data.length,
             data: response.data
