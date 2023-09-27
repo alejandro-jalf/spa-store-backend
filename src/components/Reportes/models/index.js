@@ -922,6 +922,9 @@ const modelsReportes = (() => {
                     IvaValor = IvaValorCosto,
                     IepsValor = IepsValorCosto,
                     Total = CostoValorNeto,
+                    Tercero, NombreTercero,
+                    IvaTasa, IepsTasa,
+                    CostoUnitarioSinDcto,
                     Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus
                 FROM QVDEMovAlmacen WHERE Documento = '${document}';
                 `,
