@@ -908,7 +908,7 @@ const modelsReportes = (() => {
         }
     }
 
-    const getMove = async (cadenaConexion = '', sucursal = 'ZR', document = '', DB = '') => {
+    const getMove = async (cadenaConexion = '', sucursal = 'ZR', where = '', DB = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -926,7 +926,7 @@ const modelsReportes = (() => {
                     IvaTasa, IepsTasa,
                     CostoUnitarioSinDcto,
                     Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus
-                FROM QVDEMovAlmacen WHERE Documento = '${document}';
+                FROM QVDEMovAlmacen ${where};
                 `,
                 QueryTypes.SELECT
             );

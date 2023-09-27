@@ -50,10 +50,16 @@ router.route("/api/v1/reportes/movimientos/:sucursal/documento/:document").get(a
     res.status(status).json(response);
 });
 
+router.route("/api/v1/reportes/movimientos/:sucursal/referencia/:referencia").get(async (req, res) => {
+    const { sucursal, referencia } = req.params;
+    const database = req.query.database;
+    const { status, response } = await getDataOfDocument(sucursal, referencia, database, 'referencia');
+    res.status(status).json(response);
+});
+
 router.route("/api/v1/reportes/movimientos/:sucursal").get(async (req, res) => {
     const { sucursal } = req.params;
     const { database, typeDoc, likeDoc, likeRef, order } = req.query;
-    console.log('entra');
     const { status, response } = await getListDocuments(sucursal, database, typeDoc, likeDoc, likeRef, order);
     res.status(status).json(response);
 });

@@ -608,7 +608,7 @@ const ServicesReportes = (() => {
         return createResponse(200, createContentAssert('Contenido', responses));
     }
 
-    const getDataOfDocument = async (sucursal = '', document = '', dataBase = '') => {
+    const getDataOfDocument = async (sucursal = '', document = '', dataBase = '', by = 'document') => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
@@ -619,12 +619,12 @@ const ServicesReportes = (() => {
         if (!validate.success) return createResponse(400, validate);
 
         const conexion = getConnectionFrom(sucursal);
-        const response  = await getMove(conexion, sucursal, document, dataBase);
+        const where = by === 'document' ? `WHERE Documento = '${document}'` : `WHERE Referencia = '${document}'`;
+        const response  = await getMove(conexion, sucursal, where, dataBase);
 
         if (!response.success) return createResponse(400, response)
 
-
-
+        const docs = []
         const { dataDoc, data } = response.data.reduce((result, row) => {
             if (Object.keys(result.dataDoc).length === 0)
                 result.dataDoc = {
@@ -665,12 +665,15 @@ const ServicesReportes = (() => {
                 Iva: row.IvaTasa,
                 Ieps: row.IepsTasa,
             })
+            const docFinded = docs.find((docu) => docu === row.Documento)
+            if (!docFinded) docs.push(row.Documento)
             return result
         }, { dataDoc: {}, data: [] })
 
         const res = {
             success: response.success,
             message: response.message,
+            documents: docs,
             articles: data.length,
             dataDoc: dataDoc,
             data: data,
