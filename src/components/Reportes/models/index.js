@@ -917,7 +917,11 @@ const modelsReportes = (() => {
                 SELECT
                     Articulo, CantidadRegular, Nombre, UnidadVenta,
                     Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta,
-                    CostoValorNeto,
+                    Subtotal = CostoValorSinDcto,
+                    Descuentos = DescuentoValorCosto,
+                    IvaValor = IvaValorCosto,
+                    IepsValor = IepsValorCosto,
+                    Total = CostoValorNeto,
                     Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus
                 FROM QVDEMovAlmacen WHERE Documento = '${document}';
                 `,

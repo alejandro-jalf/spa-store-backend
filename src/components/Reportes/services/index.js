@@ -623,8 +623,11 @@ const ServicesReportes = (() => {
 
         if (!response.success) return createResponse(400, response)
 
+
+
         const { dataDoc, data } = response.data.reduce((result, row) => {
-            if (Object.keys(result.dataDoc).length === 0)
+            if (Object.keys(result.dataDoc).length === 0){
+                console.log(row);
                 result.dataDoc = {
                     Documento: row.Documento,
                     Referencia: row.Referencia,
@@ -637,7 +640,12 @@ const ServicesReportes = (() => {
                     Hora: row.Hora,
                     TipoDocumento: row.TipoDocumento,
                     Estatus: row.Estatus,
-                }
+                    Subtotal: row.Subtotal,
+                    Descuentos: row.Descuentos,
+                    IvaValor: row.IvaValor,
+                    IepsValor: row.IepsValor,
+                    Total: row.Total,
+                }}
             result.data.push({
                 Articulo: row.Articulo,
                 CantidadRegular: row.CantidadRegular,
