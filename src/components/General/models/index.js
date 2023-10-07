@@ -64,12 +64,13 @@ const ModelsGeneral = (() => {
 
     const createBackup = async (cadenaConexion = '', source, name, dataBase) => {
         try {
-            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
-            const result = await accessToDataBase.query(
-                `BACKUP DATABASE [${dataBase}]
+            const consulta = `BACKUP DATABASE [${dataBase}]
                 TO DISK = N'${source}\\${name}' 
                 WITH NOFORMAT, NOINIT,
-                NAME = N'SQLTestDB-Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;`,
+                NAME = N'SQLTestDB-Full Database Backup', SKIP, NOREWIND, NOUNLOAD, STATS = 10;`;
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                consulta,
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
@@ -81,6 +82,7 @@ const ModelsGeneral = (() => {
 
     const createZipBackup = async (cadenaConexion = '', source) => {
         try {
+            const newName = source.replace('.BAK', '');
             const accessToDataBase = dbmssql.getConexion(cadenaConexion, 600000);
             const result = await accessToDataBase.query(
                 `EXEC sp_configure 'show advanced options', 1
@@ -88,7 +90,7 @@ const ModelsGeneral = (() => {
                 EXEC sp_configure 'xp_cmdshell', 1
                 RECONFIGURE
                 
-                EXEC xp_cmdshell 'rar a "${source}.zip" "${source}"'
+                EXEC xp_cmdshell 'rar a "${newName}.ZIP" "${source}"'
 
                 EXEC xp_cmdshell 'DEL /F /A ${source}'
                 
