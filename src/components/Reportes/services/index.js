@@ -681,7 +681,7 @@ const ServicesReportes = (() => {
         return createResponse(200, res);
     }
 
-    const getListDocuments = async (sucursal = '', dataBase = '', typeDoc = '', likeDoc = '', likeRef = '', order = '') => {
+    const getListDocuments = async (sucursal = '', dataBase = '', typeDoc = '', likeDoc = '', likeRef = '', article = '', order = '') => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
@@ -697,8 +697,21 @@ const ServicesReportes = (() => {
         if (order !== 'ASC' && order !== 'DESC')
         return createResponse(400, createContentError('Ordenamiento invalido'));
 
+        const whereArticle = article === '' ? '' : ` AND Articulo = '${article}' `;
+        const groupArticle = article === '' ? '' : ', Articulo ';
+
         const conexion = getConnectionFrom(sucursal);
-        const response  = await getMovesByFilter(conexion, sucursal, dataBase, typeDoc, configSearch(likeDoc), configSearch(likeRef), order);
+        const response  = await getMovesByFilter(
+            conexion,
+            sucursal,
+            dataBase,
+            typeDoc,
+            configSearch(likeDoc),
+            configSearch(likeRef),
+            whereArticle,
+            groupArticle,
+            order
+        );
 
         if (!response.success) return createResponse(400, response)
         const res = {
