@@ -37,22 +37,7 @@ const validationCocina = (() => {
         return createContentAssert('Fechas aprovadas');
     }
 
-    const validateSucursal = (sucursal = '') => {
-        if (
-            sucursal !== 'ZR' &&
-            sucursal !== 'VC' &&
-            sucursal !== 'OU' &&
-            sucursal !== 'JL' &&
-            sucursal !== 'ER' &&
-            sucursal !== 'SA' &&
-            sucursal !== 'SY' &&
-            sucursal !== 'BO'
-        ) return createContentError('La sucursal no es valida');
-        return createContentAssert('Sucursal valida');
-    }
-
     return {
-        validateSucursal,
         validateFecha,
         validateFechas,
     }

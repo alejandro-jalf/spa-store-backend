@@ -11,7 +11,6 @@ const {
     getTiendaBySucursal,
 } = require('../../../utils');
 const {
-    validateSucursal,
     validateBodyCreateArticle,
     validateBodyCreateMasterOffer,
     validateBodyUpdateArticle,
@@ -19,6 +18,7 @@ const {
     validateBodyUpdateStatusMasterOffer,
     validateStatus,
 } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const {
     getValidOffers,
     getAllMasterOffers,

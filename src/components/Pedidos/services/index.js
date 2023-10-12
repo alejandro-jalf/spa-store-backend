@@ -5,10 +5,10 @@ const {
     getDatabaseBySuc,
 } = require('../../../utils');
 const {
-    validateSucursal,
     validateBodyAddArticle,
     validateStatusPedido,
 } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const {
     getPedidosEnBodega,
     getPedidosBySucursal,

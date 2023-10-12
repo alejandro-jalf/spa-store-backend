@@ -2,7 +2,7 @@ const {
     createResponse,
     getConnectionFrom,
 } = require('../../../utils');
-const { validateSucursal } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const {} = require('../utils');
 const {
     getAllProviders,

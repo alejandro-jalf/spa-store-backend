@@ -9,9 +9,9 @@ const {
 } = require('../../../utils');
 const {
     validateEmpresa,
-    validateSucursal,
     validateNumber,
 } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const {
     testConnection,
     calculaFoliosSucursal,

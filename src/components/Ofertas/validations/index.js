@@ -14,20 +14,6 @@ const {
 } = require('../../../utils');
 
 const validationOfertas = (() => {
-    const validateSucursal = (sucursal = '') => {
-        if (
-            sucursal.toUpperCase() !== 'ZR' &&
-            sucursal.toUpperCase() !== 'VC' &&
-            sucursal.toUpperCase() !== 'OU' &&
-            sucursal.toUpperCase() !== 'JL' &&
-            sucursal.toUpperCase() !== 'ER' &&
-            sucursal.toUpperCase() !== 'SY' &&
-            sucursal.toUpperCase() !== 'BO' &&
-            sucursal.toUpperCase() !== 'ALL'
-        ) return createContentError('La sucursal no es valida');
-        return createContentAssert('Sucursal valida');
-    }
-
     const validateBodyCreateMasterOffer = (bodyCreateMaster) => {
         let resultValidate = schemaCreateMasterOffer.validate(bodyCreateMaster);
         if (resultValidate.error)
@@ -137,7 +123,6 @@ const validationOfertas = (() => {
     }
 
     return {
-        validateSucursal,
         validateBodyCreateMasterOffer,
         validateBodyUpdateMasterOffer,
         validateBodyUpdateStatusMasterOffer,

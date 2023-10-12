@@ -9,12 +9,14 @@ const {
 } = require('../../../utils');
 const { dataBase } = require('../../../configs');
 const {
-    validateSucursal,
     validateCodigoBarras,
-    validateSucursalWithCompany,
     validateDayMinAndMax,
     validatePorcentaje,
 } = require('../validations');
+const {
+    validateSucursal,
+    validateSucursalWithCompany,
+} = require('../../../validations');
 const {
     getPrecio,
     calculateStocks,
@@ -33,6 +35,7 @@ const {
     cantidadCompras,
     precioPromedio
 } = require('../utils');
+const { required } = require('joi');
 
 const ServicesArticulos = (() => {
 

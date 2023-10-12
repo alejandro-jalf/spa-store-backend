@@ -6,11 +6,11 @@ const {
     createContentError,
 } = require('../../../utils');
 const {
-    validateSucursal,
     validateBodyUpdateRequest,
     validateStatusRequest,
     validateCreatedBy,
 } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const {
     getSolicitudesAll,
     getSolicitudesBySuc,

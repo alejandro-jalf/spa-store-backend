@@ -3,20 +3,6 @@ const { createContentAssert, createContentError } = require('../../../utils');
 
 const validationPedidos = (() => {
 
-    const validateSucursal = (sucursal = '') => {
-        if (
-            sucursal.toUpperCase() !== 'ALL' &&
-            sucursal.toUpperCase() !== 'ZR' &&
-            sucursal.toUpperCase() !== 'VC' &&
-            sucursal.toUpperCase() !== 'ER' &&
-            sucursal.toUpperCase() !== 'OU' &&
-            sucursal.toUpperCase() !== 'SY' &&
-            sucursal.toUpperCase() !== 'JL' &&
-            sucursal.toUpperCase() !== 'BO'
-        ) return createContentError('La sucursal no es valida');
-        return createContentAssert('Sucursal valida');
-    }
-
     const validateCreatedBy = (nameCreated = '') => {
         if (nameCreated.trim() === '') return createContentError('El nombre de quien crea la solicitud no debe de estar vacio');
         return createContentAssert('Nombre valido');
@@ -42,7 +28,6 @@ const validationPedidos = (() => {
     }
 
     return {
-        validateSucursal,
         validateStatusRequest,
         validateBodyUpdateRequest,
         validateCreatedBy,

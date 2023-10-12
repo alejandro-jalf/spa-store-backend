@@ -8,7 +8,8 @@ const {
     getListConnectionByCompany,
     getSucursalByCategory,
 } = require('../../../utils');
-const { validateSucursal, validateFechas } = require('../../cocina/validations');
+const { validateFechas } = require('../../cocina/validations');
+const { validateSucursal } = require('../../../validations');
 const {
     getEntradasToday,
     getTransferenciasToday,

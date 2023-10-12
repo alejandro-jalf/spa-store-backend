@@ -6,7 +6,8 @@ const {
     getDatabase,
     getEndDayMonth,
 } = require('../../../utils');
-const { validateSucursal, validateFechas } = require('../validations');
+const { validateFechas } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const { getVentasByFecha, getAllVentasByFecha } = require('../models');
 
 const ServicesCocina = (() => {

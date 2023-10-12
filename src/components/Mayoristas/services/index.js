@@ -1,11 +1,9 @@
 const {
     createResponse,
     getConnectionFrom,
-    createContentAssert,
 } = require('../../../utils');
-const {
-    validateSucursal, validateUpdateCostoOrden, validateUpdateMasivo,
-} = require('../validations');
+const { validateUpdateCostoOrden, validateUpdateMasivo } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const {
     getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra, updateMassiveCostosOrdenCompra,
 } = require('../models');

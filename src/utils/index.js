@@ -16,6 +16,7 @@ const {
     listHost,
     user,
     password,
+    connectionSoconusco,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
 const moment = require('moment');
@@ -54,6 +55,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'MA') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'RE') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'CO') return connectionCaasaSuper;
+        if (from.trim().toUpperCase() === 'SC') return connectionSoconusco;
     }
 
     const getNameBySiglas= (from = '') => {
@@ -65,6 +67,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'JL') return 'SPA Jaltipan';
         if (from.trim().toUpperCase() === 'BO') return 'SPA Bodega';
         if (from.trim().toUpperCase() === 'ER') return 'SPA Enriquez';
+        if (from.trim().toUpperCase() === 'SC') return 'SPA Soconusco';
         if (from.trim().toUpperCase() === 'SA') return 'CAASA Sayula';
         if (from.trim().toUpperCase() === 'SY') return 'SPA Sayula';
         if (from.trim().toUpperCase() === 'SB') return 'Sayula Tortilleria';
@@ -92,6 +95,7 @@ const utils = (() => {
             { name: 'SAYULA T.', connection: connectionSayulaT },
             { name: 'JALTIPAN', connection: connectionJaltipan },
             { name: 'BODEGA', connection: connectionBodega },
+            { name: 'SOCONUSCO', connection: connectionSoconusco },
         ]
         return []
     }
@@ -116,6 +120,7 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'SPASAYULA') return 'SY';
         if (categoria.toUpperCase() === 'SPAVICTORIA') return 'VC';
         if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';
+        if (categoria.toUpperCase() === 'SPASOCONUSCO') return 'SC';
         if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
         if (categoria.toUpperCase() === 'SPASANANDRES') return undefined;
         if (categoria.toUpperCase() === 'HUAMUCHIL') return undefined;
@@ -148,6 +153,9 @@ const utils = (() => {
 
         if (almacen.trim().toLowerCase() === 'spa-sayula-punto de venta')
             return 'SY';
+
+        if (almacen.trim().toLowerCase() === 'spa-soconusco-punto de venta')
+            return 'SC';
 
         if (
             almacen.trim().toLowerCase() === 'bodega bocardo' ||
@@ -301,6 +309,8 @@ const utils = (() => {
                 return 4;
             case 'BO':
                 return 6;
+            case 'SC':
+                return 10;
             default:
                 return 0;
         }
@@ -322,6 +332,8 @@ const utils = (() => {
                 return 7;
             case 'BO':
                 return 21;
+            case 'SC':
+                return 25;
             default:
                 return 0;
         }

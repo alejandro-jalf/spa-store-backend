@@ -15,6 +15,7 @@ const configs = (() => {
     const connectionBodega = process.env.SPA_BO_SEQUELIZE;
     const connectionEnriquez = process.env.SPA_EN_SEQUELIZE;
     const connectionSayula = process.env.SPA_SY_SEQUELIZE;
+    const connectionSoconusco = process.env.SPA_SC_SEQUELIZE;
     const connectionSayulaT = process.env.SPA_TY_SEQUELIZE;
     const connectionTortilleriaAcayucan = process.env.SPA_TF_SEQUELIZE;
     const connectionCaasaEnriquez = process.env.CAASA_EN_SEQUELIZE;
@@ -31,6 +32,7 @@ const configs = (() => {
         VC: process.env.SPA_DATABASE_VC,
         OU: process.env.SPA_DATABASE_OU,
         JL: process.env.SPA_DATABASE_JL,
+        SC: process.env.SPA_DATABASE_SC,
         BO: process.env.SPA_DATABASE_BO,
         SU: process.env.SPA_DATABASE_SU,
         ER: process.env.SPA_DATABASE_EN,
@@ -49,6 +51,7 @@ const configs = (() => {
         TF: process.env.SPA_HOST_TF,
         JL: process.env.SPA_HOST_JL,
         BO: process.env.SPA_HOST_ST,
+        SC: process.env.SPA_HOST_SC,
         SU: process.env.CAASA_HOST_SU,
     }
 
@@ -73,6 +76,7 @@ const configs = (() => {
         connectionCaasaSayula,
         connectionCaasaSuper,
         connectionCaasaSayulaT,
+        connectionSoconusco,
         user,
         password,
     }

@@ -12,13 +12,13 @@ const {
     configSearch,
 } = require('../../../utils');
 const {
-    validateSucursal,
     validateAlmacenTienda,
     validateDate,
     validateDates,
     validateFechas,
     validateEmpty
 } = require('../validations');
+const { validateSucursal } = require('../../../validations');
 const {
     getInventoryByShopAndWarehouse,
     GetSalesForDate,
