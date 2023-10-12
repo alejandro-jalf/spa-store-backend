@@ -12,6 +12,7 @@ const {
     toMoment,
     getDateActual,
 } = require('../../../utils');
+const { validateSucursal } = require('../../../validations');
 
 const validationOfertas = (() => {
     const validateBodyCreateMasterOffer = (bodyCreateMaster) => {

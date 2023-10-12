@@ -3,6 +3,7 @@ const { createContentAssert, createContentError } = require('../utils');
 const validationGeneral = (() => {
     const validateSucursal = (sucursal = '') => {
         if (
+            sucursal.toUpperCase() !== 'ALL' &&
             sucursal.toUpperCase() !== 'ZR' &&
             sucursal.toUpperCase() !== 'VC' &&
             sucursal.toUpperCase() !== 'ER' &&
