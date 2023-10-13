@@ -2,7 +2,9 @@ const { QueryTypes } = require('sequelize');
 const { dbmssql } = require('../../../services')
 const {
     createContentAssert,
-    createContentError
+    createContentError,
+    getDeclareAlmacen,
+    getDeclareTienda,
 } = require('../../../utils');
 
 const ModelsArticulos = (() => {
@@ -12,8 +14,8 @@ const ModelsArticulos = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'OU' THEN 19 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'OU' THEN 5 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
                 DECLARE @articulo NVARCHAR(15) = (SELECT DISTINCT TOP 1 Articulo FROM ArticulosRelacion WHERE CodigoBarras = '${codigoBarrasArticulo}' OR Articulo = '${codigoBarrasArticulo}');
                 DECLARE @article NVARCHAR(15) = ISNULL(@articulo, '${codigoBarrasArticulo}');
 
@@ -52,8 +54,8 @@ const ModelsArticulos = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
                 DECLARE @UtilidadMinima FLOAT = ${porcentajeUtilidad};
 
                 WITH ArticulosUtilidad (
@@ -107,8 +109,8 @@ const ModelsArticulos = (() => {
                 DECLARE @DiasStockMax INT = ${dayMax};
 
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 WHEN @Sucursal = 'SA' THEN 6 WHEN @Sucursal = 'SU' THEN 2 WHEN @Sucursal = 'MA' THEN 3 WHEN @Sucursal = 'RE' THEN 1 WHEN @Sucursal = 'EN' THEN 14 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 WHEN @Sucursal = 'SA' THEN 2 WHEN @Sucursal = 'SU' THEN 5 WHEN @Sucursal = 'MA' THEN 1 WHEN @Sucursal = 'RE' THEN 1 WHEN @Sucursal = 'EN' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 WITH VentasPorDia (
                 Fecha, Articulo, CodigoBarrAS, Nombre, Cant, Almacen
@@ -181,8 +183,8 @@ const ModelsArticulos = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}'
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'OU' THEN 19 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'OU' THEN 5 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
                 DECLARE @articulo NVARCHAR(15) = (SELECT DISTINCT TOP 1 Articulo FROM ArticulosRelacion WHERE CodigoBarras = '${article}' OR Articulo = '${article}');
                 DECLARE @article NVARCHAR(15) = ISNULL(@articulo, '${article}');
 
@@ -216,8 +218,8 @@ const ModelsArticulos = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
                 DECLARE @articulo NVARCHAR(15) = (SELECT DISTINCT TOP 1 Articulo FROM ArticulosRelacion WHERE CodigoBarras = '${article}' OR Articulo = '${article}');
                 DECLARE @article NVARCHAR(15) = ISNULL(@articulo, '${article}');
                 DECLARE @Total int = (SELECT Total = COUNT(*) FROM QVListaprecioConCosto WHERE Almacen = @Almacen AND Tienda = @Tienda AND (Articulo = @article OR CodigoBarras = @article));
@@ -310,8 +312,8 @@ const ModelsArticulos = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
                 DECLARE @articulo NVARCHAR(15) = (SELECT DISTINCT TOP 1 Articulo FROM ArticulosRelacion WHERE CodigoBarras = '${article}' OR Articulo = '${article}');
                 DECLARE @article NVARCHAR(15) = ISNULL(@articulo, '${article}');
 
@@ -336,8 +338,8 @@ const ModelsArticulos = (() => {
                     const resultCompras = await connection.query(
                         `
                         DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                        DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                        DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                        ${getDeclareAlmacen()}
+                        ${getDeclareTienda()}
                         DECLARE @articulo NVARCHAR(15) = (SELECT DISTINCT TOP 1 Articulo FROM ArticulosRelacion WHERE CodigoBarras = '${article}' OR Articulo = '${article}');
                         DECLARE @article NVARCHAR(15) = ISNULL(@articulo, '${article}');
         
@@ -383,8 +385,8 @@ const ModelsArticulos = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 SELECT
                     Articulo,CodigoBarras,Nombre,
@@ -413,8 +415,8 @@ const ModelsArticulos = (() => {
                 `
                 DECLARE @Proveedor NVARCHAR(100) = '${proveedor}';
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 WITH ArticlesByProvider (Articulo, Proveedor) AS (
                     SELECT
@@ -451,8 +453,8 @@ const ModelsArticulos = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 SELECT
                     Articulo, Nombre,

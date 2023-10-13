@@ -2,7 +2,9 @@ const { QueryTypes } = require('sequelize');
 const { dbmssql } = require('../../../services')
 const {
     createContentAssert,
-    createContentError
+    createContentError,
+    getDeclareAlmacen,
+    getDeclareTienda,
 } = require('../../../utils');
 
 const modelsOfertas = (() => {
@@ -13,8 +15,8 @@ const modelsOfertas = (() => {
                 `
                 DECLARE @FechaActual DATETIME = CAST('${now}' AS datetime);
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 SELECT
                     Suc = @Sucursal,
@@ -58,7 +60,7 @@ const modelsOfertas = (() => {
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @FechaInicial DATETIME = CAST('${dateInit}' AS DATETIME);
                 DECLARE @FechaFinal DATETIME = CAST('${dateEnd}' AS DATETIME);
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareTienda()}
 
                 SELECT
                     Suc = @Sucursal,
@@ -92,8 +94,8 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
                 DECLARE @FechaActual DATETIME = CAST('${date}' AS datetime);
 
                 WITH DataArticles(
@@ -148,8 +150,8 @@ const modelsOfertas = (() => {
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
                 DECLARE @FechaInicial DATETIME = CAST('${fechaInicio} 12:00:00.000' AS datetime);
                 DECLARE @FechaFinal DATETIME = CAST('${fechaFin} 12:00:00.000' AS datetime);
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 WITH ArticulosEnOfertas(
                     Articulo, Nombre, Precio1IVAUV, Oferta, UltimoCosto, UtilidadOferta, OfertaValida, OfertaMayor
@@ -202,8 +204,8 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 SELECT 
                     Articulo,
@@ -238,8 +240,8 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 SELECT 
                     Articulo,
@@ -405,7 +407,7 @@ const modelsOfertas = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareTienda()}
                 
                 UPDATE PreciosT SET CantidadAutomatico = 0
                 WHERE TipoTienda = @Tienda
@@ -516,8 +518,8 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 SELECT
                     O.*, PrecioActual = L.Precio1IVAUV, Descuento = L.Precio1IVAUV - O.oferta
@@ -549,8 +551,8 @@ const modelsOfertas = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
 
                 SELECT
                     *

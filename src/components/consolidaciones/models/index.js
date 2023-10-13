@@ -2,7 +2,9 @@ const { QueryTypes } = require('sequelize');
 const { dbmssql } = require('../../../services')
 const {
     createContentAssert,
-    createContentError
+    createContentError,
+    getDeclareAlmacen,
+    getDeclareTienda,
 } = require('../../../utils');
 
 const modelsConsolidaciones = (() => {
@@ -161,8 +163,8 @@ const modelsConsolidaciones = (() => {
                 `
                 DECLARE @Fecha datetime = CAST('${fecha}' AS datetime);
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
-                DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZR' THEN 1 WHEN @Sucursal = 'VC' THEN 2 WHEN @Sucursal = 'ER' THEN 3 WHEN @Sucursal = 'OU' THEN 5  WHEN @Sucursal = 'SY' THEN 9 WHEN @Sucursal = 'JL' THEN 4 WHEN @Sucursal = 'BO' THEN 6 ELSE 0 END;
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
                 
                 SELECT
                     Fecha, Documento, D.Articulo, D.Nombre, CostoUnitario, UltimoCosto,
@@ -190,7 +192,7 @@ const modelsConsolidaciones = (() => {
             const result = await accessToDataBase.query(
                 `
                 DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
-                DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZR' THEN 2 WHEN @Sucursal = 'VC' THEN 3 WHEN @Sucursal = 'ER' THEN 5 WHEN @Sucursal = 'OU' THEN 19  WHEN @Sucursal = 'SY' THEN 16 WHEN @Sucursal = 'JL' THEN 7 WHEN @Sucursal = 'BO' THEN 21 ELSE 0 END;
+                ${getDeclareAlmacen()}
 
                 UPDATE Existencias 
                 SET UltimoCosto = CASE Articulo
