@@ -205,6 +205,7 @@ const servicesConsolidaciones = (() => {
                 ER: 'No Encontrado',
                 OU: 'No Encontrado',
                 SY: 'No Encontrado',
+                SC: 'No Encontrado',
                 JL: 'No Encontrado',
                 BO: 'No Encontrado',
             }
