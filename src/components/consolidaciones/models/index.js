@@ -45,7 +45,7 @@ const modelsConsolidaciones = (() => {
     }
 
     const getTransferenciasToday = async (cadenaConexion = '', fechaIni = '', FechaFin = '', DB = '') => {
-        try {
+        try { // Linea para actualizar app
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
