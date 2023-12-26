@@ -17,6 +17,8 @@ const {
     user,
     password,
     connectionSoconusco,
+    connectionSanAndres,
+    connectionSanAndresPromotora,
 } = require('../configs');
 const { v4: uuidv4 } = require('uuid')
 const moment = require('moment');
@@ -56,6 +58,8 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'RE') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'CO') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'SC') return connectionSoconusco;
+        if (from.trim().toUpperCase() === 'SN') return connectionSanAndres;
+        if (from.trim().toUpperCase() === 'SNP') return connectionSanAndresPromotora;
     }
 
     const getNameBySiglas= (from = '') => {
@@ -68,6 +72,8 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'BO') return 'SPA Bodega';
         if (from.trim().toUpperCase() === 'ER') return 'SPA Enriquez';
         if (from.trim().toUpperCase() === 'SC') return 'SPA Soconusco';
+        if (from.trim().toUpperCase() === 'SN') return 'SPA San Andres';
+        if (from.trim().toUpperCase() === 'SNP') return 'SPA San Andres P';
         if (from.trim().toUpperCase() === 'SA') return 'CAASA Sayula';
         if (from.trim().toUpperCase() === 'SY') return 'SPA Sayula';
         if (from.trim().toUpperCase() === 'SB') return 'Sayula Tortilleria';
@@ -96,6 +102,8 @@ const utils = (() => {
             { name: 'JALTIPAN', connection: connectionJaltipan },
             { name: 'BODEGA', connection: connectionBodega },
             { name: 'SOCONUSCO', connection: connectionSoconusco },
+            { name: 'SANANDRES', connection: connectionSanAndres },
+            { name: 'SANANDRESP', connection: connectionSanAndresPromotora },
         ]
         return []
     }
@@ -122,7 +130,8 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';
         if (categoria.toUpperCase() === 'SPASOCONUSCO') return 'SC';
         if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
-        if (categoria.toUpperCase() === 'SPASANANDRES') return undefined;
+        if (categoria.toUpperCase() === 'SPASANANDRES') return 'SN';
+        if (categoria.toUpperCase() === 'SPASANANDRESP') return 'SNP';
         if (categoria.toUpperCase() === 'HUAMUCHIL') return undefined;
         if (categoria.toUpperCase() === 'TXTLABOYA') return undefined;
         if (categoria.toUpperCase() === 'TXTLAESCONDIDA') return undefined;
@@ -156,6 +165,12 @@ const utils = (() => {
 
         if (almacen.trim().toLowerCase() === 'spa-soconusco-punto de venta')
             return 'SC';
+
+        if (
+            almacen.trim().toLowerCase() === 'SPA-San Andres-Punto de Venta' ||
+            almacen.trim().toLowerCase() === 'SPA-San Andres-Bodega'    
+        )
+            return 'SN';
 
         if (
             almacen.trim().toLowerCase() === 'bodega bocardo' ||
@@ -311,6 +326,10 @@ const utils = (() => {
                 return 6;
             case 'SC':
                 return 10;
+            case 'SN':
+                return 7;
+            case 'SNP':
+                return 8;
             default:
                 return 0;
         }
@@ -334,6 +353,8 @@ const utils = (() => {
                 return 21;
             case 'SC':
                 return 25;
+            case 'SN':
+                return 12;
             default:
                 return 0;
         }
@@ -531,6 +552,9 @@ const utils = (() => {
                 WHEN @Sucursal = 'JL' THEN 7
                 WHEN @Sucursal = 'BO' THEN 21
                 WHEN @Sucursal = 'SC' THEN 25
+                WHEN @Sucursal = 'SN' THEN 12
+                WHEN @Sucursal = 'SNB' THEN 11
+                WHEN @Sucursal = 'SNP' THEN 13
                 ELSE 0 END;`
     }
 
@@ -545,6 +569,8 @@ const utils = (() => {
                 WHEN @Sucursal = 'JL' THEN 4
                 WHEN @Sucursal = 'BO' THEN 6
                 WHEN @Sucursal = 'SC' THEN 10
+                WHEN @Sucursal = 'SN' THEN 7
+                WHEN @Sucursal = 'SNP' THEN 8
                 ELSE 0 END;`
     }
 

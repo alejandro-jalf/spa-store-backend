@@ -23,6 +23,7 @@ const validationTrabajadores = (() => {
             sucursal.toUpperCase() !== 'SPAOFICINA' &&
             sucursal.toUpperCase() !== 'SPAOLUTA' &&
             sucursal.toUpperCase() !== 'SPASANANDRES' &&
+            sucursal.toUpperCase() !== 'SPASANANDRESP' &&
             sucursal.toUpperCase() !== 'SPAVICTORIA' &&
             sucursal.toUpperCase() !== 'SPAZARAGOZA' &&
             sucursal.toUpperCase() !== 'SPASOCONUSCO' &&
