@@ -38,15 +38,15 @@ router.route("/api/v1/articulos/stocks").put(async (req, res) => {
     res.status(status).json(response);
 });
 
-router.route("/api/v1/articulos/:nombre/existencias").get(async (req, res) => {
-    const { nombre } = req.params;
-    const { status, response } = await getExistenciasByNombre(nombre);
+router.route("/api/v1/articulos/:nombre/existencias/:tiendas").get(async (req, res) => {
+    const { nombre, tiendas } = req.params;
+    const { status, response } = await getExistenciasByNombre(nombre, tiendas);
     res.status(status).json(response);
 });
 
-router.route("/api/v1/articulos/:sku/existencias/detalles").get(async (req, res) => {
-    const { sku } = req.params;
-    const { status, response } = await getDetallesExistenciasBySku(sku);
+router.route("/api/v1/articulos/:sku/existencias/detalles/:tiendas").get(async (req, res) => {
+    const { sku, tiendas } = req.params;
+    const { status, response } = await getDetallesExistenciasBySku(sku, tiendas);
     res.status(status).json(response);
 });
 

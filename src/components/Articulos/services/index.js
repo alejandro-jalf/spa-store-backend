@@ -156,8 +156,10 @@ const ServicesArticulos = (() => {
         return createResponse(200, response)
     }
 
-    const getExistenciasByNombre = async (nombre = '') => {
-        const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+    const getExistenciasByNombre = async (nombre = '', tiendas = '') => {
+        let listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+        if (tiendas === 'TAC') listConexions = listConexions.filter((suc) => suc.name !== 'SANANDRES' && suc.name !== 'SANANDRESP' && suc.name !== 'SANANDRESB');
+        else if (tiendas === 'TSN') listConexions = listConexions.filter((suc) => suc.name === 'SANANDRES' && suc.name === 'SANANDRESP' && suc.name === 'SANANDRESB');
 
         const articleOfSubsidiarys = listConexions.map(async (sucursal) => {
             const suc = getSucursalByCategory('SPA' + sucursal.name);
@@ -187,9 +189,11 @@ const ServicesArticulos = (() => {
         return createResponse(200, articulos)
     }
 
-    const getDetallesExistenciasBySku = async (sku) => {
+    const getDetallesExistenciasBySku = async (sku, tiendas = '') => {
         if (!sku) return createResponse(400, createContentError('Debe enviar un sku'));
-        const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+        let listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+        if (tiendas === 'TAC') listConexions = listConexions.filter((suc) => suc.name !== 'SANANDRES' && suc.name !== 'SANANDRESP' && suc.name !== 'SANANDRESB');
+        else if (tiendas === 'TSN') listConexions = listConexions.filter((suc) => suc.name === 'SANANDRES' && suc.name === 'SANANDRESP' && suc.name === 'SANANDRESB');
         const yearActual = getDateActual().format('YYYY');
 
         const resultOnline = listConexions.map(async (sucursal) => {
