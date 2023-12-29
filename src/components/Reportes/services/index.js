@@ -81,6 +81,28 @@ const ServicesReportes = (() => {
         if (!validate.success)
             return createResponse(400, validate);
 
+        if (sucursal === 'ALLS') {
+            let listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.' && suc.name !== 'BODEGA');
+
+            const resultOnline = listConexions.map(async (sucursal) => {
+                const suc = getSucursalByCategory('SPA' + sucursal.name);
+                const response = await _getSalesForDate(FechaIni, FechaFin, suc, sucursal.connection);
+                response.status = response.success ? 'Online' : 'Offline';
+                response.sucursal = sucursal.name;
+                return response;
+            });
+
+            const results = await Promise.all(resultOnline);
+            return createResponse(200, createContentAssert('Informacion de ventas', results));
+        } else {
+            const conexion = getConnectionFrom(sucursal);
+            const response = await _getSalesForDate(FechaIni, FechaFin, sucursal, conexion);
+            if (!response.success) return createResponse(400, response)
+            return createResponse(200, response)
+        }
+    }
+
+    const _getSalesForDate = async (FechaIni, FechaFin, sucursal, conexion) => {
         const dataBaseStart = getDatabase(toMoment(FechaIni), sucursal);
         const dataBaseEnd = getDatabase(toMoment(FechaFin), sucursal);
 
@@ -100,11 +122,10 @@ const ServicesReportes = (() => {
                     GROUP BY Fecha, Documento
             `;
 
-        const conexion = getConnectionFrom(sucursal);
+        // const conexion = getConnectionFrom(sucursal);
         const response  = await GetSalesForDate(conexion, getNameBySiglas(sucursal), FechaIni, FechaFin, dataBaseStart, union);
 
-        if (!response.success) return createResponse(400, response)
-        return createResponse(200, response)
+        return response
     }
     
     const getVentasPorArticulos = async (sucursal = '', FechaIni = '', FechaFin = '', articles = []) => {
