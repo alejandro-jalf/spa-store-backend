@@ -30,6 +30,8 @@ const modelsConsolidaciones = (() => {
                     UnidadCompra, Rel = CAST(CAST(FactorCompra AS int) AS nvarchar) + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar)
                 FROM QVDEMovAlmacen
                 WHERE Documento = '${documento}'
+                    AND TipoDocumento = 'T'
+                    AND Estatus = 'E'
                 `,
                 QueryTypes.SELECT
             );
