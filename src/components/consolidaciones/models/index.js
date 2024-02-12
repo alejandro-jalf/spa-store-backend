@@ -32,6 +32,7 @@ const modelsConsolidaciones = (() => {
                 WHERE Documento = '${documento}'
                     AND TipoDocumento = 'T'
                     AND Estatus = 'E'
+                ORDER BY Fecha DESC, Hora DESC
                 `,
                 QueryTypes.SELECT
             );
