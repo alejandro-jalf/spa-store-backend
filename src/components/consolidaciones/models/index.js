@@ -16,23 +16,26 @@ const modelsConsolidaciones = (() => {
                 `
                 USE ${DB};
                 SELECT
-                    Fecha, Documento, Articulo, Nombre, Descripcion,
-                    CantidadRegular, CantidadRegularUC,
-                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
-                    CostoUnitarioNeto,
-                    CostoUnitarioNetoIva = CASE WHEN Categoria = '02' THEN CostoUnitarioNeto * 1.16 ELSE CostoUnitarioNeto END,
-                    CostoValorNeto,
-                    CostoUnitarioNetoUC,
-                    CostoUnitarioNetoUCIva = CASE WHEN Categoria = '02' THEN CostoUnitarioNetoUC * 1.16 ELSE CostoUnitarioNetoUC END,
-                    CostoConIva = CASE WHEN Categoria = '02' THEN CostoValorNeto * 1.16 ELSE CostoValorNeto END,
-                    Iva = CASE WHEN Categoria = '02' THEN CostoValorNeto * 0.16 ELSE 0 END,
-                    Tasa = CASE WHEN Categoria = '02' THEN '16.00' ELSE '0.00' END,
-                    UnidadCompra, Rel = CAST(CAST(FactorCompra AS int) AS nvarchar) + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar)
-                FROM QVDEMovAlmacen
-                WHERE Documento = '${documento}'
-                    AND TipoDocumento = 'T'
-                    AND Estatus = 'E'
-                ORDER BY Fecha DESC, Hora DESC
+                    M.Fecha, M.Documento, M.Articulo, M.Nombre, M.Descripcion,
+                    M.CantidadRegular, M.CantidadRegularUC, M.CostoUnitarioNeto,
+                    M.CostoValorNeto, M.CostoUnitarioNetoUC, M.UnidadCompra,
+                    Relacion = CAST(CAST(M.FactorCompra AS int) AS nvarchar) + M.UnidadCompra + '/' + CAST(CAST(M.FactorVenta AS int) AS nvarchar) + M.UnidadVenta,
+                    CostoUnitarioNetoIva = CASE WHEN M.Categoria = '02' THEN M.CostoUnitarioNeto * 1.16 ELSE M.CostoUnitarioNeto END,
+                    CostoUnitarioNetoUCIva = CASE WHEN M.Categoria = '02' THEN M.CostoUnitarioNetoUC * 1.16 ELSE M.CostoUnitarioNetoUC END,
+                    CostoConIva = CASE WHEN M.Categoria = '02' THEN M.CostoValorNeto * 1.16 ELSE M.CostoValorNeto END,
+                    Iva = CASE WHEN M.Categoria = '02' THEN M.CostoValorNeto * 0.16 ELSE 0 END,
+                    Tasa = CASE WHEN M.Categoria = '02' THEN '16.00' ELSE '0.00' END,
+                    Rel = CAST(CAST(M.FactorCompra AS int) AS nvarchar) + '/' + CAST(CAST(M.FactorVenta AS int) AS nvarchar)
+                FROM QVDEMovAlmacen M
+                LEFT JOIN DetallesMovAlmacen D ON D.Consecutivo = M.Consecutivo
+                    AND D.Tienda = M.Tienda
+                    AND D.Documento = M.Documento
+                    AND D.Articulo = M.Articulo
+                    AND D.CantidadRegular = M.CantidadRegular
+                WHERE M.Documento = '${documento}'
+                    AND M.TipoDocumento = 'T'
+                    AND M.Estatus = 'E'
+                ORDER BY D.ConsecutivoDM
                 `,
                 QueryTypes.SELECT
             );
