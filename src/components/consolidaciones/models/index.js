@@ -15,7 +15,7 @@ const modelsConsolidaciones = (() => {
             const result = await accessToDataBase.query(
                 `
                 USE ${DB};
-                SELECT
+                SELECT DISTINCT D.ConsecutivoDM,
                     M.Fecha, M.Documento, M.Articulo, M.Nombre, M.Descripcion,
                     M.CantidadRegular, M.CantidadRegularUC, M.CostoUnitarioNeto,
                     M.CostoValorNeto, M.CostoUnitarioNetoUC, M.UnidadCompra,
