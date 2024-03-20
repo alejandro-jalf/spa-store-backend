@@ -5,6 +5,7 @@ const {
     getSucursalByCategory,
     cifraData,
     descifraData,
+    getDateActual,
 } = require('../../../utils');
 const { validateSucursal, validateDate, validateEstatus } = require('../validations');
 const {
@@ -16,7 +17,10 @@ const {
   updateClave,
   updateIdTrabajador,
   getClaves,
-  updatePrivilegios
+  updatePrivilegios,
+  getDeviceVinculado,
+  registerVinculacion,
+  updateVinculacion
 } = require('../models');
 const moment = require('moment');
 
@@ -201,6 +205,53 @@ const ServicesTrabajadores = (() => {
       return createResponse(200, response);
     }
 
+    const createDevice = async (sucursal, IdTrabajador, IdDispositivo) => {
+      const conexion = getConnectionFrom(sucursal);
+
+      let response = await getDeviceVinculado(conexion, IdTrabajador, IdDispositivo)
+      if (!response.success) return createResponse(400, response);
+      if (response.data.length !== 0)
+        return createResponse(200, createContentError('Ya hay un dispositivo vinculado con este trabajador, le recomendamos actualizar el dispositivo '));
+
+      response = await registerVinculacion(conexion, IdTrabajador, IdDispositivo);
+      if (!response.success) return createResponse(400, response);
+
+      return createResponse(200, response);
+    }
+
+    const updateDevice = async (sucursal, IdTrabajador, IdDispositivo) => {
+      const conexion = getConnectionFrom(sucursal);
+
+      let response = await getDeviceVinculado(conexion, IdTrabajador, IdDispositivo)
+      if (!response.success) return createResponse(400, response);
+      if (response.data.length === 0)
+        return createResponse(200, createContentError('No hay un dispositivo vinculado con este trabajador, le recomendamos vincular el dispositivo '));
+
+      response = await updateVinculacion(conexion, IdTrabajador, IdDispositivo);
+      if (!response.success) return createResponse(400, response);
+
+      return createResponse(200, response);
+    }
+
+    const registerAsistenciaQR = async (sucursal, IdDispositivo, CodeQR = 'IdTrabajador%YYYYMMDD%Estatus') => {
+      const conexion = getConnectionFrom(sucursal);
+
+      const [ IdTrabajador, fecha, Estatus ] = CodeQR.split('%');
+      
+      if (getDateActual().format('YYYYMMDD') !== fecha)
+        return createResponse(200, createContentError('Esta intentando entrar con un codigo caducado'));
+
+      let response = await getDeviceVinculado(conexion, IdTrabajador, IdDispositivo)
+      if (!response.success) return createResponse(400, response);
+      if (response.data.length === 0)
+        return createResponse(200, createContentError('No hay un dispositivo vinculado con este trabajador, le recomendamos vincular el dispositivo '));
+
+      response = await registerAsistencia(conexion, IdTrabajador, Estatus);
+      if (!response.success) return createResponse(400, response);
+
+      return createResponse(200, response);
+    }
+
     return {
         getAllAssists,
         getAllTrabajadores,
@@ -211,6 +262,9 @@ const ServicesTrabajadores = (() => {
         updateClaveTrabajador,
         updatePrivilegiosTrabajador,
         updateIdTrabajadorForClave,
+        createDevice,
+        updateDevice,
+        registerAsistenciaQR,
     }
 })();
 

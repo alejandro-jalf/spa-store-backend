@@ -213,6 +213,69 @@ const modelsTrabajadores = (() => {
         }
     }
 
+    const registerVinculacion = async (cadenaConexion = '', IdTrabajador, IdDispositivo) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                INSERT INTO DispositivosVinculados(IdTrabajador, IdDispositivo) VALUES ('${IdTrabajador}', '${IdDispositivo}');
+                `,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Dispositivo vinculado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar vincular dispositivo',
+                error
+            );
+        }
+    }
+
+    const getDeviceVinculado = async (cadenaConexion = '', IdTrabajador, IdDispositivo) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                SELECT * FROM DispositivosVinculados WHERE IdTrabajador = '${IdTrabajador}' AND IdDispositivo = '${IdDispositivo}';
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Datos encontrados', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener el dispositivo vinculado',
+                error
+            );
+        }
+    }
+
+    const updateVinculacion = async (cadenaConexion = '', IdTrabajador, IdDispositivo) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                UPDATE DispositivosVinculados SET IdDispositivo ='${IdDispositivo}' WHERE IdTrabajador = '${IdTrabajador}';
+                `,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Dispositivo Actualizado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar dispositivo',
+                error
+            );
+        }
+    }
+
     return {
         getAsistenciasBySucursal,
         getTrabajadores,
@@ -223,6 +286,9 @@ const modelsTrabajadores = (() => {
         updatePrivilegios,
         updateIdTrabajador,
         registerAsistencia,
+        registerVinculacion,
+        getDeviceVinculado,
+        updateVinculacion,
     }
 })();
 
