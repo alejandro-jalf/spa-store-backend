@@ -113,6 +113,7 @@ const modelsPedidos = (() => {
                     SELECT 
                         Tienda = @Tienda,Almacen = @Almacen,
                         B.DescripcionSubfamilia,B.Articulo,B.Nombre,A.StockMinimo,
+                        B.UnidadCompra, B.UnidadVenta,
                         Relacion = CAST(CAST(B.FactorCompra AS int) AS nvarchar) + B.UnidadCompra + '/' + CAST(CAST(B.FactorVenta AS int) AS nvarchar) + B.UnidadVenta,
                         tipoRotacion = 
                             CASE 
