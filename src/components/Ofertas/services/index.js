@@ -407,7 +407,7 @@ const ServicesOfertas = (() => {
                 articleOfOffers.Oferta = articleOfOffers.oferta;
                 articleOfOffers.UltimoCosto = articleData.UltimoCostoNeto;
                 articleOfOffers.UtilidadOferta = UtilidadOferta;
-                articleOfOffers.OfertaValida = UtilidadOferta >= 0.1 ? 'SI' : 'NO';
+                articleOfOffers.OfertaValida = UtilidadOferta >= -0.7 ? 'SI' : 'NO'; // Tenia el +0.1 "2024-05-25"
                 articleOfOffers.OfertaMayor = (articleData.Precio1IVAUV - articleOfOffers.oferta) < 0.0000001 ? 'NO' : 'SI';
                 articleOfOffers.OfertaCaduca = articleData.OfertaCaduca;
                 articleOfOffers.FechaInicial = articleData.FechaInicial;
@@ -539,7 +539,7 @@ const ServicesOfertas = (() => {
         const utilidad = 1 - (response.data[0].UltimoCosto / bodyArticle.oferta);
         const rounded = parseFloat(roundTo(utilidad));
 
-        if (rounded < 0.1)
+        if (rounded < -0.7)
             return createResponse(200, createContentError('La oferta no puede ser menor del 10% de la utilidad'));
 
         response = await createOffers(conexionDB, bodyArticle);
@@ -584,7 +584,7 @@ const ServicesOfertas = (() => {
         const utilidad = 1 - (response.data[0].UltimoCosto / bodyArticle.oferta);
         const rounded = parseFloat(roundTo(utilidad));
 
-        if (rounded < 0.1)
+        if (rounded < -0.7)
             return createResponse(200, createContentError('La oferta no puede ser menor del 10% de la utilidad'));
 
         response = await updateOffer(conexionDB, articulo, uuidmaster, bodyArticle);
