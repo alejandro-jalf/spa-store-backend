@@ -28,6 +28,7 @@ const {
     getArticlesWithShoppsBySkuOffline,
     getExistenceByProvider,
     getExistencesBySucursal,
+    getListArticlesByProvider,
 } = require('../models');
 const {
     getComprasByDate,
@@ -296,14 +297,26 @@ const ServicesArticulos = (() => {
 
     const getExistenciasByProveedor = async (proveedor, sucursal = 'ALL') => {
         if (!proveedor) return createResponse(400, createContentError('Debe enviar un proveedor'));
+        console.log(sucursal, proveedor, sucursal.toUpperCase());
 
-        if (sucursal != 'ALL') {
+        if (sucursal.toUpperCase() != 'ALL') {
             const conexion = getConnectionFrom(sucursal);
             const response = await getExistenceByProvider(conexion, sucursal, proveedor);
             response.resumen = [];
             return createResponse(200, response);
         } else {
-            const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SAYULA T.');
+            const listConexions = getListConnectionByCompany('SPA').filter((suc) => suc.name != 'TORTILLERIA F.' && suc.name != 'SANANDRESP' && suc.name != 'SANANDRES' && suc.name != 'SAYULA T.');
+
+            // const resultArticles = listConexions.reduce(async (articles, suc) => {
+            //     const response = await getListArticlesByProvider(suc.connection, proveedor);
+            //     if (response.success && response.data.length != 0)
+            //     // console.log(response.data);
+            //     //articles.push(response.data)
+            //     return articles;
+            // }, []);
+
+            // const listArticles = await Promise.all(resultArticles);
+            // console.log(listArticles);
 
             const resultExistencias = listConexions.map(async (sucursal) => {
                 const suc = getSucursalByCategory('SPA' + sucursal.name);

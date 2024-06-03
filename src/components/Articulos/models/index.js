@@ -447,6 +447,24 @@ const ModelsArticulos = (() => {
         }
     }
 
+    const getListArticlesByProvider = async (cadenaConexion = '', proveedor = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `SELECT Articulo FROM productos WHERE Proveedor = '${proveedor}';`,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Articulos por proveedor', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener los articulos por proveedor ' + sucursal,
+                error
+            );
+        }
+    }
+
     const getExistencesBySucursal = async (cadenaConexion = '', sucursal = 'BO') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -488,6 +506,7 @@ const ModelsArticulos = (() => {
         getArticlesWithShoppsBySkuOffline,
         getExistenceByProvider,
         getExistencesBySucursal,
+        getListArticlesByProvider,
     }
 })();
 
