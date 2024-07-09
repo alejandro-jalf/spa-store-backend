@@ -40,6 +40,7 @@ const {
     getOnlyExistences,
     getMove,
     getMovesByFilter,
+    getSalesByHour,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -743,6 +744,54 @@ const ServicesReportes = (() => {
         }
         return createResponse(200, res);
     }
+    
+    
+    const getVentasPorHora = async (sucursal = '', FechaIni = '', FechaFin = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaIni);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDates(FechaIni, FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        if (sucursal === 'ALLS') {
+            return createResponse(200, createContentError('No se puede extraer de todas las sucursales'));
+        } else {
+            const conexion = getConnectionFrom(sucursal);
+            const response = await _getSalesForHo(FechaIni, FechaFin, sucursal, conexion);
+            if (!response.success) return createResponse(400, response)
+            return createResponse(200, response)
+        }
+    }
+
+    const _getSalesForHo = async (FechaIni, FechaFin, sucursal, conexion) => {
+        const dataBaseStart = getDatabase(toMoment(FechaIni), sucursal);
+        const dataBaseEnd = getDatabase(toMoment(FechaFin), sucursal);
+
+        let union = '';
+        if (dataBaseStart !== dataBaseEnd)
+            union = `
+                UNION ALL
+                SELECT  
+                    Fecha, HoraVenta = DATEPART(HOUR, Hora), CantidadRegular, VentaValorNeta
+                FROM ${dataBaseEnd}.dbo.QVDEMovAlmacen
+                WHERE Tipodocumento = 'V' AND Estatus = 'E'
+                    AND (Fecha BETWEEN @FechaInicial AND @FechaFinal)
+            `;
+
+        const response  = await getSalesByHour(conexion, getNameBySiglas(sucursal), FechaIni, FechaFin, dataBaseStart, union);
+
+        return response
+    }
 
     return {
         getInventoryCloseYear,
@@ -757,6 +806,7 @@ const ServicesReportes = (() => {
         getInformeOperativoMensual,
         getDataOfDocument,
         getListDocuments,
+        getVentasPorHora,
     }
 })();
 

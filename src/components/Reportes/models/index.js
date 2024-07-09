@@ -969,6 +969,47 @@ const modelsReportes = (() => {
         }
     }
 
+    const getSalesByHour = async (cadenaConexion = '', sucursal = 'ZR', FechaIni = '', FechaFin = '', dataBaseStart = '', union = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
+                DECLARE @FechaInicial DATETIME = CAST('${FechaIni}' AS DATETIME);
+                DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME);
+
+                WITH VentasPorHora (
+                    Fecha, HoraVenta, CantidadRegular, VentaValorNeta
+                ) AS (
+                    SELECT  
+                        Fecha, HoraVenta = DATEPART(HOUR, Hora), CantidadRegular, VentaValorNeta
+                    FROM ${dataBaseStart}.dbo.QVDEMovAlmacen
+                    WHERE Tipodocumento = 'V' AND Estatus = 'E'
+                        AND (Fecha BETWEEN @FechaInicial AND @FechaFinal)
+
+                    ${union}
+                )
+                
+                SELECT
+                    Suc = @Sucursal, Fecha, HoraVenta,
+                    Cantidad = SUM(CantidadRegular), Importe = SUM(VentaValorNeta)
+                FROM VentasPorHora
+                GROUP BY Fecha, HoraVenta
+                ORDER BY Fecha ASC, HoraVenta ASC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Ventas por hora', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener ventas por hora',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         getSalesByArticles,
@@ -990,6 +1031,7 @@ const modelsReportes = (() => {
         getReportMonthlyVentas,
         getMove,
         getMovesByFilter,
+        getSalesByHour,
     }
 })();
 
