@@ -41,6 +41,7 @@ const {
     getMove,
     getMovesByFilter,
     getSalesByHour,
+    getTopSalesArticles,
 } = require('../models');
 
 const ServicesReportes = (() => {
@@ -350,7 +351,7 @@ const ServicesReportes = (() => {
         const response  = await getReplacementsBills(conexion, sucursal, dataBase, FechaCorte);
 
         if (!response.success) return createResponse(400, response)
-        return createResponse(200, response)
+        return createResponse(200, response);
     }
 
     const getBitacoraCompras = async (sucursal = '', FechaCorte = '') => {
@@ -745,7 +746,6 @@ const ServicesReportes = (() => {
         return createResponse(200, res);
     }
     
-    
     const getVentasPorHora = async (sucursal = '', FechaIni = '', FechaFin = '') => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
@@ -793,6 +793,52 @@ const ServicesReportes = (() => {
         return response
     }
 
+    const getArticulosTopEnVentas = async (sucursal = '', FechaIni = '', FechaFin = '') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaIni);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDate(FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateDates(FechaIni, FechaFin);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        if (sucursal === 'ALLS') {
+            return createResponse(200, createContentError('No se puede extraer de todas las sucursales'));
+        } else {
+            const conexion = getConnectionFrom(sucursal);
+            const response = await _getTopSales(FechaIni, FechaFin, sucursal, conexion);
+            if (!response.success) return createResponse(400, response)
+            return createResponse(200, response)
+        }
+    }
+
+    const _getTopSales = async (FechaIni, FechaFin, sucursal, conexion) => {
+        const dataBaseStart = getDatabase(toMoment(FechaIni), sucursal);
+        const dataBaseEnd = getDatabase(toMoment(FechaFin), sucursal);
+
+        let union = '';
+        if (dataBaseStart !== dataBaseEnd)
+            union = `
+                UNION ALL
+                SELECT
+                    Articulo, CostoValorNeto, CantidadRegular, VentaValorNeta
+                FROM  ${dataBaseEnd}.dbo.QVDEMovAlmacen
+                WHERE TipoDocumento = 'V' AND Estatus = 'E' AND ( Fecha BETWEEN @FechaInicio AND @FechaFinal ) AND Almacen = @Almacen AND Tienda = @Tienda
+            `;
+
+        const response  = await getTopSalesArticles(conexion, sucursal, FechaIni, FechaFin, dataBaseStart, union);
+
+        return response
+    }
+
     return {
         getInventoryCloseYear,
         getVentasPorDia,
@@ -807,6 +853,7 @@ const ServicesReportes = (() => {
         getDataOfDocument,
         getListDocuments,
         getVentasPorHora,
+        getArticulosTopEnVentas,
     }
 })();
 

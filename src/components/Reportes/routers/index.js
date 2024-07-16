@@ -13,6 +13,7 @@ const {
     getDataOfDocument,
     getListDocuments,
     getVentasPorHora,
+    getArticulosTopEnVentas,
 } = require("../services");
 
 router.route("/api/v1/reportes/inventario/cierre/:sucursal/:tienda/:almacen").get(async (req, res) => {
@@ -40,6 +41,13 @@ router.route("/api/v1/reportes/ventas/:sucursal/porhora").get(async (req, res) =
     const { sucursal } = req.params;
     const { FechaIni, FechaFin} = req.query;
     const { status, response } = await getVentasPorHora(sucursal, FechaIni, FechaFin);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/reportes/ventas/:sucursal/toparticulosventas").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { FechaIni, FechaFin } = req.query;
+    const { status, response } = await getArticulosTopEnVentas(sucursal, FechaIni, FechaFin);
     res.status(status).json(response);
 });
 

@@ -1010,6 +1010,62 @@ const modelsReportes = (() => {
         }
     }
 
+    const getTopSalesArticles = async (cadenaConexion = '', sucursal = 'ZR', FechaIni = '', FechaFin = '', dataBaseStart = '', union = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(30) = '${sucursal}';
+                DECLARE @FechaInicio DATETIME = CAST('${FechaIni}' AS DATETIME);
+                DECLARE @FechaFinal DATETIME = CAST('${FechaFin}' AS DATETIME);
+                DECLARE @Dias int = (SELECT DATEDIFF(DAY, @FechaInicio, @FechaFinal));
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
+
+                WITH MovimientoVentas (
+                    Articulo, CostoValorNeto, CantidadRegular, VentaValorNeta
+                ) AS (
+                    SELECT
+                        Articulo, CostoValorNeto, CantidadRegular, VentaValorNeta
+                    FROM  ${dataBaseStart}.dbo.QVDEMovAlmacen
+                    WHERE TipoDocumento = 'V' AND Estatus = 'E' AND ( Fecha BETWEEN @FechaInicio AND @FechaFinal ) AND Almacen = @Almacen AND Tienda = @Tienda
+
+                    ${union}
+                )
+
+                SELECT
+                    Sucursal = @Sucursal,
+                    M.Articulo, E.CodigoBarrAS, E.Nombre,
+                    Relacion = CAST(CAST(E.FactorCompra AS INT) AS NVARCHAR) + '/' + E.UnidadCompra + ' - ' + CAST(CAST(E.FactorVenta AS INT) AS NVARCHAR) + '/' + E.UnidadVenta,
+                    StockMaximoMensual = E.StockMaximo,
+                    StockMinimoMensual = E.StockMinimo,
+                    UtilidadDiariaAVG = SUM(M.VentaValorNeta - M.CostoValorNeto) / @Dias,
+                    PizasVendidas = SUM(CantidadRegular),
+                    CostoVendido = SUM(M.CostoValorNeto),
+                    ImporteVendido = SUM(VentaValorNeta),
+                    UtilidadMXN = SUM(M.VentaValorNeta - M.CostoValorNeto),
+                    ExistenciaUV = E.ExistenciaActualRegular,
+                    DiasRestantes = CASE WHEN E.StockMinimo <= 0 THEN ROUND(E.ExistenciaActualRegular / (SUM(CantidadRegular) /@Dias), 2) ELSE ROUND(E.ExistenciaActualRegular / (E.StockMinimo / 30), 2) END,
+                    DiasVendidos = @Dias
+                FROM MovimientoVentas AS M
+                LEFT JOIN QVExistencias AS E ON E.Articulo = M.Articulo 
+                WHERE E.Almacen = @Almacen AND E.Tienda = @Tienda
+                GROUP BY M.Articulo, E.CodigoBarrAS, E.Nombre, E.ExistenciaActualRegular, E.FactorCompra, E.UnidadCompra, E.FactorVenta, E.UnidadVenta, E.StockMinimo, E.StockMaximo
+                ORDER BY UtilidadDiariaAVG DESC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Articulos Top', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener ventas por hora',
+                error
+            );
+        }
+    }
+
     return {
         getInventoryByShopAndWarehouse,
         getSalesByArticles,
@@ -1032,6 +1088,7 @@ const modelsReportes = (() => {
         getMove,
         getMovesByFilter,
         getSalesByHour,
+        getTopSalesArticles,
     }
 })();
 
