@@ -477,7 +477,7 @@ const ModelsArticulos = (() => {
                 SELECT
                     Articulo, Nombre,
                     Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + '/' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
-                    ExistenciaActualRegular, ExistenciaActualUC
+                    ExistenciaActualRegular, ExistenciaActualUC, UltimoCostoNetoUC, UltimoCostoNeto
                 FROM QVExistencias
                 WHERE Almacen = @Almacen AND Tienda = @Tienda
                     AND ExistenciaActualRegular > 0
