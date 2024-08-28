@@ -116,7 +116,7 @@ const ServicesArticulos = (() => {
         return createResponse(200, response)
     }
 
-    const updateStocksBySucursal = async (sucursal, company, dataUpdates) => {
+    const updateStocksBySucursal = async (sucursal, company, daymin = 30, daymax = 45) => {
         let validate = validateSucursal(sucursal);
         if (!validate.success)
             return createResponse(400, validate);
@@ -127,17 +127,26 @@ const ServicesArticulos = (() => {
             return createResponse(400, validate);
         company = company.toUpperCase();
 
+        validate = validateDayMinAndMax(daymin, daymax);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const updatesData = await getDataForStocks(sucursal, company, daymin, daymax);
+        if (!updatesData.response.success) return createResponse(400, updatesData.response);
+
         const conexion = getConnectionFrom(sucursal);
 
         let script = '';
-        const updates = dataUpdates.data;
+        const updates = updatesData.response.data;
+
         updates.forEach((update) => {
-            script += `UPDATE Existencias SET StockMinimo = ${update.StockMinimo}, StockMaximo = ${update.StockMaximo} WHERE Almacen = ${dataUpdates.Almacen} AND Articulo = '${update.Articulo}'; `;
+            // script += `UPDATE Existencias SET StockMinimo = ${update.StockMinimo}, StockMaximo = ${update.StockMaximo} WHERE Almacen = ${dataUpdates.Almacen} AND Articulo = '${update.Articulo}'; `;
+            script += `${update.SQL_QUERY};\n`;
         });
 
         const response = await updateStockByScripts(conexion, script);
         if (!response.success) return createResponse(400, response);
-        return createResponse(200, response)
+        return createResponse(200, response);
     }
 
     const getDetallesArticulosByCodificador = async (sucursal, codigoBarras) => {

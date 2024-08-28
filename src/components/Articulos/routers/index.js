@@ -32,9 +32,8 @@ router.route("/api/v1/articulos/stocks").get(async (req, res) => {
 });
 
 router.route("/api/v1/articulos/stocks").put(async (req, res) => {
-    const { sucursal, company } = req.query;
-    const { updates } = req.body;
-    const { status, response } = await updateStocksBySucursal(sucursal, company, updates);
+    const { sucursal, company, daymin, daymax } = req.query;
+    const { status, response } = await updateStocksBySucursal(sucursal, company, daymin, daymax);
     res.status(status).json(response);
 });
 
