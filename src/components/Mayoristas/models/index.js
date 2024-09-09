@@ -102,11 +102,39 @@ const modelsMayoristas = (() => {
         }
     }
 
+    const getSolicitudes = async (cadenaConexion = '', dateAt = '20000101 00:00:00.000', dateTo = '20000101 00:00:00.000') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE SPASUC2014;
+
+                SELECT
+                    *
+                FROM PedidosMaestro
+                WHERE (Fecha BETWEEN CAST('${dateAt} 00:00:00.000' AS DATETIME) AND CAST('${dateTo} 23:59:59.999' AS DATETIME))
+                    -- AND Estatus = 'PEDIDO ENVIADO'
+                ORDER BY Fecha DESC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Solicitudes de Pedidos', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener los datos de los pedidos de mayoristas',
+                error
+            );
+        }
+    }
+
     return {
         getDetailsCompra,
         getDetailsOrdenCompra,
         updateCostoOrdenCompra,
         updateMassiveCostosOrdenCompra,
+        getSolicitudes,
     }
 })();
 

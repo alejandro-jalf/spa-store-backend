@@ -3,9 +3,9 @@ const {
     getConnectionFrom,
 } = require('../../../utils');
 const { validateUpdateCostoOrden, validateUpdateMasivo } = require('../validations');
-const { validateSucursal } = require('../../../validations');
+const { validateSucursal, validateFechas } = require('../../../validations');
 const {
-    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra, updateMassiveCostosOrdenCompra,
+    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra, updateMassiveCostosOrdenCompra, getSolicitudes,
 } = require('../models');
 
 const ServicesMayoristas = (() => {
@@ -71,11 +71,24 @@ const ServicesMayoristas = (() => {
         return createResponse(200, response)
     }
 
+    const getRequestsStores = async (dateAt, dateTo) => {
+        console.log(dateAt, dateTo);
+        let validate = validateFechas(dateAt, dateTo);
+        if (!validate.success) return createResponse(400, validate);
+
+        const conexion = getConnectionFrom('BO');
+        const response  = await getSolicitudes(conexion, dateAt, dateTo);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
     return {
         getDocumentCompra,
         getDocumentOrden,
         updateCostoOrden,
         updateCostoOrdenMassive,
+        getRequestsStores,
     }
 })();
 
