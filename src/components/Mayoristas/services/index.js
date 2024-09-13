@@ -1,11 +1,15 @@
 const {
     createResponse,
     getConnectionFrom,
+    createContentError,
+    getSucursalByCategory,
+    getHostBySuc,
+    getDatabaseBySuc,
 } = require('../../../utils');
 const { validateUpdateCostoOrden, validateUpdateMasivo } = require('../validations');
 const { validateSucursal, validateFechas } = require('../../../validations');
 const {
-    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra, updateMassiveCostosOrdenCompra, getSolicitudes,
+    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra, updateMassiveCostosOrdenCompra, getSolicitudes, getCountCarga, loadCargaPedido,
 } = require('../models');
 
 const ServicesMayoristas = (() => {
@@ -72,7 +76,6 @@ const ServicesMayoristas = (() => {
     }
 
     const getRequestsStores = async (dateAt, dateTo) => {
-        console.log(dateAt, dateTo);
         let validate = validateFechas(dateAt, dateTo);
         if (!validate.success) return createResponse(400, validate);
 
@@ -83,12 +86,29 @@ const ServicesMayoristas = (() => {
         return createResponse(200, response)
     }
 
+    const getCountSolicitudes = async (sucursal = 'VICTORIA', pedido = 0) => {
+        const conexion = getConnectionFrom('BO');
+        let response  = await getCountCarga(conexion, sucursal);
+
+        if (!response.success) return createResponse(400, response)
+
+        const count = response.data[0].Num;
+        if (count > 0)
+            return createResponse(200, createContentError('No puede subir la carga, ya que hay [' + count + '] articulos cargados de esta sucursal'))
+
+        const siglas = getSucursalByCategory('SPA' + sucursal.toUpperCase());
+        const hostDataBase = `[${getHostBySuc(siglas)}].${getDatabaseBySuc(siglas)}`;
+        response = await loadCargaPedido(conexion, sucursal, pedido, hostDataBase);
+        return createResponse(200, response);
+    }
+
     return {
         getDocumentCompra,
         getDocumentOrden,
         updateCostoOrden,
         updateCostoOrdenMassive,
         getRequestsStores,
+        getCountSolicitudes,
     }
 })();
 
