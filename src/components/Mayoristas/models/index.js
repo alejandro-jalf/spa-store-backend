@@ -198,7 +198,7 @@ const modelsMayoristas = (() => {
     const loadCargaPedido = async (cadenaConexion = '', sucursal = 'VICTORIA', pedido = 37, hostDatabase = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
-            const sentence = getSentencePedido(sucursal, pedido, hostDatabase, 'View');
+            const sentence = getSentencePedido(sucursal, pedido, hostDatabase, 'load');
             const result = await accessToDataBase.query(sentence, QueryTypes.INSERT);
             dbmssql.closeConexion();
             // if (result[1] === 0)
@@ -208,6 +208,29 @@ const modelsMayoristas = (() => {
             console.log(error);
             return createContentError(
                 'Fallo la conexion con base de datos al intentar subir la carga de articulos: ' + error,
+                error
+            );
+        }
+    }
+
+    const changeStatusPedido = async (cadenaConexion = '', sucursal = 'VICTORIA', pedido = 0, estatus = 'PEDIDO ATENDIDO') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE SPASUC2014;
+                UPDATE PedidosMaestro SET Estatus = '${estatus}' WHERE Sucursal = '${sucursal}' AND Pedido = ${pedido};
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            if (result[1] === 0)
+                return createContentError('No se pudo actualizar el estatus verifique el consecutivo y la sucursal', result);
+            return createContentAssert('Estatus Actualizado', result);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar el estatus del pedido mayorista',
                 error
             );
         }
@@ -244,6 +267,7 @@ const modelsMayoristas = (() => {
         getSolicitudes,
         getDetailsPedido,
         loadCargaPedido,
+        changeStatusPedido,
         getCountCarga,
     }
 })();

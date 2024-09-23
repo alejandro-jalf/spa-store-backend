@@ -5,7 +5,7 @@ const {
     updateCostoOrden,
     updateCostoOrdenMassive,
     getRequestsStores,
-    getCountSolicitudes,
+    loadRequestMayorista,
 } = require("../services");
 
 router.route("/api/v1/mayoristas/:sucursal/compra/:documento").get(async (req, res) => {
@@ -28,7 +28,7 @@ router.route("/api/v1/mayoristas/solicitudes").get(async (req, res) => {
 
 router.route("/api/v1/mayoristas/solicitudes/:sucursal/:pedido").post(async (req, res) => {
     const { sucursal, pedido } = req.params;
-    const { status, response } = await getCountSolicitudes(sucursal, pedido);
+    const { status, response } = await loadRequestMayorista(sucursal, pedido);
     res.status(status).json(response);
 });
 

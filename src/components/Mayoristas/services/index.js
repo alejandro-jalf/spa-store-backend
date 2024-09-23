@@ -9,7 +9,13 @@ const {
 const { validateUpdateCostoOrden, validateUpdateMasivo } = require('../validations');
 const { validateSucursal, validateFechas } = require('../../../validations');
 const {
-    getDetailsCompra, getDetailsOrdenCompra, updateCostoOrdenCompra, updateMassiveCostosOrdenCompra, getSolicitudes, getCountCarga, loadCargaPedido,
+    getDetailsCompra,
+    getDetailsOrdenCompra,
+    updateCostoOrdenCompra,
+    updateMassiveCostosOrdenCompra,
+    getSolicitudes, getCountCarga,
+    loadCargaPedido,
+    changeStatusPedido,
 } = require('../models');
 
 const ServicesMayoristas = (() => {
@@ -86,19 +92,24 @@ const ServicesMayoristas = (() => {
         return createResponse(200, response)
     }
 
-    const getCountSolicitudes = async (sucursal = 'VICTORIA', pedido = 0) => {
+    const loadRequestMayorista = async (sucursal = 'VICTORIA', pedido = 0) => {
         const conexion = getConnectionFrom('BO');
         let response  = await getCountCarga(conexion, sucursal);
 
-        if (!response.success) return createResponse(400, response)
+        if (!response.success) return createResponse(400, response);
 
-        const count = response.data[0].Num;
+        const count = response.data.length > 0 ? response.data[0].Num : 0;
         if (count > 0)
-            return createResponse(200, createContentError('No puede subir la carga, ya que hay [' + count + '] articulos cargados de esta sucursal'))
+            return createResponse(200, createContentError('No puede subir la carga, ya que hay [' + count + '] articulos cargados de esta sucursal'));
 
         const siglas = getSucursalByCategory('SPA' + sucursal.toUpperCase());
         const hostDataBase = `[${getHostBySuc(siglas)}].${getDatabaseBySuc(siglas)}`;
         response = await loadCargaPedido(conexion, sucursal, pedido, hostDataBase);
+        if (!response.success) return createResponse(400, response);
+
+        response = await changeStatusPedido(conexion, sucursal, pedido, 'PEDIDO ATENDIDO');
+        if (!response.success) return createResponse(400, response);
+
         return createResponse(200, response);
     }
 
@@ -108,7 +119,7 @@ const ServicesMayoristas = (() => {
         updateCostoOrden,
         updateCostoOrdenMassive,
         getRequestsStores,
-        getCountSolicitudes,
+        loadRequestMayorista,
     }
 })();
 
