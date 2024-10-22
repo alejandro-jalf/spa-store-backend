@@ -134,8 +134,8 @@ const modelsMayoristas = (() => {
     const sentence = 
         `
         DECLARE @Sucursal NVARCHAR(20) = '${sucursal}';
-        DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZARAGOZA' THEN 2 WHEN @Sucursal = 'VICTORIA' THEN 3 WHEN @Sucursal = 'OLUTA' THEN 19 WHEN @Sucursal = 'JALTIPAN' THEN 7 WHEN @Sucursal = 'BODEGA' THEN 21 WHEN @Sucursal = 'SAYULA' THEN 16 WHEN @Sucursal = 'SOCONUSCO' THEN 25 ELSE 0 END;
-        DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZARAGOZA' THEN 1 WHEN @Sucursal = 'VICTORIA' THEN 2 WHEN @Sucursal = 'OLUTA' THEN 5 WHEN @Sucursal = 'JALTIPAN' THEN 4 WHEN @Sucursal = 'BODEGA' THEN 6 WHEN @Sucursal = 'SAYULA' THEN 9 WHEN @Sucursal = 'SOCONUSCO' THEN 10 ELSE 0 END;
+        DECLARE @Almacen INT = CASE WHEN @Sucursal = 'ZARAGOZA' THEN 2 WHEN @Sucursal = 'ENRIQUEZ' THEN 5 WHEN @Sucursal = 'VICTORIA' THEN 3 WHEN @Sucursal = 'OLUTA' THEN 19 WHEN @Sucursal = 'JALTIPAN' THEN 7 WHEN @Sucursal = 'BODEGA' THEN 21 WHEN @Sucursal = 'SAYULA' THEN 16 WHEN @Sucursal = 'SOCONUSCO' THEN 25 ELSE 0 END;
+        DECLARE @Tienda INT = CASE WHEN @Sucursal = 'ZARAGOZA' THEN 1 WHEN @Sucursal = 'ENRIQUEZ' THEN 3 WHEN @Sucursal = 'VICTORIA' THEN 2 WHEN @Sucursal = 'OLUTA' THEN 5 WHEN @Sucursal = 'JALTIPAN' THEN 4 WHEN @Sucursal = 'BODEGA' THEN 6 WHEN @Sucursal = 'SAYULA' THEN 9 WHEN @Sucursal = 'SOCONUSCO' THEN 10 ELSE 0 END;
         DECLARE @FechaInicio DATETIME = CAST('20240101' AS DATETIME);
         DECLARE @Solicitud INT = ${pedido};
 
