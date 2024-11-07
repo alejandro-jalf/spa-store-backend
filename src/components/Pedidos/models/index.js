@@ -162,6 +162,82 @@ const modelsPedidos = (() => {
         }
     }
 
+    const getOrdersSuggestedToProvider = async (cadenaConexion = '', sucursal= '', hostDatabase = '', date = '20240101') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Fecha DATETIME = CAST('${date}' AS datetime);
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
+
+                WITH cteListaArticulos (Articulo)
+                AS (
+                    SELECT DISTINCT Articulo FROM (
+                        SELECT DISTINCT Articulo FROM QVDEMovAlmacen
+                        WHERE Almacen = 21 AND Tienda = 6 AND TipoDocumento IN ('C') AND Estatus = 'E' AND Fecha >= @Fecha
+                        UNION ALL 
+                        SELECT DISTINCT Articulo FROM [SPABODEGA_202408].[dbo].QVDEMovAlmacen
+                        WHERE Almacen = 21 AND Tienda = 6 AND TipoDocumento IN ('C') AND Estatus = 'E' AND Fecha >= @Fecha
+                    ) AS List
+                ),
+                cteExistenciaBodega (Almacen, Tienda, DescripcionSubfamilia, Articulo, Nombre, FactorCompra, FactorVenta, ExistExt, UnidadCompra, UnidadVenta)
+                AS (
+                    SELECT
+                        Almacen, Tienda, DescripcionSubfamilia, E.Articulo, Nombre, FactorCompra, FactorVenta, ExistExt = ExistenciaActualRegular, UnidadCompra, UnidadVenta
+                    FROM QVExistencias AS E
+                    LEFT JOIN cteListaArticulos AS L ON E.Articulo = L.Articulo
+                    WHERE Almacen = 21 AND Tienda = 6 AND E.Articulo = L.Articulo
+                )
+
+                SELECT
+                    *
+                FROM (
+
+                    SELECT 
+                        Tienda = @Tienda,Almacen = @Almacen,
+                        B.DescripcionSubfamilia, B.Articulo, B.Nombre, A.StockMinimo,
+                        B.UnidadCompra, B.UnidadVenta,
+                        Relacion = CAST(CAST(B.FactorCompra AS int) AS nvarchar) + B.UnidadCompra + '/' + CAST(CAST(B.FactorVenta AS int) AS nvarchar) + B.UnidadVenta,
+                        tipoRotacion = 
+                            CASE 
+                                WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 0 
+                                WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 1
+                                ELSE 2
+                            END,
+                        estatusRotacion = 
+                            CASE 
+                                WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN 'ROTACION ALTA' 
+                                WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN 'ROTACION MEDIA'  
+                                ELSE 'ROTACION BAJA' 
+                            END,
+                        B.FactorCompra, B.FactorVenta, ExitLoc = A.ExistenciaActualRegular, B.ExistExt,
+                        CalculoRotacion = 
+                            CASE 
+                                WHEN ((A.StockMinimo / 30)*3) > (A.FactorVenta / 2) THEN ((A.StockMinimo / 30)*3)
+                                WHEN ((A.StockMinimo / 30)*7) > (A.FactorVenta / 2) THEN ((A.StockMinimo / 30)*7)
+                                ELSE ((A.StockMinimo / 30)*15)
+                            END,
+                        SugeridoAProveedor = CASE WHEN (A.StockMinimo - A.ExistenciaActualRegular - B.ExistExt) > 0 THEN (A.StockMinimo - A.ExistenciaActualRegular - B.ExistExt) ELSE 0 END
+                    FROM cteExistenciaBodega B
+                    LEFT JOIN ${hostDatabase}.dbo.QVExistencias A
+                        ON A.Articulo COLLATE Modern_Spanish_CI_AS = B.Articulo AND A.Almacen = @Almacen AND A.Tienda = @Tienda
+                ) AS T
+                ORDER BY  DescripcionSubfamilia, tipoRotacion, Articulo, SugeridoAProveedor DESC
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Pedido sugerido', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener el pedido sugerido',
+                error
+            );
+        }
+    }
+
     const getPedidosEnBodega = async (cadenaConexion = '', database = 'SPASUC2021') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -421,6 +497,7 @@ const modelsPedidos = (() => {
         cancelPedido,
         atendidoPedido,
         getOrdersSuggested,
+        getOrdersSuggestedToProvider,
     }
 })();
 

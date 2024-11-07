@@ -8,7 +8,7 @@ const {
     validateBodyAddArticle,
     validateStatusPedido,
 } = require('../validations');
-const { validateSucursal } = require('../../../validations');
+const { validateSucursal, validateFecha } = require('../../../validations');
 const {
     getPedidosEnBodega,
     getPedidosBySucursal,
@@ -24,6 +24,7 @@ const {
     sendPedido,
     atendidoPedido,
     getOrdersSuggested,
+    getOrdersSuggestedToProvider,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -47,6 +48,22 @@ const ServicesPedidos = (() => {
 
         const conexion = getConnectionFrom('BO');
         const response  = await getOrdersSuggested(conexion, sucursal, hostDatabase);
+
+        if (!response.success) return createResponse(400, response)
+        return createResponse(200, response)
+    }
+
+    const getPedidoSujeridoAProveedor = async (sucursal = 'ZR', date = '20240101') => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success) return createResponse(400, validate);
+
+        validate = validateFecha(date, 'de movimientos');
+        if (!validate.success) return createResponse(400, validate);
+
+        const hostDatabase = `[${getHostBySuc(sucursal)}].${getDatabaseBySuc(sucursal)}`;
+
+        const conexion = getConnectionFrom('BO');
+        const response  = await getOrdersSuggestedToProvider(conexion, sucursal, hostDatabase, date);
 
         if (!response.success) return createResponse(400, response)
         return createResponse(200, response)
@@ -184,6 +201,7 @@ const ServicesPedidos = (() => {
         addArticleToOrder,
         updateStatuOrder,
         getPedidoSujerido,
+        getPedidoSujeridoAProveedor,
     }
 })();
 

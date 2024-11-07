@@ -11,6 +11,7 @@ const {
     addArticleToOrder,
     updateStatuOrder,
     getPedidoSujerido,
+    getPedidoSujeridoAProveedor,
 } = require('../services')
 
 const response = {
@@ -28,6 +29,13 @@ router.route("/api/v1/pedidos/maestros").get(async (req, res) => {
 router.route("/api/v1/pedidos/:sucursal/sujerido").get(async (req, res) => {
     const { sucursal } = req.params;
     const { status, response } = await getPedidoSujerido(sucursal);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/pedidos/:sucursal/sugerido/proveedor").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { date } = req.query;
+    const { status, response } = await getPedidoSujeridoAProveedor(sucursal, date);
     res.status(status).json(response);
 });
 

@@ -228,12 +228,8 @@ const modelsPedidos = (() => {
     }
 
     return {
-        getSolicitudesAll,
-        getSolicitudesBySuc,
-        getArticuloSolicitado,
         createSolicitud,
         updateSolicitud,
-        updateStatus,
         deleteSolicitud,
     }
 })();
