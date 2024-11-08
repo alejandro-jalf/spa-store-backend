@@ -704,7 +704,7 @@ const ServicesReportes = (() => {
         return createResponse(200, res);
     }
 
-    const getListDocuments = async (sucursal = '', dataBase = '', typeDoc = '', likeDoc = '', likeRef = '', article = '', order = '') => {
+    const getListDocuments = async (sucursal = '', dataBase = '', typeDoc = '', likeDoc = '', likeRef = '', article = '', order = '', fechaInit = '', fechaEnd = '') => {
         let validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
@@ -720,6 +720,17 @@ const ServicesReportes = (() => {
         if (order !== 'ASC' && order !== 'DESC')
         return createResponse(400, createContentError('Ordenamiento invalido'));
 
+        let whereFechas = '';
+
+        if (fechaInit.trim() !== '' && fechaEnd.trim() !== '')
+            whereFechas = ` AND (Fecha BETWEEN CAST('${fechaInit}' AS DATETIME) AND CAST('${fechaEnd}' AS DATETIME))`;
+        else if (fechaInit.trim() !== '')
+            whereFechas = ` AND Fecha >= CAST('${fechaInit}' AS DATETIME)`
+        else if (fechaEnd.trim() !== '')
+            whereFechas = ` AND Fecha <= CAST('${fechaEnd}' AS DATETIME)`
+
+        const whereDocument = likeDoc.trim() === '' ? '' : ` AND Documento LIKE '%${configSearch(likeDoc)}%' `;
+        const whereReference = likeRef.trim() === '' ? '' : ` AND Referencia LIKE '%${configSearch(likeRef)}%' `;
         const whereArticle = article === '' ? '' : ` AND Articulo = '${article}' `;
         const groupArticle = article === '' ? '' : ', Articulo ';
 
@@ -729,11 +740,12 @@ const ServicesReportes = (() => {
             sucursal,
             dataBase,
             typeDoc,
-            configSearch(likeDoc),
-            configSearch(likeRef),
+            whereDocument,
+            whereReference,
             whereArticle,
             groupArticle,
-            order
+            order,
+            whereFechas,
         );
 
         if (!response.success) return createResponse(400, response)

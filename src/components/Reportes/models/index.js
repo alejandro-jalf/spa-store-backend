@@ -943,7 +943,7 @@ const modelsReportes = (() => {
         }
     }
 
-    const getMovesByFilter = async (cadenaConexion = '', sucursal = 'ZR', DB = '', typeDoc = 'V', likeDoc = '', likeRef = '', whereArticle = '', groupArticle = '', order = 'ASC') => {
+    const getMovesByFilter = async (cadenaConexion = '', sucursal = 'ZR', DB = '', typeDoc = 'V', whereDocument = '', whereReference = '', whereArticle = '', groupArticle = '', order = 'ASC', fechas = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -952,7 +952,8 @@ const modelsReportes = (() => {
                 SELECT TOP 500
                     Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus,
                     Articulos = COUNT(*)
-                FROM QVDEMovAlmacen WHERE TipoDocumento = '${typeDoc}' AND Documento LIKE '%${likeDoc}%' AND Referencia LIKE '%${likeRef}%' ${whereArticle}
+                FROM QVDEMovAlmacen
+                WHERE TipoDocumento = '${typeDoc}' ${whereDocument} ${whereReference}  ${whereArticle} ${fechas}
                 GROUP BY Documento, Referencia, DescripcionAlmacen, Caja, Cajero, NombreCajero ,Observaciones, Fecha, Hora, TipoDocumento, Estatus ${groupArticle}
                 ORDER BY Fecha ${order}
                 `,

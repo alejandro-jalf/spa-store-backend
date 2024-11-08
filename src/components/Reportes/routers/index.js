@@ -75,8 +75,8 @@ router.route("/api/v1/reportes/movimientos/:sucursal/referencia/:referencia").ge
 
 router.route("/api/v1/reportes/movimientos/:sucursal").get(async (req, res) => {
     const { sucursal } = req.params;
-    const { database, typeDoc, likeDoc, likeRef, article, order } = req.query;
-    const { status, response } = await getListDocuments(sucursal, database, typeDoc, likeDoc, likeRef, article, order);
+    const { database, typeDoc, likeDoc, likeRef, article, order, dateInit, dateEnd } = req.query;
+    const { status, response } = await getListDocuments(sucursal, database, typeDoc, likeDoc, likeRef, article, order, dateInit, dateEnd);
     res.status(status).json(response);
 });
 
