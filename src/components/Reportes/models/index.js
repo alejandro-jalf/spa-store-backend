@@ -921,6 +921,7 @@ const modelsReportes = (() => {
                     Relacion = CAST(CAST(FactorCompra AS INT) AS NVARCHAR) + '/' + UnidadCompra + ' - ' + CAST(CAST(FactorVenta AS INT) AS NVARCHAR) + '/' + UnidadVenta,
                     Subtotal = CostoValorSinDcto,
                     Descuentos = DescuentoValorCosto,
+                    DescuentoTasaFinal,
                     IvaValor = IvaValorCosto,
                     IepsValor = IepsValorCosto,
                     Total = CostoValorNeto,

@@ -687,6 +687,7 @@ const ServicesReportes = (() => {
                 Subtotal: row.Subtotal,
                 Iva: row.IvaTasa,
                 Ieps: row.IepsTasa,
+                Descuento: row.DescuentoTasaFinal,
             })
             const docFinded = docs.find((docu) => docu === row.Documento)
             if (!docFinded) docs.push(row.Documento)
