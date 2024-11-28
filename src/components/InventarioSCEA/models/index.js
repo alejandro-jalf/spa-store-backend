@@ -228,9 +228,14 @@ const modelsPedidos = (() => {
     }
 
     return {
-        createSolicitud,
-        updateSolicitud,
-        deleteSolicitud,
+        getAllDepartamentos,
+        getDepartamento,
+        getAllSucursales,
+        getSucursal,
+        getAllTiposEquipos,
+        getTiposEquipos,
+        getAllFichasTecnicas,
+        getFichasTecnicas,
     }
 })();
 
