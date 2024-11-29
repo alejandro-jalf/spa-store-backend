@@ -1,8 +1,6 @@
 const {
     createResponse,
     getConnectionFrom,
-    getHostBySuc,
-    getDatabaseBySuc,
     createContentError,
 } = require('../../../utils');
 const {
@@ -12,44 +10,128 @@ const {
 } = require('../validations');
 const { validateSucursal } = require('../../../validations');
 const {
-    getSolicitudesAll,
-    getSolicitudesBySuc,
-    getArticuloSolicitado,
-    createSolicitud,
-    updateSolicitud,
-    updateStatus,
-    deleteSolicitud,
+    getAllDepartamentos,
+    getDepartamento,
+    getAllSucursales,
+    getSucursal,
+    getAllTiposEquipos,
+    getTipoDeEquipo,
+    getAllFichasTecnicas,
+    getFichaTecnica,
+    createSucursal,
+    createDepartamentos,
+    createTipoEquipo,
+    createFichaTecnica,
 } = require('../models');
 
 const ServicesPedidos = (() => {
-    const conexionSol = getConnectionFrom('ZR');
+    const conexionZaragoza = getConnectionFrom('ZR');
 
-    const getRequestArticles = async (sucursal) => {
-        let validate = validateSucursal(sucursal);
-        if (!validate.success) return createResponse(400, validate);
-
-        const response = sucursal === 'ALL' ? await getSolicitudesAll(conexionSol) : await getSolicitudesBySuc(conexionSol, sucursal);
+    const getDepartamentos = async () => {
+        const response = await getAllDepartamentos(conexionZaragoza);
 
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
     }
 
-    const getRequestArticle = async (uuid = '') => {
-        const response = await getArticuloSolicitado(conexionSol, uuid);
+    const getDepartamentoByCodigo = async (codigo = '') => {
+        const response = await getDepartamento(conexionZaragoza, codigo);
 
         if (!response.success) return createResponse(400, response);
-        if (response.data.length === 0) return createResponse(200, createContentError('No existe esta solicitud'))
+        if (response.data.length === 0) return createResponse(200, createContentError('No existe este departamento'))
         return createResponse(200, response)
     }
 
-    const createRequestArticle = async (sucursal = '', creadoPor = '') => {
-        let validate = validateSucursal(sucursal);
-        if (!validate.success) return createResponse(400, validate);
+    const getSucursales = async () => {
+        const response = await getAllSucursales(conexionZaragoza);
 
-        validate = validateCreatedBy(creadoPor);
-        if (!validate.success) return createResponse(400, validate);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
 
-        const response = await createSolicitud(conexionSol, sucursal.toUpperCase(), creadoPor);
+    const getSucursalByCodigo = async (codigo = '') => {
+        const response = await getSucursal(conexionZaragoza, codigo);
+
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length === 0) return createResponse(200, createContentError('No existe esta sucursal'))
+        return createResponse(200, response)
+    }
+
+    const getTiposEquipos = async () => {
+        const response = await getAllTiposEquipos(conexionZaragoza);
+
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
+    const getTipoEquipoByCodigo = async (codigo = '') => {
+        const response = await getTipoDeEquipo(conexionZaragoza, codigo);
+
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length === 0) return createResponse(200, createContentError('No existe este tipo de equipo'))
+        return createResponse(200, response)
+    }
+
+    const getFichasTecnicas = async () => {
+        const response = await getAllFichasTecnicas(conexionZaragoza);
+
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
+    const getFichaTecnicaByCodigo = async (codigo = '') => {
+        const response = await getFichaTecnica(conexionZaragoza, codigo);
+
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length === 0) return createResponse(200, createContentError('No existe esta ficha tecnica'))
+        return createResponse(200, response)
+    }
+
+    const addSucursal = async (bodyCreateSucursal) => {
+        const { Codigo, Descripcion, Estado, Ciudad, Calle, Numero, CP } = bodyCreateSucursal;
+        const response = await createSucursal(conexionZaragoza, Codigo, Descripcion, Estado, Ciudad, Calle, Numero, CP);
+
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
+    const addDepartamento = async (bodyCreateDepartamento) => {
+        const { Codigo, Descripcion } = bodyCreateDepartamento;
+        const response = await createDepartamentos(conexionZaragoza, Codigo, Descripcion);
+
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
+    const addTipoEquipo = async (bodyCreateTipoEquipo) => {
+        const { Codigo, Descripcion, Campos } = bodyCreateTipoEquipo;
+        const response = await createTipoEquipo(conexionZaragoza, Codigo, Descripcion, Campos);
+
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
+    const addFichaTecnica = async (bodyCreateFichaTecnica) => {
+        const {
+            Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Despartamento, Modelo, Marca, 
+            PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
+            Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
+            DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
+            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Valocidades, Capacidad, 
+            ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones
+        } = bodyCreateFichaTecnica;
+
+        const response = await createFichaTecnica(
+            conexionZaragoza,
+            Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Despartamento, Modelo, Marca, 
+            PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
+            Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
+            DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
+            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Valocidades, Capacidad, 
+            ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones
+        );
 
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
@@ -59,7 +141,7 @@ const ServicesPedidos = (() => {
         let validate = validateBodyUpdateRequest(body);
         if (!validate.success) return createResponse(400, validate);
 
-        const response = await updateSolicitud(conexionSol, uuid, body);
+        const response = await updateSolicitud(conexionZaragoza, uuid, body);
 
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
@@ -71,12 +153,12 @@ const ServicesPedidos = (() => {
         let response;
 
         const updateOnlyStatus = async () => {
-            return await updateStatus(conexionSol, uuid, estatus.toUpperCase(), '');
+            return await updateStatus(conexionZaragoza, uuid, estatus.toUpperCase(), '');
         }
 
         const updateStatusAndArticle = async () => {
             if (Articulo.trim() === '') return createContentError('El articulo no puede ser vacio')
-            return await updateStatus(conexionSol, uuid, estatus.toUpperCase(), Articulo);
+            return await updateStatus(conexionZaragoza, uuid, estatus.toUpperCase(), Articulo);
         }
 
         if (estatus.toUpperCase() === 'ATENDIDO')
@@ -88,7 +170,7 @@ const ServicesPedidos = (() => {
     }
 
     const deleteRequest = async (uuid = '') => {
-        const response = await deleteSolicitud(conexionSol, uuid);
+        const response = await deleteSolicitud(conexionZaragoza, uuid);
 
         if (!response.success) return createResponse(400, response);
         if (response.data[1] === 0)
@@ -100,12 +182,18 @@ const ServicesPedidos = (() => {
     }
 
     return {
-        getRequestArticles,
-        getRequestArticle,
-        createRequestArticle,
-        updateRequestArticle,
-        updateStatusRequest,
-        deleteRequest,
+        getDepartamentos,
+        getDepartamentoByCodigo,
+        getSucursales,
+        getSucursalByCodigo,
+        getTiposEquipos,
+        getTipoEquipoByCodigo,
+        getFichasTecnicas,
+        getFichaTecnicaByCodigo,
+        addSucursal,
+        addDepartamento,
+        addTipoEquipo,
+        addFichaTecnica,
     }
 })();
 

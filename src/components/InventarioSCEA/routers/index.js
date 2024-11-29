@@ -1,71 +1,84 @@
 const router = require("express").Router();
-const { any } = require('../services')
+const {
+    getDepartamentos,
+    getDepartamentoByCodigo,
+    getSucursales,
+    getSucursalByCodigo,
+    getTiposEquipos,
+    getTipoEquipoByCodigo,
+    getFichasTecnicas,
+    getFichaTecnicaByCodigo,
+    addDepartamento,
+    addSucursal,
+    addTipoEquipo,
+    addFichaTecnica,
+} = require('../services')
 
 router.route("/api/v1/inventarioscea/departamentos").get(async (req, res) => {
-    const { status, response } = await getRequestArticles(sucursal);
+    const { status, response } = await getDepartamentos();
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/departamentos/:codigo").get(async (req, res) => {
     const { codigo } = req.params;
-    const { status, response } = await getRequestArticle(codigo);
+    const { status, response } = await getDepartamentoByCodigo(codigo);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/sucursales").get(async (req, res) => {
-    const { status, response } = await getRequestArticles(sucursal);
+    const { status, response } = await getSucursales();
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/sucursales/:codigo").get(async (req, res) => {
     const { codigo } = req.params;
-    const { status, response } = await getRequestArticle(codigo);
+    const { status, response } = await getSucursalByCodigo(codigo);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/tipos").get(async (req, res) => {
-    const { status, response } = await getRequestArticles(sucursal);
+    const { status, response } = await getTiposEquipos();
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/tipos/:codigo").get(async (req, res) => {
     const { codigo } = req.params;
-    const { status, response } = await getRequestArticle(codigo);
+    const { status, response } = await getTipoEquipoByCodigo(codigo);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/fichas").get(async (req, res) => {
-    const { status, response } = await getRequestArticles(sucursal);
+    const { status, response } = await getFichasTecnicas();
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/fichas/:folio").get(async (req, res) => {
     const { folio } = req.params;
-    const { status, response } = await getRequestArticle(folio);
-    res.status(status).json(response);
-});
-
-router.route("/api/v1/inventarioscea/departamentos").post(async (req, res) => {
-    const body = req.body;
-    const { status, response } = await createRequestArticle(sucursal, body);
+    const { status, response } = await getFichaTecnicaByCodigo(folio);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/sucursales").post(async (req, res) => {
-    const body = req.body;
-    const { status, response } = await createRequestArticle(sucursal, body);
+    const bodyCreateSucursal = req.body;
+    const { status, response } = await addSucursal(bodyCreateSucursal);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/inventarioscea/departamentos").post(async (req, res) => {
+    const bodyCreateDepartamento = req.body;
+    const { status, response } = await addDepartamento(bodyCreateDepartamento);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/tipos").post(async (req, res) => {
-    const body = req.body;
-    const { status, response } = await createRequestArticle(sucursal, body);
+    const bodyCreateTipoEquipo = req.body;
+    const { status, response } = await addTipoEquipo(bodyCreateTipoEquipo);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/fichas").post(async (req, res) => {
-    const body = req.body;
-    const { status, response } = await createRequestArticle(sucursal, body);
+    const bodyCreateFichaTecnica = req.body;
+    const { status, response } = await addFichaTecnica(bodyCreateFichaTecnica);
     res.status(status).json(response);
 });
 

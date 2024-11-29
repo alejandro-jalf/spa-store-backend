@@ -95,7 +95,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const getTiposEquipos = async (cadenaConexion = '', codigo = '') => {
+    const getTipoDeEquipo = async (cadenaConexion = '', codigo = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -131,7 +131,7 @@ const modelsPedidos = (() => {
         }
     }
 
-    const getFichasTecnicas = async (cadenaConexion = '', Folio = '') => {
+    const getFichaTecnica = async (cadenaConexion = '', Folio = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
@@ -150,31 +150,121 @@ const modelsPedidos = (() => {
         }
     }
 
-    const createSolicitud = async (cadenaConexion = '', sucursal= '', CreadoPor = '') => {
+    const createSucursal = async (
+        cadenaConexion = '', Codigo = '', Descripcion = '', Estado = '', Ciudad = '', Calle = '', Numero = '', CP = ''
+    ) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                DECLARE @Consecutivo int = (SELECT TOP 1 Consecutivo FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' ORDER BY Consecutivo DESC)
-                DECLARE @NewConsecutivo int = ISNULL(@Consecutivo, 0);
-
-                INSERT INTO SolicitudArticulos(
-                    Consecutivo, Sucursal, FechaCreado, CodigoBarra, Articulo, Nombre, IVA, Ieps, TazaIeps, TipoModelo, Marca, Presentacion,
-                    UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, CreadoPor, FechaActualizado, Estatus, ActualizadoPor
+                INSERT INTO Sucursales (
+                    Codigo, Descripcion, Estado, Ciudad, Calle, Numero, CP
                 ) VALUES (
-                    @NewConsecutivo + 1, '${sucursal}', GETDATE(), '', '', '', 0, 0, 0, '', '', '', '', 0, '', 0, '${CreadoPor}', GETDATE(), 'EN SUCURSAL', '${CreadoPor}'
+                    '${Codigo}', '${Descripcion}', '${Estado}', '${Ciudad}', '${Calle}', '${Numero}', '${CP}'
                 );
-                SELECT *  FROM SolicitudArticulos WHERE Sucursal = '${sucursal}' AND Consecutivo = @NewConsecutivo + 1;
                 `,
-                QueryTypes.UPSERT
+                QueryTypes.INSERT
             );
             dbmssql.closeConexion();
-            console.log(result);
-            return createContentAssert('Datos de solicitud nueva', result[0]);
+            return createContentAssert('Resultado de la creacion', result[0]);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar obtener el Crear solicitud',
+                'Fallo la conexion con base de datos al intentar Crear la sucursal',
+                error
+            );
+        }
+    }
+
+    const createDepartamentos = async (cadenaConexion = '', Codigo= '', Descripcion = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                INSERT INTO Departamentos (
+                    Codigo, Descripcion
+                ) VALUES (
+                    '${Codigo}', '${Descripcion}'
+                );
+                `,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de la creacion', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar Crear el Departamentos',
+                error
+            );
+        }
+    }
+
+    const createTipoEquipo = async (cadenaConexion = '', Codigo = '', Descripcion = '', Campos = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                INSERT INTO TiposEquipos (
+                    Codigo, Descripcion, Campos
+                ) VALUES (
+                    '${Codigo}', '${Descripcion}', '${Campos}'
+                );
+                `,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de la creacion', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar Crear el Tipos de Equipo',
+                error
+            );
+        }
+    }
+
+    const createFichaTecnica = async (
+            cadenaConexion = '',
+            Folio = '', Ciudad = '', FechaCaptura = '', Responsable = '', Sucursal = '', Despartamento = '', Modelo = '', Marca = '', 
+            PantallaPulgadas = 0, TamañoPulgadas = 0, Fabricante = '', PuertoHDMI = 0, PuertoVGA = 0, Color = '', Serie = '', 
+            Codigo = '', Clave = '', Digitos = 0, Largo = 0, Ancho = 0, Grosor = 0, Alambrico = 0, SO = '', MotherBoard = '', Procesador = '', 
+            DiscoDuro = '', RAM = '', Conectividad = '', TipoPila = '', DuracionBateria = '', Voltaje = '', Accesorios = '', 
+            Garantia = '', Toner = '', Tambor = '', Tipo = '', NumeroSerial = '', Material = '', Valocidades = '', Capacidad = '', 
+            ContieneBateria = 0, NumeroPuertas = 0, TemperaturaOperacion = 0, ConsumoEnergetico = '', Iluminacion = '', 
+            SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = ''
+    ) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                INSERT INTO FichasTecnicas (
+                    Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Despartamento, Modelo, Marca, 
+                    PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
+                    Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
+                    DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
+                    Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Valocidades, Capacidad, 
+                    ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
+                    SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, Created, 
+                    CreatedBy, Updated, UpdatedBy
+                ) VALUES (
+                    '${Folio}', '${Ciudad}', CAST('${FechaCaptura}'), '${Responsable}', '${Sucursal}', '${Despartamento}', '${Modelo}', '${Marca}', 
+                    ${PantallaPulgadas}, ${TamañoPulgadas}, '${Fabricante}', ${PuertoHDMI}, ${PuertoVGA}, '${Color}', '${Serie}',
+                    '${Codigo}', '${Clave}', ${Digitos}, ${Largo}, ${Ancho}, ${Grosor}, ${Alambrico}, '${SO}', '${MotherBoard}', '${Procesador}',
+                    '${DiscoDuro}', '${RAM}', '${Conectividad}', '${TipoPila}', '${DuracionBateria}', '${Voltaje}', '${Accesorios}',
+                    '${Garantia}', '${Toner}', '${Tambor}', '${Tipo}', '${NumeroSerial}', '${Material}', '${Valocidades}', '${Capacidad}',
+                    ${ContieneBateria}, ${NumeroPuertas}, ${TemperaturaOperacion}, '${ConsumoEnergetico}', '${Iluminacion}', 
+                    '${SistemaRefrigeracion}', '${Combustible}', ${Contactos}, '${Cargador}', '${Observaciones}', GETDATE(), GETDATE(), GETDATE(), GETDATE()
+                );
+                `,
+                QueryTypes.INSERT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de la creacion', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar Crear el Tipos de Equipo',
                 error
             );
         }
@@ -233,9 +323,13 @@ const modelsPedidos = (() => {
         getAllSucursales,
         getSucursal,
         getAllTiposEquipos,
-        getTiposEquipos,
+        getTipoDeEquipo,
         getAllFichasTecnicas,
-        getFichasTecnicas,
+        getFichaTecnica,
+        createSucursal,
+        createDepartamentos,
+        createTipoEquipo,
+        createFichaTecnica,
     }
 })();
 
