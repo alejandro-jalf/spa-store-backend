@@ -2,6 +2,7 @@ const {
     createResponse,
     getConnectionFrom,
     createContentError,
+    createContentAssert,
 } = require('../../../utils');
 const {
     validateBodyUpdateRequest,
@@ -22,6 +23,7 @@ const {
     createDepartamentos,
     createTipoEquipo,
     createFichaTecnica,
+    getConsecutivoByTipoEquipo,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -84,6 +86,14 @@ const ServicesPedidos = (() => {
 
         if (!response.success) return createResponse(400, response);
         if (response.data.length === 0) return createResponse(200, createContentError('No existe esta ficha tecnica'))
+        return createResponse(200, response)
+    }
+
+    const getConsecutivoFicha = async (TipoEquipo) => {
+        const response = await getConsecutivoByTipoEquipo(conexionZaragoza, TipoEquipo);
+
+        if (!response.success) return createResponse(400, response);
+        if (response.data.length === 0) return createResponse(200, createContentAssert('Consecutivo', [{ Consecutivo: 0 }]))
         return createResponse(200, response)
     }
 
@@ -190,6 +200,7 @@ const ServicesPedidos = (() => {
         getTipoEquipoByCodigo,
         getFichasTecnicas,
         getFichaTecnicaByCodigo,
+        getConsecutivoFicha,
         addSucursal,
         addDepartamento,
         addTipoEquipo,

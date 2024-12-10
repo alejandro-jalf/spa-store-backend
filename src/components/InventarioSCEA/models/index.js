@@ -150,6 +150,25 @@ const modelsPedidos = (() => {
         }
     }
 
+    const getConsecutivoByTipoEquipo = async (cadenaConexion = '', TipoEquipo = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `USE CA2015;
+                SELECT TOP 1 Consecutivo FROM FichasTecnicas WHERE TipoEquipo = '${TipoEquipo}' ORDER BY Consecutivo DESC;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Ultimo consecutivo por tipo', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener Ultimo consecutivo por tipo',
+                error
+            );
+        }
+    }
+
     const createSucursal = async (
         cadenaConexion = '', Codigo = '', Descripcion = '', Estado = '', Ciudad = '', Calle = '', Numero = '', CP = ''
     ) => {
@@ -226,13 +245,13 @@ const modelsPedidos = (() => {
 
     const createFichaTecnica = async (
             cadenaConexion = '',
-            Folio = '', Ciudad = '', FechaCaptura = '', Responsable = '', Sucursal = '', Despartamento = '', Modelo = '', Marca = '', 
+            Folio = '', Ciudad = '', FechaCaptura = '', Responsable = '', Sucursal = '', Departamento = '', Modelo = '', TipoEquipo = '', Consecutivo = 1, Marca = '', 
             PantallaPulgadas = 0, TamañoPulgadas = 0, Fabricante = '', PuertoHDMI = 0, PuertoVGA = 0, Color = '', Serie = '', 
             Codigo = '', Clave = '', Digitos = 0, Largo = 0, Ancho = 0, Grosor = 0, Alambrico = 0, SO = '', MotherBoard = '', Procesador = '', 
             DiscoDuro = '', RAM = '', Conectividad = '', TipoPila = '', DuracionBateria = '', Voltaje = '', Accesorios = '', 
-            Garantia = '', Toner = '', Tambor = '', Tipo = '', NumeroSerial = '', Material = '', Valocidades = '', Capacidad = '', 
+            Garantia = '', Toner = '', Tambor = '', Tipo = '', NumeroSerial = '', Material = '', Velocidades = '', Capacidad = '', 
             ContieneBateria = 0, NumeroPuertas = 0, TemperaturaOperacion = 0, ConsumoEnergetico = '', Iluminacion = '', 
-            SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = ''
+            SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = '', CreatedBy = '', UpdatedBy = ''
     ) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -240,22 +259,22 @@ const modelsPedidos = (() => {
                 `
                 USE CA2015;
                 INSERT INTO FichasTecnicas (
-                    Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Despartamento, Modelo, Marca, 
+                    Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Departamento, Modelo, TipoEquipo, Consecutivo, Marca, 
                     PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
                     Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
                     DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
-                    Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Valocidades, Capacidad, 
+                    Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
                     ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
                     SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, Created, 
                     CreatedBy, Updated, UpdatedBy
                 ) VALUES (
-                    '${Folio}', '${Ciudad}', CAST('${FechaCaptura}'), '${Responsable}', '${Sucursal}', '${Despartamento}', '${Modelo}', '${Marca}', 
+                    '${Folio}', '${Ciudad}', CAST('${FechaCaptura}'), '${Responsable}', '${Sucursal}', '${Departamento}', '${Modelo}', '${TipoEquipo}', ${Consecutivo}, '${Marca}', 
                     ${PantallaPulgadas}, ${TamañoPulgadas}, '${Fabricante}', ${PuertoHDMI}, ${PuertoVGA}, '${Color}', '${Serie}',
                     '${Codigo}', '${Clave}', ${Digitos}, ${Largo}, ${Ancho}, ${Grosor}, ${Alambrico}, '${SO}', '${MotherBoard}', '${Procesador}',
                     '${DiscoDuro}', '${RAM}', '${Conectividad}', '${TipoPila}', '${DuracionBateria}', '${Voltaje}', '${Accesorios}',
-                    '${Garantia}', '${Toner}', '${Tambor}', '${Tipo}', '${NumeroSerial}', '${Material}', '${Valocidades}', '${Capacidad}',
+                    '${Garantia}', '${Toner}', '${Tambor}', '${Tipo}', '${NumeroSerial}', '${Material}', '${Velocidades}', '${Capacidad}',
                     ${ContieneBateria}, ${NumeroPuertas}, ${TemperaturaOperacion}, '${ConsumoEnergetico}', '${Iluminacion}', 
-                    '${SistemaRefrigeracion}', '${Combustible}', ${Contactos}, '${Cargador}', '${Observaciones}', GETDATE(), GETDATE(), GETDATE(), GETDATE()
+                    '${SistemaRefrigeracion}', '${Combustible}', ${Contactos}, '${Cargador}', '${Observaciones}', GETDATE(), '${CreatedBy}', GETDATE(), '${UpdatedBy}'
                 );
                 `,
                 QueryTypes.INSERT
@@ -326,6 +345,7 @@ const modelsPedidos = (() => {
         getTipoDeEquipo,
         getAllFichasTecnicas,
         getFichaTecnica,
+        getConsecutivoByTipoEquipo,
         createSucursal,
         createDepartamentos,
         createTipoEquipo,

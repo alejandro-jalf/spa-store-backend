@@ -12,6 +12,7 @@ const {
     addSucursal,
     addTipoEquipo,
     addFichaTecnica,
+    getConsecutivoFicha,
 } = require('../services')
 
 router.route("/api/v1/inventarioscea/departamentos").get(async (req, res) => {
@@ -55,6 +56,12 @@ router.route("/api/v1/inventarioscea/fichas").get(async (req, res) => {
 router.route("/api/v1/inventarioscea/fichas/:folio").get(async (req, res) => {
     const { folio } = req.params;
     const { status, response } = await getFichaTecnicaByCodigo(folio);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/inventarioscea/fichas/:TipoEquipo/last").get(async (req, res) => {
+    const { TipoEquipo } = req.params;
+    const { status, response } = await getConsecutivoFicha(TipoEquipo);
     res.status(status).json(response);
 });
 
