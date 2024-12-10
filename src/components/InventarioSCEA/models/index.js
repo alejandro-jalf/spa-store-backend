@@ -268,7 +268,7 @@ const modelsPedidos = (() => {
                     SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, Created, 
                     CreatedBy, Updated, UpdatedBy
                 ) VALUES (
-                    '${Folio}', '${Ciudad}', CAST('${FechaCaptura}'), '${Responsable}', '${Sucursal}', '${Departamento}', '${Modelo}', '${TipoEquipo}', ${Consecutivo}, '${Marca}', 
+                    '${Folio}', '${Ciudad}', CAST('${FechaCaptura}' AS DATETIME), '${Responsable}', '${Sucursal}', '${Departamento}', '${Modelo}', '${TipoEquipo}', ${Consecutivo}, '${Marca}', 
                     ${PantallaPulgadas}, ${TamañoPulgadas}, '${Fabricante}', ${PuertoHDMI}, ${PuertoVGA}, '${Color}', '${Serie}',
                     '${Codigo}', '${Clave}', ${Digitos}, ${Largo}, ${Ancho}, ${Grosor}, ${Alambrico}, '${SO}', '${MotherBoard}', '${Procesador}',
                     '${DiscoDuro}', '${RAM}', '${Conectividad}', '${TipoPila}', '${DuracionBateria}', '${Voltaje}', '${Accesorios}',

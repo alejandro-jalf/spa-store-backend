@@ -123,24 +123,24 @@ const ServicesPedidos = (() => {
 
     const addFichaTecnica = async (bodyCreateFichaTecnica) => {
         const {
-            Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Despartamento, Modelo, Marca, 
+            Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Departamento, Modelo, TipoEquipo, Consecutivo, Marca, 
             PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
             Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
-            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Valocidades, Capacidad, 
+            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
             ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
-            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, CreatedBy, UpdatedBy
         } = bodyCreateFichaTecnica;
 
         const response = await createFichaTecnica(
             conexionZaragoza,
-            Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Despartamento, Modelo, Marca, 
+            Folio, Ciudad, FechaCaptura, Responsable, Sucursal, Departamento, Modelo, TipoEquipo, Consecutivo, Marca, 
             PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
             Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
-            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Valocidades, Capacidad, 
+            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
             ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
-            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, CreatedBy, UpdatedBy
         );
 
         if (!response.success) return createResponse(400, response);
