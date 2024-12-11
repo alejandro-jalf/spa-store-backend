@@ -13,6 +13,10 @@ const {
     addTipoEquipo,
     addFichaTecnica,
     getConsecutivoFicha,
+    deleteTokens,
+    deleteTypeEquipment,
+    deleteBranchs,
+    deleteDepartment,
 } = require('../services')
 
 router.route("/api/v1/inventarioscea/departamentos").get(async (req, res) => {
@@ -119,25 +123,25 @@ router.route("/api/v1/inventarioscea/fichas/:folio").put(async (req, res) => {
 
 router.route("/api/v1/inventarioscea/departamentos/:codigo").delete(async (req, res) => {
     const { codigo } = req.params;
-    const { status, response } = await deleteRequest(codigo);
+    const { status, response } = await deleteDepartment(codigo);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/sucursales/:codigo").delete(async (req, res) => {
     const { codigo } = req.params;
-    const { status, response } = await deleteRequest(codigo);
+    const { status, response } = await deleteBranchs(codigo);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/tipos/:codigo").delete(async (req, res) => {
     const { codigo } = req.params;
-    const { status, response } = await deleteRequest(codigo);
+    const { status, response } = await deleteTypeEquipment(codigo);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/fichas/:folio").delete(async (req, res) => {
     const { folio } = req.params;
-    const { status, response } = await deleteRequest(folio);
+    const { status, response } = await deleteTokens(folio);
     res.status(status).json(response);
 });
 

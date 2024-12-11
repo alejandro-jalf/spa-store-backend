@@ -24,6 +24,10 @@ const {
     createTipoEquipo,
     createFichaTecnica,
     getConsecutivoByTipoEquipo,
+    deleteSucursal,
+    deleteDepartamentos,
+    deleteTiposEquipos,
+    deleteFichasTecnicas,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -179,15 +183,27 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const deleteRequest = async (uuid = '') => {
-        const response = await deleteSolicitud(conexionZaragoza, uuid);
-
+    const deleteBranchs = async (Codigo = '') => {
+        const response = await deleteSucursal(conexionZaragoza, Codigo);
         if (!response.success) return createResponse(400, response);
-        if (response.data[1] === 0)
-            return createResponse(
-                400,
-                createContentError('No se pudo eliminar la solicitud. Recuerde que para poder eliminar una solicitud tiene que estar cancelada')
-            )
+        return createResponse(200, response)
+    }
+
+    const deleteDepartment = async (Codigo = '') => {
+        const response = await deleteDepartamentos(conexionZaragoza, Codigo);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
+    const deleteTypeEquipment = async (Codigo = '') => {
+        const response = await deleteTiposEquipos(conexionZaragoza, Codigo);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
+
+    const deleteTokens = async (Folio = '') => {
+        const response = await deleteFichasTecnicas(conexionZaragoza, Folio);
+        if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
     }
 
@@ -205,6 +221,10 @@ const ServicesPedidos = (() => {
         addDepartamento,
         addTipoEquipo,
         addFichaTecnica,
+        deleteBranchs,
+        deleteDepartment,
+        deleteTypeEquipment,
+        deleteTokens,
     }
 })();
 

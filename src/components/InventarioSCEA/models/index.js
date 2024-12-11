@@ -319,18 +319,77 @@ const modelsPedidos = (() => {
         }
     }
 
-    const deleteSolicitud = async (cadenaConexion = '', uuid = '') => {
+    const deleteSucursal = async (cadenaConexion = '', Codigo = '') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
-                `USE CA2015; DELETE FROM SolicitudArticulos WHERE UUID = '${uuid}' AND Estatus = 'CANCELADO';`,
+                `USE CA2015; DELETE FROM Sucursales WHERE Codigo = '${Codigo}';`,
                 QueryTypes.DELETE
             );
             dbmssql.closeConexion();
+            if (result[1] === 0)
+                return createContentError('No se pudo eliminar la sucursal', result);
             return createContentAssert('Resultado de eliminar', result);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar eliminar la solicitud',
+                'Fallo la conexion con base de datos al intentar eliminar la Sucursal',
+                error
+            );
+        }
+    }
+
+    const deleteDepartamentos = async (cadenaConexion = '', Codigo = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `USE CA2015; DELETE FROM Departamentos WHERE Codigo = '${Codigo}';`,
+                QueryTypes.DELETE
+            );
+            dbmssql.closeConexion();
+            if (result[1] === 0)
+                return createContentError('No se pudo eliminar el departamento', result);
+            return createContentAssert('Resultado de eliminar', result);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar eliminar el departamento',
+                error
+            );
+        }
+    }
+
+    const deleteTiposEquipos = async (cadenaConexion = '', Codigo = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `USE CA2015; DELETE FROM TiposEquipos WHERE Codigo = '${Codigo}';`,
+                QueryTypes.DELETE
+            );
+            dbmssql.closeConexion();
+            if (result[1] === 0)
+                return createContentError('No se pudo eliminar el Tipo de Equipo', result);
+            return createContentAssert('Resultado de eliminar', result);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar eliminar el Tipo de Equipo',
+                error
+            );
+        }
+    }
+
+    const deleteFichasTecnicas = async (cadenaConexion = '', Folio = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `USE CA2015; DELETE FROM FichasTecnicas WHERE Folio = '${Folio}';`,
+                QueryTypes.DELETE
+            );
+            dbmssql.closeConexion();
+            if (result[1] === 0)
+                return createContentError('No se pudo eliminar la Ficha Tecnica', result);
+            return createContentAssert('Resultado de eliminar', result);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar eliminar la Ficha Tecnica',
                 error
             );
         }
@@ -350,6 +409,10 @@ const modelsPedidos = (() => {
         createDepartamentos,
         createTipoEquipo,
         createFichaTecnica,
+        deleteSucursal,
+        deleteDepartamentos,
+        deleteTiposEquipos,
+        deleteFichasTecnicas,
     }
 })();
 
