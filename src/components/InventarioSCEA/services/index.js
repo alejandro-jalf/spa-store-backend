@@ -178,7 +178,7 @@ const ServicesPedidos = (() => {
 
     const updateTokens = async (Folio, body) => {
         const {
-            Folio, Ciudad, Responsable, Modelo, Marca, 
+            Ciudad, Responsable, Modelo, Marca, 
             PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
             Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
@@ -187,8 +187,7 @@ const ServicesPedidos = (() => {
             SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, UpdatedBy
         } = body;
         const response = await updateFichasTecnicas(
-            conexionZaragoza,
-            Folio, Ciudad, Responsable, Modelo, Marca, 
+            conexionZaragoza, Folio, Ciudad, Responsable, Modelo, Marca, 
             PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
             Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 

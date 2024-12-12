@@ -298,7 +298,7 @@ const modelsPedidos = (() => {
                 UPDATE Sucursales SET
                     Descripcion = '${Descripcion}', Estado = '${Estado}', Ciudad = '${Ciudad}',
                     Calle = '${Calle}', Numero = '${Numero}', CP = '${CP}'
-                WHERE Codigo = '${Codigo}'';
+                WHERE Codigo = '${Codigo}';
                 `,
                 QueryTypes.UPDATE
             );
@@ -319,7 +319,7 @@ const modelsPedidos = (() => {
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                UPDATE Departamentos SET Descripcion = '${Descripcion}' WHERE Codigo = '${Codigo}'';
+                UPDATE Departamentos SET Descripcion = '${Descripcion}' WHERE Codigo = '${Codigo}';
                 `,
                 QueryTypes.UPDATE
             );
@@ -341,7 +341,7 @@ const modelsPedidos = (() => {
                 USE CA2015;
                 UPDATE TiposEquipos SET
                     Descripcion = '${Descripcion}', Campos = '${Campos}'
-                WHERE Codigo = '${Codigo}'';
+                WHERE Codigo = '${Codigo}';
                 `,
                 QueryTypes.UPDATE
             );
@@ -383,7 +383,7 @@ const modelsPedidos = (() => {
                     TemperaturaOperacion = ${TemperaturaOperacion}, ConsumoEnergetico = '${ConsumoEnergetico}', Iluminacion = '${Iluminacion}', 
                     SistemaRefrigeracion = '${SistemaRefrigeracion}', Combustible = '${Combustible}', Contactos = ${Contactos}, Cargador = '${Cargador}',
                     Observaciones = '${Observaciones}', Updated = GETDATE(), UpdatedBy = '${UpdatedBy}'
-                WHERE Folio = '${Folio}'';
+                WHERE Folio = '${Folio}';
                 `,
                 QueryTypes.UPDATE
             );
