@@ -289,23 +289,16 @@ const modelsPedidos = (() => {
         }
     }
 
-    const updateSolicitud = async (cadenaConexion = '', uuid = '', body = {}) => {
+    const updateSucursal = async (cadenaConexion = '', Codigo = '', Descripcion = '', Estado = '', Ciudad = '', Calle = '', Numero = '', CP = '') => {
         try {
-            const {
-                CodigoBarra, Nombre, IVA, Ieps, TazaIeps, TipoModelo, Marca, Presentacion,
-                UnidadMedida, UnidadCompra, FactorCompra, UnidadVenta, FactorVenta, ActualizadoPor
-            } = body;
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
                 USE CA2015;
-                UPDATE SolicitudArticulos SET
-                    CodigoBarra = '${CodigoBarra}', Nombre = '${Nombre}', IVA = ${IVA}, Ieps = ${Ieps},
-                    TazaIeps = ${TazaIeps}, TipoModelo = '${TipoModelo}', Marca = '${Marca}',
-                    Presentacion = '${Presentacion}', UnidadCompra = '${UnidadCompra}', FactorCompra = ${FactorCompra},
-                    UnidadVenta = '${UnidadVenta}', FactorVenta = ${FactorVenta}, FechaActualizado = GETDATE(),
-                    ActualizadoPor  = '${ActualizadoPor}'
-                WHERE UUID = '${uuid}';
+                UPDATE Sucursales SET
+                    Descripcion = '${Descripcion}', Estado = '${Estado}', Ciudad = '${Ciudad}',
+                    Calle = '${Calle}', Numero = '${Numero}', CP = '${CP}'
+                WHERE Codigo = '${Codigo}'';
                 `,
                 QueryTypes.UPDATE
             );
@@ -313,7 +306,92 @@ const modelsPedidos = (() => {
             return createContentAssert('Resultado de actualizacion', result);
         } catch (error) {
             return createContentError(
-                'Fallo la conexion con base de datos al intentar actualizar los datos de la solicitud',
+                'Fallo la conexion con base de datos al intentar actualizar los datos de la sucursal',
+                error
+            );
+        }
+    }
+
+    const updateDepartamento = async (cadenaConexion = '', Codigo = '', Descripcion = '') => {
+        try {
+            // const { Codigo, Descripcion } = body;
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                UPDATE Departamentos SET Descripcion = '${Descripcion}' WHERE Codigo = '${Codigo}'';
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de actualizacion', result);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar los datos del departamento',
+                error
+            );
+        }
+    }
+
+    const updateTipoDeEquipo = async (cadenaConexion = '', Codigo = '', Descripcion = '', Campos = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                UPDATE TiposEquipos SET
+                    Descripcion = '${Descripcion}', Campos = '${Campos}'
+                WHERE Codigo = '${Codigo}'';
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de actualizacion', result);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar los datos del tipo de equipo',
+                error
+            );
+        }
+    }
+
+    const updateFichasTecnicas = async (
+        cadenaConexion = '',
+        Folio = '', Ciudad = '', Responsable = '', Modelo = '', Marca = '', 
+        PantallaPulgadas = 0, TamañoPulgadas = 0, Fabricante = '', PuertoHDMI = 0, PuertoVGA = 0, Color = '', Serie = '', 
+        Codigo = '', Clave = '', Digitos = 0, Largo = 0, Ancho = 0, Grosor = 0, Alambrico = 0, SO = '', MotherBoard = '', Procesador = '', 
+        DiscoDuro = '', RAM = '', Conectividad = '', TipoPila = '', DuracionBateria = '', Voltaje = '', Accesorios = '', 
+        Garantia = '', Toner = '', Tambor = '', Tipo = '', NumeroSerial = '', Material = '', Velocidades = '', Capacidad = '', 
+        ContieneBateria = 0, NumeroPuertas = 0, TemperaturaOperacion = 0, ConsumoEnergetico = '', Iluminacion = '', 
+        SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = '', UpdatedBy = ''
+    ) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                USE CA2015;
+                UPDATE FichasTecnicas SET
+                    Ciudad = '${Ciudad}', Responsable = '${Responsable}',
+                    Modelo = '${Modelo}', Marca = '${Marca}', PantallaPulgadas = ${PantallaPulgadas}, TamañoPulgadas = ${TamañoPulgadas},
+                    Fabricante = '${Fabricante}', PuertoHDMI = ${PuertoHDMI}, PuertoVGA = ${PuertoVGA}, Color = '${Color}', Serie = '${Serie}',
+                    Codigo = '${Codigo}', Clave = '${Clave}', Digitos = ${Digitos}, Largo = ${Largo}, Ancho = ${Ancho}, Grosor = ${Grosor},
+                    Alambrico = ${Alambrico}, SO = '${SO}', MotherBoard = '${MotherBoard}', Procesador = '${Procesador}', DiscoDuro = '${DiscoDuro}',
+                    RAM = '${RAM}', Conectividad = '${Conectividad}', TipoPila = '${TipoPila}', DuracionBateria = '${DuracionBateria}',
+                    Voltaje = '${Voltaje}', Accesorios = '${Accesorios}', Garantia = '${Garantia}', Toner = '${Toner}', Tambor = '${Tambor}',
+                    Tipo = '${Tipo}', NumeroSerial = '${NumeroSerial}', Material = '${Material}', Velocidades = '${Velocidades}',
+                    Capacidad = '${Capacidad}', ContieneBateria = ${ContieneBateria}, NumeroPuertas = ${NumeroPuertas},
+                    TemperaturaOperacion = ${TemperaturaOperacion}, ConsumoEnergetico = '${ConsumoEnergetico}', Iluminacion = '${Iluminacion}', 
+                    SistemaRefrigeracion = '${SistemaRefrigeracion}', Combustible = '${Combustible}', Contactos = ${Contactos}, Cargador = '${Cargador}',
+                    Observaciones = '${Observaciones}', Updated = GETDATE(), UpdatedBy = '${UpdatedBy}'
+                WHERE Folio = '${Folio}'';
+                `,
+                QueryTypes.UPDATE
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Resultado de actualizacion', result);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar actualizar los datos del tipo de equipo',
                 error
             );
         }
@@ -409,6 +487,10 @@ const modelsPedidos = (() => {
         createDepartamentos,
         createTipoEquipo,
         createFichaTecnica,
+        updateSucursal,
+        updateDepartamento,
+        updateTipoDeEquipo,
+        updateFichasTecnicas,
         deleteSucursal,
         deleteDepartamentos,
         deleteTiposEquipos,

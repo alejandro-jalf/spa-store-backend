@@ -17,6 +17,10 @@ const {
     deleteTypeEquipment,
     deleteBranchs,
     deleteDepartment,
+    updateDepartment,
+    updateBranch,
+    updateTypeEquipment,
+    updateTokens,
 } = require('../services')
 
 router.route("/api/v1/inventarioscea/departamentos").get(async (req, res) => {
@@ -96,28 +100,28 @@ router.route("/api/v1/inventarioscea/fichas").post(async (req, res) => {
 router.route("/api/v1/inventarioscea/departamentos/:codigo").put(async (req, res) => {
     const { codigo } = req.params;
     const body = req.body;
-    const { status, response } = await updateRequestArticle(codigo, body);
+    const { status, response } = await updateDepartment(codigo, body);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/sucursales/:codigo").put(async (req, res) => {
     const { codigo } = req.params;
     const body = req.body;
-    const { status, response } = await updateRequestArticle(codigo, body);
+    const { status, response } = await updateBranch(codigo, body);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/tipos/:codigo").put(async (req, res) => {
     const { codigo } = req.params;
     const body = req.body;
-    const { status, response } = await updateRequestArticle(codigo, body);
+    const { status, response } = await updateTypeEquipment(codigo, body);
     res.status(status).json(response);
 });
 
 router.route("/api/v1/inventarioscea/fichas/:folio").put(async (req, res) => {
     const { folio } = req.params;
     const body = req.body;
-    const { status, response } = await updateRequestArticle(folio, body);
+    const { status, response } = await updateTokens(folio, body);
     res.status(status).json(response);
 });
 

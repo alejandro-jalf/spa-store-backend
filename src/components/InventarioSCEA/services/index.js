@@ -28,6 +28,10 @@ const {
     deleteDepartamentos,
     deleteTiposEquipos,
     deleteFichasTecnicas,
+    updateSucursal,
+    updateDepartamento,
+    updateTipoDeEquipo,
+    updateFichasTecnicas,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -151,34 +155,47 @@ const ServicesPedidos = (() => {
         return createResponse(200, response)
     }
 
-    const updateRequestArticle = async (uuid = '', body = {}) => {
-        let validate = validateBodyUpdateRequest(body);
-        if (!validate.success) return createResponse(400, validate);
-
-        const response = await updateSolicitud(conexionZaragoza, uuid, body);
-
+    const updateBranch = async (Codigo, body) => {
+        const { Descripcion, Estado, Ciudad, Calle, Numero, CP } = body;
+        const response = await updateSucursal(conexionZaragoza, Codigo, Descripcion, Estado, Ciudad, Calle, Numero, CP);
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
     }
 
-    const updateStatusRequest = async (uuid = '', estatus = '', Articulo = '') => {
-        let validate = validateStatusRequest(estatus);
-        if (!validate.success) return createResponse(400, validate);
-        let response;
+    const updateDepartment = async (Codigo, body) => {
+        const { Descripcion } = body;
+        const response = await updateDepartamento(conexionZaragoza, Codigo, Descripcion);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
 
-        const updateOnlyStatus = async () => {
-            return await updateStatus(conexionZaragoza, uuid, estatus.toUpperCase(), '');
-        }
+    const updateTypeEquipment = async (Codigo, body) => {
+        const { Descripcion, Campos } = body;
+        const response = await updateTipoDeEquipo(conexionZaragoza, Codigo, Descripcion, Campos);
+        if (!response.success) return createResponse(400, response);
+        return createResponse(200, response)
+    }
 
-        const updateStatusAndArticle = async () => {
-            if (Articulo.trim() === '') return createContentError('El articulo no puede ser vacio')
-            return await updateStatus(conexionZaragoza, uuid, estatus.toUpperCase(), Articulo);
-        }
-
-        if (estatus.toUpperCase() === 'ATENDIDO')
-            response = await updateStatusAndArticle();
-        else response = await updateOnlyStatus();
-
+    const updateTokens = async (Folio, body) => {
+        const {
+            Folio, Ciudad, Responsable, Modelo, Marca, 
+            PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
+            Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
+            DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
+            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
+            ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, UpdatedBy
+        } = body;
+        const response = await updateFichasTecnicas(
+            conexionZaragoza,
+            Folio, Ciudad, Responsable, Modelo, Marca, 
+            PantallaPulgadas, TamañoPulgadas, Fabricante, PuertoHDMI, PuertoVGA, Color, Serie, 
+            Codigo, Clave, Digitos, Largo, Ancho, Grosor, Alambrico, SO, MotherBoard, Procesador, 
+            DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
+            Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
+            ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, UpdatedBy
+        );
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
     }
@@ -221,6 +238,10 @@ const ServicesPedidos = (() => {
         addDepartamento,
         addTipoEquipo,
         addFichaTecnica,
+        updateBranch,
+        updateDepartment,
+        updateTypeEquipment,
+        updateTokens,
         deleteBranchs,
         deleteDepartment,
         deleteTypeEquipment,
