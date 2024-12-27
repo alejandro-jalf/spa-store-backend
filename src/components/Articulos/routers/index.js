@@ -9,6 +9,7 @@ const {
     getArticlesWithLowUtilities,
     updateStocksBySucursal,
     getExistenciasBySucursal,
+    getArticulosVigentes,
 } = require("../services");
 
 router.route("/api/v1/articulos/:articulo/precio").get(async (req, res) => {
@@ -65,6 +66,13 @@ router.route("/api/v1/articulos/:barcode/codificador").get(async (req, res) => {
     const { barcode } = req.params;
     const { sucursal } = req.query;
     const { status, response } = await getDetallesArticulosByCodificador(sucursal, barcode);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/articulos/vigentes/:sucursal").get(async (req, res) => {
+    const { sucursal } = req.params;
+    const { FechaDesde } = req.query;
+    const { status, response } = await getArticulosVigentes(sucursal, FechaDesde);
     res.status(status).json(response);
 });
 

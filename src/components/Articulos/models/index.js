@@ -495,6 +495,64 @@ const ModelsArticulos = (() => {
         }
     }
 
+    const getCurrentsArticles = async (cadenaConexion = '', Sucursal = 'BO', FechaDesde) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${Sucursal}';
+                DECLARE @FechaDesde DATETIME = CAST('${FechaDesde}' AS datetime);
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
+
+                WITH TablaExistencias (Articulo, Nombre, ExistenciaActualRegular, UltimoCostoNeto, FechaUltimaCompra) AS (
+                    SELECT
+                        Articulo, Nombre, ExistenciaActualRegular, UltimoCostoNeto, FechaUltimaCompra
+                    FROM QVExistencias
+                    WHERE (ExistenciaActualRegular > 0 OR FechaUltimaCompra >= @FechaDesde)
+                        AND Almacen = @Almacen
+                        AND Tienda = @Tienda
+                ),
+                TablaMovimientos (Articulo, Nombre, FechaUltimoMovimiento) AS (
+                    SELECT
+                        Articulo, Nombre, FechaUltimoMovimiento = MAX(Fecha)
+                    FROM QVDEMovAlmacen
+                    WHERE Tienda = @Tienda AND Almacen = @Almacen AND Fecha >= @FechaDesde
+                        AND TipoDocumento IN ('V', 'A', 'E', 'T', 'C')
+                    GROUP BY Articulo, Nombre
+                ),
+                ListaVigentes (Articulo) AS (
+                    SELECT DISTINCT Articulo FROM (
+                        SELECT Articulo FROM TablaExistencias
+                        UNION ALL
+                        SELECT Articulo FROM TablaMovimientos
+                    ) AS TablaUnion
+                )
+
+                SELECT
+                    V.Articulo, NombreA = ISNULL(E.Nombre, M.Nombre),
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
+                    E.ExistenciaActualRegular, E.UltimoCostoNeto,
+                    E.FechaUltimaCompra, M.FechaUltimoMovimiento,
+                    P.Precio1IVAUV
+                FROM ListaVigentes AS V
+                LEFT JOIN QV4ListaPrecioConCosto AS P ON P.Articulo = V.Articulo AND P.Almacen = @Almacen AND P.TipoTienda = @Tienda
+                LEFT JOIN TablaExistencias AS E ON E.Articulo = V.Articulo
+                LEFT JOIN TablaMovimientos AS M ON M.Articulo = V.Articulo
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Lista de Articulos Vigentes', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + sucursal + ' al intentar obtener los Articulos Vigentes',
+                error
+            );
+        }
+    }
+
     return {
         getDetailsArticleForCodificador,
         getArticulosConUtilidadBaja,
@@ -507,6 +565,7 @@ const ModelsArticulos = (() => {
         getExistenceByProvider,
         getExistencesBySucursal,
         getListArticlesByProvider,
+        getCurrentsArticles,
     }
 })();
 

@@ -16,6 +16,7 @@ const {
 const {
     validateSucursal,
     validateSucursalWithCompany,
+    validateFecha,
 } = require('../../../validations');
 const {
     getPrecio,
@@ -29,6 +30,7 @@ const {
     getExistenceByProvider,
     getExistencesBySucursal,
     getListArticlesByProvider,
+    getCurrentsArticles,
 } = require('../models');
 const {
     getComprasByDate,
@@ -440,6 +442,23 @@ const ServicesArticulos = (() => {
         return createResponse(200, response)
     }
 
+    const getArticulosVigentes = async (sucursal = '', FechaDesde) => {
+        let validate = validateSucursal(sucursal);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        validate = validateFecha(FechaDesde);
+        if (!validate.success)
+            return createResponse(400, validate);
+
+        const conexion = getConnectionFrom(sucursal);
+        const response = await getCurrentsArticles(conexion, sucursal, FechaDesde);
+        
+        if (!response.success) return createResponse(400, response)
+        response.count = response.data.length;
+        return createResponse(200, response)
+    }
+
     return {
         getPriceArticle,
         getDataForStocks,
@@ -450,6 +469,7 @@ const ServicesArticulos = (() => {
         getDetallesExistenciasBySku,
         getExistenciasByProveedor,
         getExistenciasBySucursal,
+        getArticulosVigentes,
     }
 })();
 
