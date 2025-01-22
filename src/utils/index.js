@@ -58,6 +58,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'RE') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'CO') return connectionCaasaSuper;
         if (from.trim().toUpperCase() === 'SC') return connectionSoconusco;
+        if (from.trim().toUpperCase() === 'SCB') return connectionSoconusco;
         if (from.trim().toUpperCase() === 'SN') return connectionSanAndres;
         if (from.trim().toUpperCase() === 'SNP') return connectionSanAndresPromotora;
     }
@@ -72,6 +73,7 @@ const utils = (() => {
         if (from.trim().toUpperCase() === 'BO') return 'SPA Bodega';
         if (from.trim().toUpperCase() === 'ER') return 'SPA Enriquez';
         if (from.trim().toUpperCase() === 'SC') return 'SPA Soconusco';
+        if (from.trim().toUpperCase() === 'SCB') return 'SPA Soconusco Bodega';
         if (from.trim().toUpperCase() === 'SN') return 'SPA San Andres';
         if (from.trim().toUpperCase() === 'SNP') return 'SPA San Andres P';
         if (from.trim().toUpperCase() === 'SA') return 'CAASA Sayula';
@@ -102,6 +104,7 @@ const utils = (() => {
             { name: 'JALTIPAN', connection: connectionJaltipan },
             { name: 'BODEGA', connection: connectionBodega },
             { name: 'SOCONUSCO', connection: connectionSoconusco },
+            { name: 'SOCONUSCO B', connection: connectionSoconusco },
             { name: 'SANANDRES', connection: connectionSanAndres },
             { name: 'SANANDRESP', connection: connectionSanAndresPromotora },
         ]
@@ -129,6 +132,7 @@ const utils = (() => {
         if (categoria.toUpperCase() === 'SPAVICTORIA') return 'VC';
         if (categoria.toUpperCase() === 'SPAZARAGOZA') return 'ZR';
         if (categoria.toUpperCase() === 'SPASOCONUSCO') return 'SC';
+        if (categoria.toUpperCase() === 'SPASOCONUSCOB') return 'SCB';
         if (categoria.toUpperCase() === 'SPACATEMACO') return undefined;
         if (categoria.toUpperCase() === 'SPASANANDRES') return 'SN';
         if (categoria.toUpperCase() === 'SPASANANDRESP') return 'SNP';
@@ -165,6 +169,9 @@ const utils = (() => {
 
         if (almacen.trim().toLowerCase() === 'spa-soconusco-punto de venta')
             return 'SC';
+
+        if (almacen.trim().toLowerCase() === 'spa-soconusco-Bodega')
+            return 'SCB';
 
         if (
             almacen.trim().toLowerCase() === 'SPA-San Andres-Punto de Venta' ||
@@ -326,6 +333,8 @@ const utils = (() => {
                 return 6;
             case 'SC':
                 return 10;
+            case 'SCB':
+                return 10;
             case 'SN':
                 return 7;
             case 'SNP':
@@ -353,6 +362,8 @@ const utils = (() => {
                 return 21;
             case 'SC':
                 return 25;
+            case 'SCB':
+                return 26;
             case 'SN':
                 return 12;
             default:
@@ -555,6 +566,7 @@ const utils = (() => {
                 WHEN @Sucursal = 'SN' THEN 12
                 WHEN @Sucursal = 'SNB' THEN 11
                 WHEN @Sucursal = 'SNP' THEN 13
+                WHEN @Sucursal = 'SCB' THEN 26
                 ELSE 0 END;`
     }
 
@@ -569,6 +581,7 @@ const utils = (() => {
                 WHEN @Sucursal = 'JL' THEN 4
                 WHEN @Sucursal = 'BO' THEN 6
                 WHEN @Sucursal = 'SC' THEN 10
+                WHEN @Sucursal = 'SCB' THEN 10
                 WHEN @Sucursal = 'SN' THEN 7
                 WHEN @Sucursal = 'SNP' THEN 8
                 ELSE 0 END;`

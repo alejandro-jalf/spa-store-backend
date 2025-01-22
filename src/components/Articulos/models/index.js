@@ -470,7 +470,7 @@ const ModelsArticulos = (() => {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
             const result = await accessToDataBase.query(
                 `
-                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                DECLARE @Sucursal NVARCHAR(3) = '${sucursal}';
                 ${getDeclareAlmacen()}
                 ${getDeclareTienda()}
 
