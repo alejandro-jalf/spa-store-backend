@@ -12,6 +12,7 @@ const {
     updateStatuOrder,
     getPedidoSujerido,
     getPedidoSujeridoAProveedor,
+    getPedidosDirectosDeSucursal,
 } = require('../services')
 
 const response = {
@@ -23,6 +24,12 @@ const response = {
 router.route("/api/v1/pedidos/maestros").get(async (req, res) => {
     const { database, source } = req.query;
     const { status, response } = await getOrdersBodega(database, source);
+    res.status(status).json(response);
+});
+
+router.route("/api/v1/pedidos/directos").get(async (req, res) => {
+    const { fecha, estatus, aplica } = req.query;
+    const { status, response } = await getPedidosDirectosDeSucursal(fecha, aplica, estatus);
     res.status(status).json(response);
 });
 

@@ -238,6 +238,33 @@ const modelsPedidos = (() => {
         }
     }
 
+    const getOrdersWithDetailsToDirect = async (cadenaConexion = '', fecha= '', aplicaStatus = true, estatus = 'PEDIDO ENVIADO') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const complementWhere = aplicaStatus ? '' : '--';
+            const result = await accessToDataBase.query(
+                `
+                USE SPASUC2014;
+                SELECT
+                    M.Pedido, M.Sucursal, Estatus, Articulo, PeCaja, PePieza, FechaPedidoEnviado
+                FROM PedidosMaestro AS M
+                LEFT JOIN PedidosDetalle AS D ON D.Pedido = M.Pedido AND D.Sucursal = M.Sucursal
+                WHERE  (FechaPedidoEnviado BETWEEN CAST('${fecha} 00:00:00.000' AS DATETIME) AND CAST('${fecha} 23:59:59.999' AS DATETIME))
+                    ${complementWhere} AND Estatus = '${estatus}'
+                ;
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Pedidos de Sucursales', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener el pedido de sucursales',
+                error
+            );
+        }
+    }
+
     const getPedidosEnBodega = async (cadenaConexion = '', database = 'SPASUC2021') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -498,6 +525,7 @@ const modelsPedidos = (() => {
         atendidoPedido,
         getOrdersSuggested,
         getOrdersSuggestedToProvider,
+        getOrdersWithDetailsToDirect,
     }
 })();
 
