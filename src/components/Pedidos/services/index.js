@@ -79,7 +79,7 @@ const ServicesPedidos = (() => {
 
         if (!response.success) return createResponse(400, response);
 
-        const pushRow = (tabla, row) => {
+        const pushRow = (tabla, row, PeCaja, PePieza) => {
             let PeCajaZr, PePzaZr, PeCajaVc, PePzaVc, PeCajaOu, PePzaOu, PeCajaEr, PePzaEr, PeCajaSy, PePzaSy, PeCajaSc, PePzaSc;
             PeCajaZr = PePzaZr = PeCajaVc = PePzaVc = PeCajaOu = PePzaOu = PeCajaEr = PePzaEr = PeCajaSy = PePzaSy = PeCajaSc = PePzaSc = -1;
             
@@ -95,30 +95,33 @@ const ServicesPedidos = (() => {
                     Articulo: row.Articulo, Nombre: '', Relacion: '', PeCajaZr, PePzaZr, CostoNetoZr: -1, ExistZr: -1, PeCajaVc, PePzaVc,
                     CostoNetoVc: -1, ExistVc: -1, PeCajaOu, PePzaOu, CostoNetoOu: -1, ExistOu: -1, PeCajaEr, PePzaEr, CostoNetoEr: -1,
                     ExistEr: -1, PeCajaSy, PePzaSy, CostoNetoSy: -1, ExistSy: -1, PeCajaSc, PePzaSc, CostoNetoSc: -1, ExistSc: -1,
+                    TotalCajas: PeCaja, TotalPiezas: PePieza,
                 }
             )
             return tabla;
         }
 
         const listArticles = response.data.reduce((list, row, index) => {
+            const cajas = row.PeCaja, piezas = row.PePieza;
             if (index === 0) {
                 list.articles.push(row.Articulo);
-                pushRow(list.tabla, row);
+                pushRow(list.tabla, row, cajas, piezas);
             } else {
                 const articleFinded = list.articles.find((article) => article === row.Articulo);
                 if (!articleFinded) list.articles.push(row.Articulo);
 
                 const indexTabla = list.tabla.findIndex((rowArticle) => rowArticle.Articulo === row.Articulo);
                 if (indexTabla === -1)
-                    pushRow(list.tabla, row);
+                    pushRow(list.tabla, row, cajas, piezas);
                 else {
-                    const cajas = row.PeCaja, piezas = row.PePieza;
                     if (row.Sucursal === 'ZARAGOZA') { list.tabla[indexTabla].PeCajaZr = cajas; list.tabla[indexTabla].PePzaZr = piezas; }
                     else if (row.Sucursal === 'VICTORIA') { list.tabla[indexTabla].PeCajaVc = cajas; list.tabla[indexTabla].PePzaVc = piezas; }
                     else if (row.Sucursal === 'ENRIQUEZ') { list.tabla[indexTabla].PeCajaEr = cajas; list.tabla[indexTabla].PePzaEr = piezas; }
                     else if (row.Sucursal === 'OLUTA') { list.tabla[indexTabla].PeCajaOu = cajas; list.tabla[indexTabla].PePzaOu = piezas; }
                     else if (row.Sucursal === 'SAYULA') { list.tabla[indexTabla].PeCajaSy = cajas; list.tabla[indexTabla].PePzaSy = piezas; }
                     else if (row.Sucursal === 'SOCONUSCO') { list.tabla[indexTabla].PeCajaSc = cajas; list.tabla[indexTabla].PePzaSc = piezas; }
+                    list.tabla[indexTabla].TotalCajas += cajas;
+                    list.tabla[indexTabla].TotalPiezas += piezas;
                 }
             }
             return list;
