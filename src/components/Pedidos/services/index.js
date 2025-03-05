@@ -3,6 +3,8 @@ const {
     getConnectionFrom,
     getHostBySuc,
     getDatabaseBySuc,
+    getListConnectionByCompany,
+    getSucursalByCategory,
 } = require('../../../utils');
 const {
     validateBodyAddArticle,
@@ -26,6 +28,7 @@ const {
     getOrdersSuggested,
     getOrdersSuggestedToProvider,
     getOrdersWithDetailsToDirect,
+    getCompleteForOrdersDirect,
 } = require('../models');
 
 const ServicesPedidos = (() => {
@@ -104,11 +107,15 @@ const ServicesPedidos = (() => {
         const listArticles = response.data.reduce((list, row, index) => {
             const cajas = row.PeCaja, piezas = row.PePieza;
             if (index === 0) {
+                list.articlesString += `'${row.Articulo}'`;
                 list.articles.push(row.Articulo);
                 pushRow(list.tabla, row, cajas, piezas);
             } else {
                 const articleFinded = list.articles.find((article) => article === row.Articulo);
-                if (!articleFinded) list.articles.push(row.Articulo);
+                if (!articleFinded) {
+                    list.articles.push(row.Articulo);
+                    list.articlesString += `,'${row.Articulo}'`;
+                }
 
                 const indexTabla = list.tabla.findIndex((rowArticle) => rowArticle.Articulo === row.Articulo);
                 if (indexTabla === -1)
@@ -125,11 +132,53 @@ const ServicesPedidos = (() => {
                 }
             }
             return list;
-        }, { tabla: [], articles: [] })
+        }, { tabla: [], articles: [], articlesString: '' })
+
+        let listConnection = getListConnectionByCompany('SPA');
+        listConnection = listConnection.filter(
+            (conecction) => conecction.name !== 'SAYULA T.' && conecction.name !== 'TORTILLERIA F.' && conecction.name !== 'ZARAGOZA' && conecction.name !== 'JALTIPAN' && conecction.name !== 'SANANDRES' && conecction.name !== 'SANANDRESP' && conecction.name !== 'SOCONUSCO B'
+        )
+
+        const arrayResponse = listConnection.map(async (connection) => {
+            const suc = getSucursalByCategory('SPA' + connection.name)
+            const response = await getCompleteForOrdersDirect(connection.connection, listArticles.articlesString, suc);
+            return {
+                Sucursal: connection.name,
+                Data: response.success ? response.data : []
+            }
+        })
+        const resultComplete = await Promise.all(arrayResponse);
+
+        resultComplete.forEach((dataSuc) => {
+            dataSuc.Data.forEach((article) => {
+                const position = listArticles.tabla.findIndex((row) => row.Articulo === article.Articulo);
+                if (position != -1) {
+                    if (article.Sucursal === 'VC') {
+                        listArticles.tabla[position].Nombre = article.Nombre;
+                        listArticles.tabla[position].Relacion = article.Relacion;
+                        listArticles.tabla[position].ExistVc = article.ExistenciaActualRegular;
+                        listArticles.tabla[position].CostoNetoVc = article.UltimoCostoNetoUC;
+                    } else if (article.Sucursal === 'ER') {
+                        listArticles.tabla[position].ExistEr = article.ExistenciaActualRegular;
+                        listArticles.tabla[position].CostoNetoEr = article.UltimoCostoNetoUC;
+                    } else if (article.Sucursal === 'OU') {
+                        listArticles.tabla[position].ExistOu = article.ExistenciaActualRegular;
+                        listArticles.tabla[position].CostoNetoOu = article.UltimoCostoNetoUC;
+                    } else if (article.Sucursal === 'SY') {
+                        listArticles.tabla[position].ExistSy = article.ExistenciaActualRegular;
+                        listArticles.tabla[position].CostoNetoSy = article.UltimoCostoNetoUC;
+                    } else if (article.Sucursal === 'SC') {
+                        listArticles.tabla[position].ExistSc = article.ExistenciaActualRegular;
+                        listArticles.tabla[position].CostoNetoSc = article.UltimoCostoNetoUC;
+                    }
+                }
+            })
+        });
+        
         response.countComplete = response.data.length;
         response.countReduce = listArticles.articles.length;
-
         response.data = listArticles.tabla;
+
         return createResponse(200, response)
     }
 

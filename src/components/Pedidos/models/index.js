@@ -265,6 +265,35 @@ const modelsPedidos = (() => {
         }
     }
 
+    const getCompleteForOrdersDirect = async (cadenaConexion = '', articles = '', sucursal = 'ZR') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${sucursal}';
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
+
+                SELECT
+                    Sucursal = @Sucursal, Articulo, Nombre,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
+                    ExistenciaActualRegular, UltimoCostoNeto, UltimoCostoNetoUC
+                FROM QVExistencias
+                WHERE Almacen = @Almacen AND Tienda = @Tienda
+                    AND Articulo IN (${articles});
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Complemento de datos para pedidos', result[0]);
+        } catch (error) {
+            return createContentError(
+                'Fallo la conexion con base de datos al intentar obtener el complemento para pediso directos',
+                error
+            );
+        }
+    }
+
     const getPedidosEnBodega = async (cadenaConexion = '', database = 'SPASUC2021') => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -526,6 +555,7 @@ const modelsPedidos = (() => {
         getOrdersSuggested,
         getOrdersSuggestedToProvider,
         getOrdersWithDetailsToDirect,
+        getCompleteForOrdersDirect,
     }
 })();
 
