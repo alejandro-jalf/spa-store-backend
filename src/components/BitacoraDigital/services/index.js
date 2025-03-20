@@ -82,7 +82,7 @@ const ServicesGeneral = (() => {
         const response = await getLastFolio(conexionBitacora, sucursal, fecha)
 
         if (!response.success) return createResponse(400, response);
-        const Folio = response.data[0].Folio;
+        const Folio = response.data.length < 1 ? 'SU0000000000' : response.data[0].Folio;
 
         const lastNumber = Folio === undefined ? 0 : parseInt(Folio.substring(10, 12));
         const newConsecutivo = lastNumber + 1;

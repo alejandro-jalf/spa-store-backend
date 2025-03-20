@@ -125,7 +125,7 @@ const ModelsGeneral = (() => {
             INSERT INTO BitacoraDigital.Compras(
                 id, Sucursal, Fecha, Folio, Proveedor, Subtotal, Descuento, Ieps, Iva,Total, Documento, Estatus
             ) VALUES (
-                NEWID(), ${Sucursal}, @Fecha, ${Folio}, '${Proveedor}', ${Subtotal}, ${Descuento}, ${Ieps}, ${Iva}, ${Total}, '${Documento}', 'A TIEMPO'
+                NEWID(), '${Sucursal}', @Fecha, '${Folio}', '${Proveedor}', ${Subtotal}, ${Descuento}, ${Ieps}, ${Iva}, ${Total}, '${Documento}', 'A TIEMPO'
             );`,
                 QueryTypes.INSERT
             );
