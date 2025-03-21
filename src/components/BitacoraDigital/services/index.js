@@ -28,11 +28,11 @@ const {
 const ServicesGeneral = (() => {
     const conexionBitacora = getConnectionFrom('ZR');
     
-    const getUltimosFoliosPorSucursal = async (sucursal = 'ZR') => {
+    const getUltimosFoliosPorSucursal = async (sucursal = 'ZR', limit) => {
         const validate = validateSucursal(sucursal);
         if (!validate.success) return createResponse(400, validate);
 
-        const response = await getLastFolios(conexionBitacora, sucursal);
+        const response = await getLastFolios(conexionBitacora, sucursal, limit);
 
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
@@ -126,8 +126,6 @@ const ServicesGeneral = (() => {
     
     const updateFolioBitacora = async (Id, body) => {
         const { Proveedor, Subtotal, Descuento, Ieps, Iva, Total, Documento } = body;
-        let validate = validateSucursal(Sucursal);
-        if (!validate.success) return createResponse(400, validate);
 
         const response = await updateFolio(conexionBitacora, Id, Proveedor, Subtotal, Descuento, Ieps, Iva, Total, Documento);
 

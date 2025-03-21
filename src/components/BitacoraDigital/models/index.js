@@ -149,7 +149,7 @@ const ModelsGeneral = (() => {
                 Iva = ${Iva},
                 Total = ${Total},
                 Documento = '${Documento}'
-            WHERE id = ${id};`,
+            WHERE id = '${id}';`,
                 QueryTypes.UPDATE
             );
             dbmssql.closeConexion();
