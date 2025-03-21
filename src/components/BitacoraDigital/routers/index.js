@@ -13,7 +13,8 @@ const {
 } = require("../services");
 
 router.route("/api/v1/bitacoradigital/compras/last/:sucursal").get(async (req, res) => {
-    const { sucursal, limit } = req.params;
+    const { sucursal } = req.params;
+    const { limit } = req.query;
     const { status, response } = await getUltimosFoliosPorSucursal(sucursal, limit);
     res.status(status).json(response);
 });
