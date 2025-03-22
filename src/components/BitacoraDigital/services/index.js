@@ -112,13 +112,13 @@ const ServicesGeneral = (() => {
     }
     
     const createFolioVacio = async (sucursal = 'ZR', fecha = '20240101') => {
-        let { response } = generateFolio(sucursal, fecha);
+        let { response } = await generateFolio(sucursal, fecha);
         if (!response.success) return createResponse(200, response);
 
-        let validate = validateFolio(Folio);
+        let validate = validateFolio(response.data.Folio);
         if (!validate.success) return createResponse(400, validate);
 
-        response = await createFolio(conexionBitacora, sucursal, fecha, Folio, 'PROVEEDORES VARIOS', 1.0, 0, 0, 0, 0, 'R');
+        response = await createFolio(conexionBitacora, sucursal, fecha, response.data.Folio, 'PROVEEDORES VARIOS', 1.0, 0.0, 0.0, 0.0, 1.0, 'R');
 
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response);
