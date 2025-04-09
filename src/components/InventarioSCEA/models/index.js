@@ -251,7 +251,8 @@ const modelsPedidos = (() => {
             DiscoDuro = '', RAM = '', Conectividad = '', TipoPila = '', DuracionBateria = '', Voltaje = '', Accesorios = '', 
             Garantia = '', Toner = '', Tambor = '', Tipo = '', NumeroSerial = '', Material = '', Velocidades = '', Capacidad = '', 
             ContieneBateria = 0, NumeroPuertas = 0, TemperaturaOperacion = 0, ConsumoEnergetico = '', Iluminacion = '', 
-            SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = '', CreatedBy = '', UpdatedBy = ''
+            SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = '', CreatedBy = '', UpdatedBy = '',
+            Alto = 0.0, Divisiones = 0, Niveles = 0, Costo = 0.0
     ) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -266,7 +267,7 @@ const modelsPedidos = (() => {
                     Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
                     ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
                     SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, Created, 
-                    CreatedBy, Updated, UpdatedBy
+                    CreatedBy, Updated, UpdatedBy, Alto, Divisiones, Niveles, Costo
                 ) VALUES (
                     '${Folio}', '${Ciudad}', CAST('${FechaCaptura}' AS DATETIME), '${Responsable}', '${Sucursal}', '${Departamento}', '${Modelo}', '${TipoEquipo}', ${Consecutivo}, '${Marca}', 
                     ${PantallaPulgadas}, ${TamañoPulgadas}, '${Fabricante}', ${PuertoHDMI}, ${PuertoVGA}, '${Color}', '${Serie}',
@@ -274,7 +275,8 @@ const modelsPedidos = (() => {
                     '${DiscoDuro}', '${RAM}', '${Conectividad}', '${TipoPila}', '${DuracionBateria}', '${Voltaje}', '${Accesorios}',
                     '${Garantia}', '${Toner}', '${Tambor}', '${Tipo}', '${NumeroSerial}', '${Material}', '${Velocidades}', '${Capacidad}',
                     ${ContieneBateria}, ${NumeroPuertas}, ${TemperaturaOperacion}, '${ConsumoEnergetico}', '${Iluminacion}', 
-                    '${SistemaRefrigeracion}', '${Combustible}', ${Contactos}, '${Cargador}', '${Observaciones}', GETDATE(), '${CreatedBy}', GETDATE(), '${UpdatedBy}'
+                    '${SistemaRefrigeracion}', '${Combustible}', ${Contactos}, '${Cargador}', '${Observaciones}', GETDATE(), '${CreatedBy}', GETDATE(), '${UpdatedBy}',
+                    ${Alto}, ${Divisiones}, ${Niveles}, ${Costo}
                 );
                 `,
                 QueryTypes.INSERT
@@ -363,7 +365,8 @@ const modelsPedidos = (() => {
         DiscoDuro = '', RAM = '', Conectividad = '', TipoPila = '', DuracionBateria = '', Voltaje = '', Accesorios = '', 
         Garantia = '', Toner = '', Tambor = '', Tipo = '', NumeroSerial = '', Material = '', Velocidades = '', Capacidad = '', 
         ContieneBateria = 0, NumeroPuertas = 0, TemperaturaOperacion = 0, ConsumoEnergetico = '', Iluminacion = '', 
-        SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = '', UpdatedBy = ''
+        SistemaRefrigeracion = '', Combustible = '', Contactos = 0, Cargador = '', Observaciones = '', UpdatedBy = '',
+        Alto = 0.0, Divisiones = 0, Niveles = 0, Costo = 0.0
     ) => {
         try {
             const accessToDataBase = dbmssql.getConexion(cadenaConexion);
@@ -382,7 +385,8 @@ const modelsPedidos = (() => {
                     Capacidad = '${Capacidad}', ContieneBateria = ${ContieneBateria}, NumeroPuertas = ${NumeroPuertas},
                     TemperaturaOperacion = ${TemperaturaOperacion}, ConsumoEnergetico = '${ConsumoEnergetico}', Iluminacion = '${Iluminacion}', 
                     SistemaRefrigeracion = '${SistemaRefrigeracion}', Combustible = '${Combustible}', Contactos = ${Contactos}, Cargador = '${Cargador}',
-                    Observaciones = '${Observaciones}', Updated = GETDATE(), UpdatedBy = '${UpdatedBy}'
+                    Observaciones = '${Observaciones}', Updated = GETDATE(), UpdatedBy = '${UpdatedBy}',
+                    Alto = ${Alto}, Divisiones = ${Divisiones}, Niveles = ${Niveles}, Costo = ${Costo}
                 WHERE Folio = '${Folio}';
                 `,
                 QueryTypes.UPDATE

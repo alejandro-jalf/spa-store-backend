@@ -137,7 +137,8 @@ const ServicesPedidos = (() => {
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
             Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
             ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
-            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, CreatedBy, UpdatedBy
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, CreatedBy, UpdatedBy,
+            Alto, Divisiones, Niveles, Costo
         } = bodyCreateFichaTecnica;
 
         const response = await createFichaTecnica(
@@ -148,7 +149,8 @@ const ServicesPedidos = (() => {
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
             Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
             ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
-            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, CreatedBy, UpdatedBy
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, CreatedBy, UpdatedBy,
+            Alto, Divisiones, Niveles, Costo
         );
 
         if (!response.success) return createResponse(400, response);
@@ -184,7 +186,8 @@ const ServicesPedidos = (() => {
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
             Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
             ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
-            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, UpdatedBy
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, UpdatedBy,
+            Alto, Divisiones, Niveles, Costo
         } = body;
         const response = await updateFichasTecnicas(
             conexionZaragoza, Folio, Ciudad, Responsable, Modelo, Marca, 
@@ -193,7 +196,8 @@ const ServicesPedidos = (() => {
             DiscoDuro, RAM, Conectividad, TipoPila, DuracionBateria, Voltaje, Accesorios, 
             Garantia, Toner, Tambor, Tipo, NumeroSerial, Material, Velocidades, Capacidad, 
             ContieneBateria, NumeroPuertas, TemperaturaOperacion, ConsumoEnergetico, Iluminacion, 
-            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, UpdatedBy
+            SistemaRefrigeracion, Combustible, Contactos, Cargador, Observaciones, UpdatedBy,
+            Alto, Divisiones, Niveles, Costo
         );
         if (!response.success) return createResponse(400, response);
         return createResponse(200, response)
