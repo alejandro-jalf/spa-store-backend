@@ -553,6 +553,64 @@ const ModelsArticulos = (() => {
         }
     }
 
+    const getListCurrentsArticles = async (cadenaConexion = '', Sucursal = 'BO', FechaDesde) => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${Sucursal}';
+                DECLARE @FechaDesde DATETIME = CAST('${FechaDesde}' AS datetime);
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
+
+                SELECT DISTINCT Articulo FROM (
+                    SELECT Articulo FROM QVExistencias WHERE (ExistenciaActualRegular > 0 OR FechaUltimaCompra >= @FechaDesde) AND Almacen = @Almacen AND Tienda = @Tienda
+                    UNION ALL
+                    SELECT DISTINCT Articulo FROM QVDEMovAlmacen WHERE Tienda = @Tienda AND Almacen = @Almacen AND Fecha >= @FechaDesde AND TipoDocumento IN ('V', 'A', 'E', 'T', 'C')
+                ) AS TablaUnion
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Lista de Articulos Vigentes', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + Sucursal + ' al intentar obtener los Articulos Vigentes',
+                error
+            );
+        }
+    }
+
+    const getDataArticlesByList = async (cadenaConexion = '', Sucursal = 'BO', In = '') => {
+        try {
+            const accessToDataBase = dbmssql.getConexion(cadenaConexion);
+            const result = await accessToDataBase.query(
+                `
+                DECLARE @Sucursal NVARCHAR(2) = '${Sucursal}';
+                ${getDeclareAlmacen()}
+                ${getDeclareTienda()}
+
+                SELECT
+                    Articulo, Nombre,
+                    Relacion = CAST(CAST(FactorCompra AS int) AS nvarchar) + UnidadCompra + ' / ' + CAST(CAST(FactorVenta AS int) AS nvarchar) + UnidadVenta,
+                    ExistenciaActualRegular, UltimoCostoNeto, FechaUltimaCompra
+                FROM QVExistencias
+                WHERE Articulo IN (${In}) AND Almacen = @Almacen AND Tienda = @Tienda
+                `,
+                QueryTypes.SELECT
+            );
+            dbmssql.closeConexion();
+            return createContentAssert('Lista de Articulos Vigentes', result[0]);
+        } catch (error) {
+            console.log(error);
+            return createContentError(
+                'Fallo la conexion con base de datos en ' + Sucursal + ' al intentar obtener los Articulos Vigentes',
+                error
+            );
+        }
+    }
+
     return {
         getDetailsArticleForCodificador,
         getArticulosConUtilidadBaja,
@@ -566,6 +624,8 @@ const ModelsArticulos = (() => {
         getExistencesBySucursal,
         getListArticlesByProvider,
         getCurrentsArticles,
+        getListCurrentsArticles,
+        getDataArticlesByList,
     }
 })();
 

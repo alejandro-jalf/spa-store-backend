@@ -31,6 +31,8 @@ const {
     getExistencesBySucursal,
     getListArticlesByProvider,
     getCurrentsArticles,
+    getListCurrentsArticles,
+    getDataArticlesByList,
 } = require('../models');
 const {
     getComprasByDate,
@@ -451,9 +453,116 @@ const ServicesArticulos = (() => {
         if (!validate.success)
             return createResponse(400, validate);
 
-        const conexion = getConnectionFrom(sucursal);
-        const response = await getCurrentsArticles(conexion, sucursal, FechaDesde);
-        
+        let response;
+        if (sucursal.toUpperCase() === 'ALL') {
+            const sucs = getListConnectionByCompany('SPA').filter((suc) => (
+                suc.name === 'VICTORIA' ||
+                suc.name === 'ENRIQUEZ' ||
+                suc.name === 'SAYULA' ||
+                suc.name === 'SOCONUSCO'
+            ));
+
+            const getResponseAll = async (functionS = async () => {}, In) => {
+                console.log(In || FechaDesde, In);
+                return await Promise.all(
+                    sucs.map(async (connection) => {
+                        const siglas = getSucursalByCategory('SPA' + connection.name);
+                        const response = await functionS(connection.connection, siglas, In || FechaDesde);
+                        return {
+                            success: response.success,
+                            articulos: response.success ? response.data.length : 0,
+                            siglas,
+                            conexion: connection.name,
+                            message: response.success ? 'Conexion exitosa' : 'Conexion fallida',
+                            data: response.success ? response.data : [],
+                        }
+                    })
+                )
+            }
+
+            let resultTests = await getResponseAll(getListCurrentsArticles);
+            response =  createContentAssert('Test de Articulos', resultTests);
+
+            let vueltas = 0;
+            const listUnida = resultTests.reduce((list, response) => {
+                response.data.forEach((article) => {
+                    if (vueltas === 0) {
+                        list.array.push(article.Articulo);
+                        list.string += `'${article.Articulo}'`;
+                    } else {
+                        const articleFinded = list.array.find((articulo) => articulo === article.Articulo);
+                        if (!articleFinded) {
+                            list.array.push(article.Articulo);
+                            list.string += `, '${article.Articulo}'`;
+                        }
+                    }
+                    vueltas ++;
+                });
+                return list;
+            }, { array: [], string: '' });
+
+            resultTests = await getResponseAll(getDataArticlesByList, listUnida.string);
+            response =  createContentAssert('Test de Articulos', resultTests);
+
+            const pushArticle = (table, article, siglas) => {
+                const newArticle = {
+                    Articulo: article.Articulo,
+                    Nombre: article.Nombre,
+                    Relacion: article.Relacion,
+                    ExistenciaVC: 0,
+                    UltimoCostoVC: 0,
+                    UltimaCompraVC: '',
+                    ExistenciaER: 0,
+                    UltimoCostoER: 0,
+                    UltimaCompraER: '',
+                    ExistenciaSY: 0,
+                    UltimoCostoSY: 0,
+                    UltimaCompraSY: '',
+                    ExistenciaSC: 0,
+                    UltimoCostoSC: 0,
+                    UltimaCompraSC: '',
+                };
+                newArticle[`Existencia${siglas}`] = article.ExistenciaActualRegular;
+                newArticle[`UltimoCosto${siglas}`] = article.UltimoCostoNeto;
+                newArticle[`UltimaCompra${siglas}`] = article.FechaUltimaCompra;
+                table.push(newArticle);
+            };
+
+            const updateArticle = (articleOld, article, siglas) => {
+                if (
+                    (!articleOld.Articulo || articleOld.Articulo === '') &&
+                    (!!article.Articulo && article.Articulo !== '')
+                ) {
+                    articleOld.Articulo = article.Articulo;
+                    articleOld.Nombre = article.Nombre;
+                    articleOld.Relacion = article.Relacion;
+                }
+                articleOld[`Existencia${siglas}`] = article.ExistenciaActualRegular;
+                articleOld[`UltimoCosto${siglas}`] = article.UltimoCostoNeto;
+                articleOld[`UltimaCompra${siglas}`] = article.FechaUltimaCompra;
+            };
+
+            const tableArticles = resultTests.reduce((reduction, sucursal, index) => {
+                const total = reduction.table.length;
+                reduction.estatus[`${sucursal.siglas}`] = sucursal.success;
+                sucursal.data.forEach((article) => {
+                    if (index === 0 || total === 0)
+                        pushArticle(reduction.table, article, sucursal.siglas);
+                    else {
+                        const articleFinded = reduction.table.find((articleOld) => articleOld.Articulo === article.Articulo);
+                        if (articleFinded) updateArticle(articleFinded, article, sucursal.siglas);
+                    }
+                });
+                
+                return reduction;
+            }, { table: [], estatus: { VC: false, ER: false, SY: false, SC: false } });
+            response.data = tableArticles.table;
+            response.estatus = tableArticles.estatus;
+
+        } else {
+            const conexion = getConnectionFrom(sucursal);
+            response = await getCurrentsArticles(conexion, sucursal, FechaDesde);
+        }
         if (!response.success) return createResponse(400, response)
         response.count = response.data.length;
         return createResponse(200, response)
