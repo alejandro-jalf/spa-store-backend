@@ -97,16 +97,16 @@ const utils = (() => {
             { name: 'ZARAGOZA', connection: connectionZaragoza },
             { name: 'VICTORIA', connection: connectionVictoria },
             { name: 'ENRIQUEZ', connection: connectionEnriquez },
-            { name: 'TORTILLERIA F.', connection: connectionTortilleriaAcayucan },
-            { name: 'OLUTA', connection: connectionOluta },
+            // { name: 'TORTILLERIA F.', connection: connectionTortilleriaAcayucan },
+            // { name: 'OLUTA', connection: connectionOluta },
             { name: 'SAYULA', connection: connectionSayula },
-            { name: 'SAYULA T.', connection: connectionSayulaT },
-            { name: 'JALTIPAN', connection: connectionJaltipan },
+            // { name: 'SAYULA T.', connection: connectionSayulaT },
+            // { name: 'JALTIPAN', connection: connectionJaltipan },
             { name: 'BODEGA', connection: connectionBodega },
             { name: 'SOCONUSCO', connection: connectionSoconusco },
             { name: 'SOCONUSCO B', connection: connectionSoconusco },
-            { name: 'SANANDRES', connection: connectionSanAndres },
-            { name: 'SANANDRESP', connection: connectionSanAndresPromotora },
+            // { name: 'SANANDRES', connection: connectionSanAndres },
+            // { name: 'SANANDRESP', connection: connectionSanAndresPromotora },
         ]
         return []
     }
